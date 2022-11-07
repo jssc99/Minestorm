@@ -10,9 +10,9 @@ void appInit(App *app)
     *app = (App){0};    
 }
 
-void drawPolygon(Point center, unsigned int sides, float radius, float angleOffset, unsigned int color)
+void drawPolygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
-    Point point[sides];
+    Point2 point[sides];
     point[0].x = radius * sinf(angleOffset) + center.x;
     point[0].y = radius * cosf(angleOffset) + center.y;
     cvPathLineTo(point[0].x, point[0].y);
