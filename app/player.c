@@ -9,10 +9,9 @@ void player_init(Player p, int x, int y)
     p.speed = 0;
 }
 
-// draws the player
-void draw_player(Player p, unsigned int color, float sz) 
+void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
-   Point2 point[sides];
+    Point2 point[sides];
     point[0].x = radius * sinf(angleOffset) + center.x;
     point[0].y = radius * cosf(angleOffset) + center.y;
     cvPathLineTo(point[0].x, point[0].y);
@@ -29,7 +28,12 @@ void draw_player(Player p, unsigned int color, float sz)
         cvPathLineTo(point[i].x, point[i].y);
     }
     cvPathStroke(color, 1);
+}
 
-    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing; 
+// draws the player
+void draw_player(Player p, unsigned int color, float sz) 
+{
+   draw_Polygon(p.axis.origin, 3, normVector2(addVector2(p.axis.x,p.axis.y)),0,color);
+//    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing; 
     return;
 }
