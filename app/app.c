@@ -10,6 +10,7 @@ void appInit(App *app)
     *app = (App){0};
 }
 
+/*
 void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
@@ -30,7 +31,7 @@ void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOf
     }
     cvPathStroke(color, 1);
 }
-
+*/
 void appUpdate(App *app)
 {
     ImGuiIO *io = igGetIO();
@@ -38,8 +39,8 @@ void appUpdate(App *app)
     int height = io->DisplaySize.y;
     cvSetCoordinateSystemFromScreenSpace(
         0, 0,      // origin
-        10.f, 0.f, // right
-        0.f, 10.f  // top
+        100.f, 0.f, // right
+        0.f, 100.f  // top
     );
 }
 

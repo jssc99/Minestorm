@@ -1,7 +1,7 @@
 #include "player.h"
 
 // Initialise Player at position(x,y) First time think about setting lives to 3.
-int player_init(Player p, int x, int y)
+void player_init(Player p, int x, int y)
 {
     p.axis = (Axis2){(x, y), (1, 0), (0, 1)};
     p.moveLine = (Vector2){1, 1};
@@ -10,8 +10,26 @@ int player_init(Player p, int x, int y)
 }
 
 // draws the player
-int draw_player(Player p)
+void draw_player(Player p, unsigned int color, float sz) 
 {
-    
-    return 0;
+   Point2 point[sides];
+    point[0].x = radius * sinf(angleOffset) + center.x;
+    point[0].y = radius * cosf(angleOffset) + center.y;
+    cvPathLineTo(point[0].x, point[0].y);
+
+    float angle = M_PI * 2 / (float)sides;
+    float baseX = point[0].x;
+    float baseY = point[0].y;
+    for (int i = 1; i < sides; i++)
+    {
+        float c = cosf(angle * i);
+        float s = sinf(angle * i);
+        point[i].x = (baseX - center.x) * c - (baseY - center.y) * s + center.x;
+        point[i].y = (baseX - center.x) * s + (baseY - center.y) * c + center.y;
+        cvPathLineTo(point[i].x, point[i].y);
+    }
+    cvPathStroke(color, 1);
+
+    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing; 
+    return;
 }

@@ -8,3 +8,6 @@ typedef struct Player
     float speed;
     int lives;
 }Player;
+
+void player_init(Player p, int x, int y);
+void draw_player(Player p);
