@@ -5,9 +5,13 @@
 
 #include "app.h"
 
+Enemy enemy;
+Player player;
+
 void appInit(App *app)
 {
     *app = (App){0};
+    enemy = init_enemy(500, 400, SMALL, FLOATING);
 }
 
 /*
@@ -32,16 +36,20 @@ void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOf
     cvPathStroke(color, 1);
 }
 */
+
 void appUpdate(App *app)
 {
     ImGuiIO *io = igGetIO();
     int width = io->DisplaySize.x;
-    int height = io->DisplaySize.y; /*
-     cvSetCoordinateSystemFromScreenSpace(
-         0, 0,      // origin
-         100.f, 0.f, // right
-         0.f, 100.f  // top
-     );*/
+    int height = io->DisplaySize.y;
+    /*
+    cvSetCoordinateSystemFromScreenSpace(
+        0, 0,      // origin
+        100.f, 0.f, // right
+        0.f, 100.f  // top
+    );*/
+
+    draw_enemy(enemy);
 }
 
 void appShutdown(App *app)

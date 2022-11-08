@@ -1,4 +1,5 @@
 #include "Tools/axis.h"
+#include <stdbool.h>
 
 typedef enum enemyType
 {
@@ -20,11 +21,11 @@ typedef enum enemySize
 typedef struct Enemy
 {
     Axis2 location;
-    _Bool isBorn;
+    bool isBorn;
     float speed;
     enemyType type;
     enemySize size;
 } Enemy;
 
-int draw_enemy(Enemy *enemy);
-Enemy *init_enemy(float x, float y, enemySize size, enemyType type);
+int draw_enemy(Enemy enemy);
+Enemy init_enemy(float x, float y, enemyType type, enemySize size);
