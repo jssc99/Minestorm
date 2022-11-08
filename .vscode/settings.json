@@ -3,6 +3,9 @@
         "stdbool.h": "c",
         "matrix.h": "c",
         "cimgui.h": "c",
-        "axis.h": "c"
+        "axis.h": "c",
+        "canvas.h": "c",
+        "app.h": "c",
+        "player.h": "c"
     }
 }

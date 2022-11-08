@@ -1,4 +1,5 @@
 #pragma once
+#include <math.h>
 typedef struct Float2
 {
     float x;

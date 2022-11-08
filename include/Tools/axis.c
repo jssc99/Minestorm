@@ -21,7 +21,7 @@ Axis2 scaleAxis2(Axis2 a, float ratio)
 Axis2 rotateAxis2(Axis2 a, float angle)
 {
     Axis2 ra = {a.origin,
-                rotatePoint2(a.origin, a.x, angle),  // x
-                rotatePoint2(a.origin, a.y, angle)}; // y
+                rotatePoint2((Float2){0,0}, a.x, angle),  // x
+                rotatePoint2((Float2){0,0}, a.y, angle)}; // y
     return ra;
 }

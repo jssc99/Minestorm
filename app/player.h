@@ -12,3 +12,4 @@ typedef struct Player
 Player player_init(Player p, float x, float y);
 void draw_player(Player p, unsigned int color, float sz);
 Player rotate_player(Player p, float angle);
+Player player_update(Player p);
