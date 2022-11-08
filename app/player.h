@@ -7,7 +7,7 @@ typedef struct Player
     Vector2 moveLine;
     float speed;
     int lives;
-}Player;
+} Player;
 
 void player_init(Player p, int x, int y);
-void draw_player(Player p);
+void draw_player(Player p, unsigned int color, float sz);

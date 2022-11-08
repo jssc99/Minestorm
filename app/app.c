@@ -36,12 +36,12 @@ void appUpdate(App *app)
 {
     ImGuiIO *io = igGetIO();
     int width = io->DisplaySize.x;
-    int height = io->DisplaySize.y;
-    cvSetCoordinateSystemFromScreenSpace(
-        0, 0,      // origin
-        100.f, 0.f, // right
-        0.f, 100.f  // top
-    );
+    int height = io->DisplaySize.y; /*
+     cvSetCoordinateSystemFromScreenSpace(
+         0, 0,      // origin
+         100.f, 0.f, // right
+         0.f, 100.f  // top
+     );*/
 }
 
 void appShutdown(App *app)

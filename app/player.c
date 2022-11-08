@@ -1,5 +1,8 @@
 #include "player.h"
 
+#include <math.h>
+#include <canvas.h>
+
 // Initialise Player at position(x,y) First time think about setting lives to 3.
 void player_init(Player p, int x, int y)
 {
@@ -31,9 +34,9 @@ void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOf
 }
 
 // draws the player
-void draw_player(Player p, unsigned int color, float sz) 
+void draw_player(Player p, unsigned int color, float sz)
 {
-   draw_Polygon(p.axis.origin, 3, normVector2(addVector2(p.axis.x,p.axis.y)),0,color);
-//    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing; 
+    draw_Polygon(p.axis.origin, 3, normVector2(addVector2(p.axis.x, p.axis.y)), 0, color);
+    //    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing;
     return;
 }

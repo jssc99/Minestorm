@@ -10,11 +10,12 @@
 int main()
 {
     // Init glfw
-    GLFWwindow* window = NULL;
+    GLFWwindow *window = NULL;
     {
         if (glfwInit() != GLFW_TRUE)
         {
-            const char* error; glfwGetError(&error);
+            const char *error;
+            glfwGetError(&error);
             fprintf(stderr, "glfwInit() failed: %s\n", error);
         }
 
@@ -22,7 +23,8 @@ int main()
         window = glfwCreateWindow(1000, 800, "Minestorm", NULL, NULL);
         if (window == NULL)
         {
-            const char* error; glfwGetError(&error);
+            const char *error;
+            glfwGetError(&error);
             fprintf(stderr, "glfwCreateWindow() failed: %s\n", error);
         }
         glfwMakeContextCurrent(window);
@@ -45,7 +47,7 @@ int main()
         cvNewFrame();
 
         appUpdate(&app);
-        
+
         // End
         cvEndFrame();
         glfwSwapBuffers(window);
