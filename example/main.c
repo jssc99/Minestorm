@@ -19,7 +19,7 @@ int main()
         }
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        window = glfwCreateWindow(1000, 800, "Canvas", NULL, NULL);
+        window = glfwCreateWindow(1000, 800, "Minestorm", NULL, NULL);
         if (window == NULL)
         {
             const char* error; glfwGetError(&error);
