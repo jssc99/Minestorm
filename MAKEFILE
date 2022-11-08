@@ -4,7 +4,7 @@ CPPFLAGS=-MMD
 LDFLAGS=-O0 -g -Wall -Wextra -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-variable
 LDLIBS=
 
-OBJS=minestorm.o
+OBJS=main.o
 DEPS=$(OBJS:.o=.d)
 
 .PHONY: all clean
@@ -16,7 +16,7 @@ all: $(TESTS)
 %.o: %.c
 	gcc -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
-%:  minestorm.o
+%:  main.o
 	gcc $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
