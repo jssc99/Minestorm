@@ -1,0 +1,3 @@
+gcc Tools/axis.c Tools/matrix.c Tools/vectors.c Tools/points.c -c
+
+ar rcs toolbox.a axis.o matrix.o vectors.o points.o
