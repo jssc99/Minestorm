@@ -306,8 +306,8 @@ int geogebra3dScriptOpen(void)
 
 int geogebra3dScriptClose(char startPoint, char endPoint)
 {
-    if(!startPoint)
-    fclose(GEOGEBRA3);
+    if (!startPoint)
+        fclose(GEOGEBRA3);
     fprintf(GEOGEBRA3, "}\n\n");
     for (char c = startPoint; c <= endPoint; c++)
     {

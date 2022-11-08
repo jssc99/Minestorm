@@ -1,6 +1,5 @@
-#include <stdbool.h>
-#include <math.h>
 #include "player.h"
+#include "enemy.h"
 
 #define TOLERANCE 0.00001
 

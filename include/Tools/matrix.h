@@ -1,17 +1,18 @@
+#pragma once
+
 #include "vectors.h"
 
 typedef struct Matrix2
 {
     Vector2 a;
     Vector2 b;
-}Matrix2;
+} Matrix2;
 typedef struct Matrix3
 {
     Vector3 a;
     Vector3 b;
     Vector3 c;
-}Matrix3;
-
+} Matrix3;
 
 Matrix2 rotationMatrix2(float theta);
 Matrix2 homothetyMatrix2(float a);
