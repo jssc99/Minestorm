@@ -1,12 +1,17 @@
 #include "player.h"
+#include <math.h>
+#include <canvas.h>
 
-// Initialise Player at position(x,y) First time think about setting lives to 3.
-void player_init(Player p, int x, int y)
+// Initialize Player at position(x,y) First time think about setting lives to 3.
+Player player_init(Player p, float x, float y)
 {
-    p.axis = (Axis2){(x, y), (1, 0), (0, 1)};
+    p.axis = (Axis2){{x, y},
+                     {1, 0},
+                     {0, 1}};
     p.moveLine = (Vector2){1, 1};
     p.targetLine = p.moveLine;
     p.speed = 0;
+    return p;
 }
 
 void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
@@ -30,10 +35,18 @@ void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOf
     cvPathStroke(color, 1);
 }
 
-// draws the player
-void draw_player(Player p, unsigned int color, float sz) 
+// Draw the player
+void draw_player(Player p, unsigned int color, float sz)
 {
-   draw_Polygon(p.axis.origin, 3, normVector2(addVector2(p.axis.x,p.axis.y)),0,color);
-//    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing; 
+    //sz = normVector2(addVector2(p.axis.x,p.axis.y)); //Test
+    draw_Polygon(p.axis.origin, 3, sz, 0, color);
+    //    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing;
     return;
+}
+
+//Rotate the player
+Player rotate_player(Player p, float angle)
+{
+    p.axis = rotateAxis2(p.axis, angle);
+    return p;
 }

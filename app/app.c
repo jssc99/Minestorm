@@ -8,6 +8,8 @@
 void appInit(App *app)
 {
     *app = (App){0};
+    app->player1 = player_init(app->player1, 2.5, 2.5);
+    app->player1.lives = 3;
 }
 
 /*
@@ -38,10 +40,17 @@ void appUpdate(App *app)
     int width = io->DisplaySize.x;
     int height = io->DisplaySize.y;
     cvSetCoordinateSystemFromScreenSpace(
-        0, 0,      // origin
+        0, 0,       // origin
         100.f, 0.f, // right
         0.f, 100.f  // top
     );
+    draw_player(app->player1, CV_COL32(0,255,255,255), 0.1);
+    if(igIsKeyDown(ImGuiKey_D))
+    {
+        app->player1 = rotate_player(app->player1, M_PI/6);
+    }
+
+    
 }
 
 void appShutdown(App *app)

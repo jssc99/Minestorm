@@ -6,6 +6,7 @@
 
 typedef struct App
 {
+    Player player1;
 } App;
 
 void appInit(App *app);
