@@ -1,7 +1,6 @@
 {
     "files.associations": {
         "stdbool.h": "c",
-        "points.h": "c",
-        "vectors.h": "c"
+        "matrix.h": "c"
     }
 }

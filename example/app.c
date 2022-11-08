@@ -7,7 +7,7 @@
 
 void appInit(App *app)
 {
-    *app = (App){0};    
+    *app = (App){0};
 }
 
 void drawPolygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
@@ -37,9 +37,9 @@ void appUpdate(App *app)
     int width = io->DisplaySize.x;
     int height = io->DisplaySize.y;
     cvSetCoordinateSystemFromScreenSpace(
-        width / 2.f, height / 2.f, // origin
-        20.f, 0.f,                 // right
-        0.f, -20.f                 // top
+        0, height - 1, // origin
+        20.f, 0.f,     // right
+        0.f, -20.f     // top
     );
 }
 
