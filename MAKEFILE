@@ -1,0 +1,23 @@
+CFLAGS=-O0 -g -Wall -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration -Iinclude
+CFLAGS+=-Wno-unused-variable -Wno-deprecated-declarations
+CPPFLAGS=-MMD
+LDFLAGS=-O0 -g -Wall -Wextra -Wno-deprecated-declarations -Wno-unused-parameter -Wno-unused-variable
+LDLIBS=
+
+OBJS=minestorm.o
+DEPS=$(OBJS:.o=.d)
+
+.PHONY: all clean
+
+all: $(TESTS)
+
+-include $(DEPS)
+
+%.o: %.c
+	gcc -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+
+%:  minestorm.o
+	gcc $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ $(LDLIBS) -o $@
+
+clean:
+	rm -f $(OBJS) $(DEPS)
