@@ -10,7 +10,7 @@ void appInit(App *app)
     *app = (App){0};
 }
 
-void drawPolygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
+void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
     point[0].x = radius * sinf(angleOffset) + center.x;
