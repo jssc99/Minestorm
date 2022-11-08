@@ -1,6 +1,6 @@
 #include "Tools/axis.h"
 
-enum type_ennemy
+enum type_enemy
 {
     FLOATING,
     FIREBALL_MINE,
@@ -10,19 +10,20 @@ enum type_ennemy
     MINELAYER
 };
 
-enum size_ennemy
+enum size_enemy
 {
     SMALL,
     MEDIUM,
     BIG
 };
 
-typedef struct ennemy
+typedef struct Enemy
 {
     Axis2 location;
     bool born;
-    type_ennemy type;
-    size_ennemy size;
+    type_enemy type;
+    size_enemy size;
     float speed;
-} ennemy;
+} Enemy;
 
+void drawEnemy(Enemy enemy);
