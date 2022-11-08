@@ -1,7 +1,5 @@
 #include "player.h"
-#include <math.h>
 #include <canvas.h>
-# define M_PI 3.14159265359
 
 // Initialize Player at position(x,y) First time think about setting lives to 3.
 Player player_init(Player p, float x, float y)
