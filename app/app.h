@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "Tools/matrix.h"
+#include "player.c"
 
 #define TOLERANCE 0.00001
 
