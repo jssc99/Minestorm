@@ -1,16 +1,14 @@
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include <cimgui.h>
+#include "player.h"
 
-#include <canvas.h>
-
-#include "app.h"
-
-void appInit(App *app)
+// Initialise Player at position(x,y) First time think about setting lives to 3.
+void player_init(Player p, int x, int y)
 {
-    *app = (App){0};
+    p.axis = (Axis2){(x, y), (1, 0), (0, 1)};
+    p.moveLine = (Vector2){1, 1};
+    p.targetLine = p.moveLine;
+    p.speed = 0;
 }
 
-/*
 void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
@@ -31,20 +29,11 @@ void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOf
     }
     cvPathStroke(color, 1);
 }
-*/
-void appUpdate(App *app)
-{
-    ImGuiIO *io = igGetIO();
-    int width = io->DisplaySize.x;
-    int height = io->DisplaySize.y;
-    cvSetCoordinateSystemFromScreenSpace(
-        0, 0,      // origin
-        100.f, 0.f, // right
-        0.f, 100.f  // top
-    );
-}
 
-void appShutdown(App *app)
+// draws the player
+void draw_player(Player p, unsigned int color, float sz) 
 {
-    (void)app; // TOREMOVE: Silence unused parameter ‘app’ warning
+   draw_Polygon(p.axis.origin, 3, normVector2(addVector2(p.axis.x,p.axis.y)),0,color);
+//    AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing; 
+    return;
 }
