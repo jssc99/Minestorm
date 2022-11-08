@@ -9,7 +9,7 @@ void appInit(App *app)
 {
     *app = (App){0};    
 }
-// com a virer
+
 void drawPolygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
