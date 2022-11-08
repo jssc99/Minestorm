@@ -17,7 +17,7 @@ void drawPolygon(Point2 center, unsigned int sides, float radius, float angleOff
     point[0].y = radius * cosf(angleOffset) + center.y;
     cvPathLineTo(point[0].x, point[0].y);
 
-    float angle = PI * 2 / (float)sides;
+    float angle = M_PI * 2 / (float)sides;
     float baseX = point[0].x;
     float baseY = point[0].y;
     for (int i = 1; i < sides; i++)
