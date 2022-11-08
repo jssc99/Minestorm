@@ -1,14 +1,11 @@
 #include "enemy.h"
 
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include "../include/cimgui.h"
+#include <canvas.h>
 
 #define COLOR (255, 255, 255, 255)
 
 void draw_floating_mine(Enemy *enemy)
 {
-    ImDrawList *draw_list = igGetWindowDrawList();
-    // draw_list = AddTriangleFilled(ImVec2(x+sz*0.5f, y), ImVec2(x+sz,y+sz-0.5f), ImVec2(x,y+sz-0.5f), COLOR); x += sz+spacing;
 }
 
 void draw_fireball_mine(Enemy *enemy)
@@ -78,7 +75,7 @@ int draw_enemy(Enemy *enemy)
 Enemy *init_enemy(float x, float y, enemySize size, enemyType type)
 {
     Enemy *enemy;
-    enemy->isBorn = false;
+    enemy->isBorn = 0;
     enemy->type = type;
     enemy->location = (Axis2){{x, y}, {1.f, 0.f}, {0.f, 1.f}};
     enemy->size = size;
