@@ -2,7 +2,7 @@
 #include "draw_enemy.c"
 
 // draw enemy depending on its type & size (see enemyType & enemySize)
-int draw_enemy(Enemy enemy)
+int draw_any_enemy(Enemy enemy)
 {
     switch (enemy.type)
     {
@@ -23,7 +23,10 @@ int draw_enemy(Enemy enemy)
         return 0;
 
     case FIREBALL:
-        draw_fireball((Point2)enemy.location.origin, 10, get_size_multiplicator(MEDIUM), CV_COL32_WHITE);
+        draw_fireball((Point2)enemy.location.origin,
+                      10,
+                      get_size_multiplicator(MEDIUM),
+                      CV_COL32_WHITE);
         return 0;
 
     case MINELAYER:
