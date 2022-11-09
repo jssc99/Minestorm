@@ -62,6 +62,21 @@ void draw_player(Player p, unsigned int color, float sz)
     //      AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing;
     return;
 }
+//draw 1 bullet
+void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color)
+{
+    float angle = M_PI * 2.f / (float)sides;
+    for (int i = 0; i < sides; i++)
+    {
+        Point2 point = {radius + center.x, center.y};
+        point = rotatePoint2(center, point, angle * i);
+        cvPathLineTo_point(point);
+    }
+    cvPathFill(color);
+    // cvPathStroke(color, 1);
+}
+
+
 
 // Rotate the player
 Player rotate_player(Player p, float angle)
@@ -69,7 +84,6 @@ Player rotate_player(Player p, float angle)
     p.axis = rotateAxis2(p.axis, angle);
     return p;
 }
-
 Player update_player(Player p)
 {
     if(p.axis.origin.x > 1000 - p.size)
