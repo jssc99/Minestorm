@@ -3,7 +3,7 @@
 #include <math.h> //-lm to compile
 #include "points.h"
 
-const int DEBUG_POINTS = 1;
+const int DEBUG_POINTS = 0;
 const float tol = 0.00001;
 FILE *GEOGEBRA;
 FILE *GEOGEBRA3;

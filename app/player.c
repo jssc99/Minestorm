@@ -1,16 +1,20 @@
 #include "player.h"
 #include <canvas.h>
-#define DEBUG_PLAYER 1
+
+const bool DEBUG_PLAYER = true;
+const float MAX_SPEED_SHIP = 0.6;
+const float ACCELERATION = 0.01;
 
 // Initialize Player at position(x,y) First time think about setting lives to 3.
-Player player_init(Player p, float x, float y)
+Player player_init(Player p, float x, float y, float size)
 {
+    p = (Player){0};
     p.axis = (Axis2){{x, y},
-                     {-40, 0},
-                     {0, -40}};
-    p.moveLine = p.axis.y;
+                     {0, -size},
+                     {size, 0}};
+    p.moveLine = p.axis.x;
     p.targetLine = p.moveLine;
-    p.speed = 0;
+    p.size = size;
     return p;
 }
 
@@ -39,16 +43,17 @@ void draw_circle(Point2 center, unsigned int sides, float radius, float angleOff
 void draw_player(Player p, unsigned int color, float sz)
 {
     Point2 origin = p.axis.origin;
-    Point2 x = addVector2(origin, p.axis.x);
-    Point2 y = addVector2(origin, p.axis.y);
-    Point2 z = addVector2(origin, p.targetLine);
-    // sz = sz * normVector2(addVector2(p.axis.x, p.axis.y)); // Test
-    draw_circle(origin, 3, sz, -M_PI / 6 + getAngleVector2(p.axis.y, (Float2){1, 0}), color);
-    if(DEBUG_PLAYER)
+    draw_circle(origin, 3, sz, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
+    if (DEBUG_PLAYER)
     {
-    cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(0, 255, 0, 255));
-    cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 0, 255, 255));
-    cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 0, 255));
+        Point2 x = addVector2(origin, multVector2(p.axis.x, 2.0));
+        Point2 y = addVector2(origin, multVector2(p.axis.y, 2.0));
+        Point2 z = addVector2(origin, multVector2(p.moveLine, 3.0));
+        Point2 dz = addVector2(origin, multVector2(p.moveLine, 3.0+(p.speed*2.0)));
+        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(0, 0, 255, 255));    // moveline
+        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  speed
+        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255));  // X axis aka targetline
+        cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
     }
     // cvAddLine(p.axis.origin.x, p.axis.origin.y, p.axis.origin.x + 30 * p.axis.y.x, p.axis.origin.x + 30 * p.axis.y.y, CV_COL32(0, 0, 255, 255));
     //  cvAddLine(400, 300, 440, 300, CV_COL32(255, 0, 0, 255));
@@ -66,23 +71,31 @@ Player rotate_player(Player p, float angle)
 
 Player update_player(Player p)
 {
-    p.targetLine = p.axis.y; // multVector2(addVector2(p.axis.x,p.axis.y), 0.5);
+    p.targetLine = p.axis.x; // multVector2(addVector2(p.axis.x,p.axis.y), 0.5);
     p.axis = translateAxis2(p.axis, multVector2(p.moveLine, p.speed));
     p.speed *= 0.99;
     return p;
 }
-//Turn the player to the left igIsKeyDown(ImGuiKey_D)
+// Turn the player to the left igIsKeyDown(ImGuiKey_D)
 Player turnleft_player(Player p)
 {
-        p = rotate_player(p, -M_PI / 24);
-        p.moveLine = p.axis.y;
+    p = rotate_player(p, -M_PI / 24);
+    // p.moveLine = p.axis.x;
     return p;
 }
 
-//Turn the player to the right igIsKeyDown(ImGuiKey_G)
+// Turn the player to the right igIsKeyDown(ImGuiKey_G)
 Player turnright_player(Player p)
 {
-        p = rotate_player(p, M_PI / 24);
-        p.moveLine = p.axis.y;
+    p = rotate_player(p, M_PI / 24);
+    // p.moveLine = p.axis.x;
+    return p;
+}
+
+Player accelerate_player(Player p)
+{
+    if (p.speed < MAX_SPEED_SHIP)
+        p.speed += ACCELERATION;
+    p.moveLine = p.targetLine;
     return p;
 }

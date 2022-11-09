@@ -103,7 +103,6 @@ float getAngleVector2(Vector2 v1, Vector2 v2)
     float angle = acosf(cos);
     if (determinantVector2(v1, v2) >= 0)
     {
-        printf("%f", cos);
         return angle;
     }
     return -angle;
