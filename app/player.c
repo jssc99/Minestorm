@@ -1,19 +1,20 @@
 #include "player.h"
 #include <canvas.h>
+#define DEBUG_PLAYER 1
 
 // Initialize Player at position(x,y) First time think about setting lives to 3.
 Player player_init(Player p, float x, float y)
 {
     p.axis = (Axis2){{x, y},
-                     {40, 0},
-                     {0, 40}};
+                     {-40, 0},
+                     {0, -40}};
     p.moveLine = p.axis.y;
     p.targetLine = p.moveLine;
     p.speed = 0;
     return p;
 }
 
-void draw_Polygon(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
+void draw_circle(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
     point[0].x = radius * sinf(angleOffset) + center.x;
@@ -42,10 +43,13 @@ void draw_player(Player p, unsigned int color, float sz)
     Point2 y = addVector2(origin, p.axis.y);
     Point2 z = addVector2(origin, p.targetLine);
     // sz = sz * normVector2(addVector2(p.axis.x, p.axis.y)); // Test
-    draw_Polygon(origin, 3, sz, -M_PI/6 + getAngleVector2(p.axis.y,(Float2){1,0}), color);
+    draw_circle(origin, 3, sz, -M_PI / 6 + getAngleVector2(p.axis.y, (Float2){1, 0}), color);
+    if(DEBUG_PLAYER)
+    {
     cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(0, 255, 0, 255));
     cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 0, 255, 255));
     cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 0, 255));
+    }
     // cvAddLine(p.axis.origin.x, p.axis.origin.y, p.axis.origin.x + 30 * p.axis.y.x, p.axis.origin.x + 30 * p.axis.y.y, CV_COL32(0, 0, 255, 255));
     //  cvAddLine(400, 300, 440, 300, CV_COL32(255, 0, 0, 255));
     //  cvAddLine(400, 300, 400, 330, CV_COL32(0, 0, 255, 255));
@@ -60,11 +64,25 @@ Player rotate_player(Player p, float angle)
     return p;
 }
 
-Player player_update(Player p)
+Player update_player(Player p)
 {
     p.targetLine = p.axis.y; // multVector2(addVector2(p.axis.x,p.axis.y), 0.5);
-    //p.moveLine = p.targetLine;
     p.axis = translateAxis2(p.axis, multVector2(p.moveLine, p.speed));
     p.speed *= 0.99;
+    return p;
+}
+//Turn the player to the left igIsKeyDown(ImGuiKey_D)
+Player turnleft_player(Player p)
+{
+        p = rotate_player(p, -M_PI / 24);
+        p.moveLine = p.axis.y;
+    return p;
+}
+
+//Turn the player to the right igIsKeyDown(ImGuiKey_G)
+Player turnright_player(Player p)
+{
+        p = rotate_player(p, M_PI / 24);
+        p.moveLine = p.axis.y;
     return p;
 }

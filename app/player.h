@@ -1,4 +1,5 @@
 #include "Tools/axis.h"
+#include <stdbool.h>
 
 typedef struct Player
 {
@@ -12,4 +13,6 @@ typedef struct Player
 Player player_init(Player p, float x, float y);
 void draw_player(Player p, unsigned int color, float sz);
 Player rotate_player(Player p, float angle);
-Player player_update(Player p);
+Player update_player(Player p);
+Player turnleft_player(Player p);
+Player turnright_player(Player p);
