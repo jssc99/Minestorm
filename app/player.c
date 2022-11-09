@@ -2,7 +2,7 @@
 #include <canvas.h>
 
 const bool DEBUG_PLAYER = true;
-const float MAX_SPEED_SHIP = 0.6;
+const float MAX_SPEED_SHIP = 0.5;
 const float ACCELERATION = 0.01;
 
 // Initialize Player at position(x,y) First time think about setting lives to 3.
@@ -14,7 +14,7 @@ Player player_init(Player p, float x, float y, float size)
                      {size, 0}};
     p.moveLine = p.axis.x;
     p.targetLine = p.moveLine;
-    p.size = size;
+    p.size = size;  
     return p;
 }
 
@@ -48,10 +48,10 @@ void draw_player(Player p, unsigned int color, float sz)
     {
         Point2 x = addVector2(origin, multVector2(p.axis.x, 2.0));
         Point2 y = addVector2(origin, multVector2(p.axis.y, 2.0));
-        Point2 z = addVector2(origin, multVector2(p.moveLine, 3.0));
-        Point2 dz = addVector2(origin, multVector2(p.moveLine, 3.0+(p.speed*2.0)));
-        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(0, 0, 255, 255));    // moveline
-        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  speed
+        Point2 z = addVector2(origin, multVector2(p.moveLine, 2.0));
+        Point2 dz = addVector2(origin, multVector2(p.moveLine, 2.0+(p.speed*3.0)));
+        cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255));  // speed
+        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  moveline
         cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255));  // X axis aka targetline
         cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
     }
@@ -72,7 +72,11 @@ Player rotate_player(Player p, float angle)
 Player update_player(Player p)
 {
     p.targetLine = p.axis.x; // multVector2(addVector2(p.axis.x,p.axis.y), 0.5);
-    p.axis = translateAxis2(p.axis, multVector2(p.moveLine, p.speed));
+    //Deceleration
+    p.inertia = multVector2(p.inertia,0.99); 
+    p.axis = translateAxis2(p.axis, p.inertia);
+    //p.axis = translateAxis2(p.axis, multVector2(p.moveLine, p.speed));
+    //Deceleration
     p.speed *= 0.99;
     return p;
 }
@@ -97,5 +101,6 @@ Player accelerate_player(Player p)
     if (p.speed < MAX_SPEED_SHIP)
         p.speed += ACCELERATION;
     p.moveLine = p.targetLine;
+    p.inertia = addVector2(p.inertia,multVector2(p.moveLine,ACCELERATION));
     return p;
 }
