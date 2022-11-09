@@ -50,7 +50,7 @@ void draw_player(Player p, unsigned int color, float sz)
         Point2 x = addVector2(origin, multVector2(p.axis.x, 2.0));
         Point2 y = addVector2(origin, multVector2(p.axis.y, 2.0));
         Point2 z = addVector2(origin, multVector2(p.inertia, p.size / 2));
-        Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed/2));
+        Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed / 2));
         cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
         cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
         cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255));   // X axis aka targetline
@@ -62,7 +62,7 @@ void draw_player(Player p, unsigned int color, float sz)
     //      AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing;
     return;
 }
-//draw 1 bullet
+// draw 1 bullet
 void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color)
 {
     float angle = M_PI * 2.f / (float)sides;
@@ -76,24 +76,31 @@ void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int c
     // cvPathStroke(color, 1);
 }
 
-
-
 // Rotate the player
 Player rotate_player(Player p, float angle)
 {
     p.axis = rotateAxis2(p.axis, angle);
     return p;
 }
+// Check collision between a sphere and the screen and replace the object
+void SS_collision_border_replace(Point2 *p, float size)
+{
+    if (p->x > 1000 - size)
+        p->x = size;
+    else if (p->x < size)
+        p->x = 1000 - size;
+    if (p->y > 800 - size)
+        p->y = size;
+    else if (p->y < size)
+        p->y = 800 - size;
+}
+
+// Update the player each frame
 Player update_player(Player p)
 {
-    if(p.axis.origin.x > 1000 - p.size)
-    p.axis.origin.x = p.size;
-    else if(p.axis.origin.x < p.size)
-    p.axis.origin.x = 1000 - p.size;
-    if (p.axis.origin.y > 800 - p.size)
-    p.axis.origin.y = p.size;
-    else if(p.axis.origin.y < p.size)
-    p.axis.origin.y = 800 - p.size;
+    /*if (SS_collision_rectangle(p.axis.origin, p.size, 0, 0, 1000, 800))
+        p = player_init(p, 500, 400, 30);*/
+    SS_collision_border_replace(&p.axis.origin, p.size);
     p.targetLine = p.axis.x; // multVector2(addVector2(p.axis.x,p.axis.y), 0.5);
     // Deceleration
     p.speed = normVector2(p.inertia);
@@ -102,6 +109,26 @@ Player update_player(Player p)
     p.axis = translateAxis2(p.axis, p.inertia);
 
     return p;
+}
+
+// Create a bullet
+Bullet init_bullet(Player p)
+{
+    Bullet b;
+    b.direction = p.targetLine;
+    b.location = addVector2(p.axis.origin, p.targetLine);
+    b.size = p.size / 10;
+    b.lifespan = (800 / p.size) * 4 / 5;
+    return b;
+}
+
+// Bullet evolution
+Bullet update_bullet(Bullet b)
+{
+    b.location = addVector2(b.location, b.direction);
+    SS_collision_border_replace(&b.location, b.size);
+    b.lifespan--;
+    return b;
 }
 // Turn the player to the left igIsKeyDown(ImGuiKey_D)
 Player turnleft_player(Player p)
@@ -125,9 +152,17 @@ Player accelerate_player(Player p)
         p.speed += ACCELERATION;
     }
     else
-        p.inertia = multVector2(p.inertia, MAX_SPEED_SHIP/p.speed);
+        p.inertia = multVector2(p.inertia, MAX_SPEED_SHIP / p.speed);
     p.inertia = addVector2(p.inertia, multVector2(p.targetLine, ACCELERATION));
     p.moveLine = p.targetLine;
 
     return p;
+}
+
+// Checks collision between a sphere and a rectangle
+bool SS_collision_rectangle(Point2 p, float size, float xmin, float ymin, float xmax, float ymax)
+{
+    if (p.x <= xmax - size && p.x >= xmin + size && p.y <= ymax - size && p.y >= ymin + size)
+        return false;
+    return true;
 }
