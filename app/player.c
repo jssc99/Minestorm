@@ -18,6 +18,7 @@ Player player_init(Player p, float x, float y, float size)
     return p;
 }
 
+
 void draw_circle(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
