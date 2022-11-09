@@ -7,6 +7,7 @@
         "canvas.h": "c",
         "app.h": "c",
         "player.h": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "enemy.h": "c"
     }
 }
