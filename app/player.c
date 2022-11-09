@@ -14,7 +14,7 @@ Player player_init(Player p, float x, float y, float size)
                      {size, 0}};
     p.moveLine = p.axis.x;
     p.targetLine = p.moveLine;
-    p.size = size;
+    p.size = size;  
     return p;
 }
 
