@@ -29,7 +29,7 @@ void draw_circle(Point2 center, unsigned int sides, float radius, float angleOff
     float angle = M_PI * 2 / (float)sides;
     float baseX = point[0].x;
     float baseY = point[0].y;
-    for (int i = 1; i < sides; i++)
+    for (unsigned int i = 1; i < sides; i++)
     {
         float c = cosf(angle * i);
         float s = sinf(angle * i);
@@ -66,7 +66,7 @@ void draw_player(Player p, unsigned int color, float sz)
 void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color)
 {
     float angle = M_PI * 2.f / (float)sides;
-    for (int i = 0; i < sides; i++)
+    for (unsigned int i = 0; i < sides; i++)
     {
         Point2 point = {radius + center.x, center.y};
         point = rotatePoint2(center, point, angle * i);
