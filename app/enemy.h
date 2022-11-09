@@ -1,5 +1,9 @@
+#pragma once
+
 #include "Tools/axis.h"
 #include <stdbool.h>
+#include <math.h>
+#include <canvas.h>
 
 typedef enum enemyType
 {
@@ -25,6 +29,7 @@ typedef struct Enemy
     float speed;
     enemyType type;
     enemySize size;
+    float angle;
 } Enemy;
 
 int draw_enemy(Enemy enemy);
