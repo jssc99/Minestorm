@@ -5,7 +5,7 @@ CFLAGS+=-Wno-unused-variable -Wno-deprecated-declarations
 
 LDLIBS=include/toolbox.a -Llibs/x86_64-linux-gnu -lglfw3 -lcanvas -lstdc++ -ldl -lm -lpthread
 
-OBJS=app/main.o app/app.o app/player.o app/enemy.o
+OBJS=app/main.o app/app.o app/player.o app/enemy.o app/physics.o
 DEPS=$(OBJS:.o=.d)
 
 .PHONY: all clean
