@@ -1,11 +1,41 @@
 #include "player.h"
+#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#include <cimgui.h>
 #include <canvas.h>
 
-const bool DEBUG_PLAYER = 1;
+bool DEBUG_PLAYER = 1;
 const float MAX_SPEED_SHIP = 10;
 const float ACCELERATION = 0.01;
 const float DECELERATION = 0.99;
 
+void debug_menu_player(Player *p, bool debugPlayer)
+{
+    igBegin("Player", &debugPlayer , ImGuiWindowFlags_None);
+    if (DEBUG_PLAYER && igButton("Display axis", (ImVec2){0, 0}))
+    {
+        if (p->displayAxis)
+            p->displayAxis = false;
+        else
+        {
+            p->displayAxis = true;
+        }
+    }
+    if (DEBUG_PLAYER && igButton("Display speed", (ImVec2){0, 0}))
+    {
+        if (p->displaySpeed)
+            p->displaySpeed = false;
+        else
+            p->displaySpeed = true;
+    }
+    if (DEBUG_PLAYER && igButton("Display inertia", (ImVec2){0, 0}))
+    {
+        if (p->displayInertia)
+            p->displayInertia = false;
+        else
+            p->displayInertia = true;
+    }
+    igEnd();
+}
 // Initialize Player at position(x,y) First time think about setting lives to 3.
 Player player_init(Player p, float x, float y, float size)
 {
@@ -47,20 +77,25 @@ void draw_player(Player p, unsigned int color, float sz)
     draw_circle(origin, 3, sz, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
     if (DEBUG_PLAYER)
     {
+
         Point2 x = addVector2(origin, multVector2(p.axis.x, 2.0));
         Point2 y = addVector2(origin, multVector2(p.axis.y, 2.0));
         Point2 z = addVector2(origin, multVector2(p.inertia, p.size / 2));
         Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed / 2));
-        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
-        cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
-        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255));   // X axis aka targetline
-        cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255));   //  Y axis
+        if (p.displayInertia)
+            cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
+        if (p.displaySpeed)
+            cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
+        if (p.displayAxis)
+        {
+            cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline
+            cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
+        }
     }
     // cvAddLine(p.axis.origin.x, p.axis.origin.y, p.axis.origin.x + 30 * p.axis.y.x, p.axis.origin.x + 30 * p.axis.y.y, CV_COL32(0, 0, 255, 255));
     //  cvAddLine(400, 300, 440, 300, CV_COL32(255, 0, 0, 255));
     //  cvAddLine(400, 300, 400, 330, CV_COL32(0, 0, 255, 255));
     //      AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing;
-    return;
 }
 // draw 1 bullet
 void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color)
@@ -70,7 +105,7 @@ void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int c
     {
         Point2 point = {radius + center.x, center.y};
         point = rotatePoint2(center, point, angle * i);
-        cvPathLineTo(point.x,point.y);
+        cvPathLineTo(point.x, point.y);
     }
     cvPathFill(color);
     // cvPathStroke(color, 1);
@@ -166,3 +201,38 @@ bool SS_collision_rectangle(Point2 p, float size, float xmin, float ymin, float 
         return false;
     return true;
 }
+/*
+void counter_update(App *app, float frame)
+{
+    Counter->time_updated += frame;
+    while (Counter->time_updated >= Counter->timer)
+    {
+        Counter->value++;
+        Counter->time_updated -= Counter->timer;
+    }
+    Counter->timer = 1.f / Counter->freq;
+}
+
+void candy_counter(Counter *counter, const char *text)
+{
+    float frameTime = void counter_update(Counter *Counter, float frame)
+{
+    Counter->time_updated += frame;
+    while (Counter->time_updated >= Counter->timer)
+    {
+        Counter->value++;
+        Counter->time_updated -= Counter->timer;
+    }
+    Counter->timer = 1.f / Counter->freq;
+}
+
+void candy_counter(Counter *counter, const char *text)
+{
+    float frameTime = get_f
+    pg_io_get_frame_time();
+    counter_update(counter, frameTime);
+
+
+    counter_update(counter, frameTime);
+}
+*/

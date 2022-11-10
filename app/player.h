@@ -11,6 +11,9 @@ typedef struct Player
     float size;
     float speed;
     int lives;
+    bool displayAxis;
+    bool displaySpeed;
+    bool displayInertia;
 } Player;
 
 typedef struct Bullet
@@ -30,6 +33,7 @@ Player turnleft_player(Player p);
 Player turnright_player(Player p);
 Player accelerate_player(Player p);
 void SS_collision_border_replace(Point2 *p, float size);
+void debug_menu_player(Player* p, bool debugPlayer);
 
 // Bullet
 Bullet init_bullet(Player p);
