@@ -4,6 +4,14 @@
 #include <stdbool.h>
 #include <math.h>
 #include <canvas.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX_RADIUS_MINES 6.0F
+#define FLOATING_SMALL_RADIUS 2.0F
+#define FIREBALL_MINE_SMALL_RADIUS 3.0F
+#define MAGNETIC_SMALL_RADIUS 2.5F
+#define MAGNET_FIRE_SMALL_RADIUS 4.5F
 
 typedef enum enemyType
 {
@@ -29,8 +37,11 @@ typedef struct Enemy
     float speed;
     enemyType type;
     enemySize size;
+    float kSize;
     float angle;
 } Enemy;
 
-int draw_enemy(Enemy enemy);
+
 Enemy init_enemy(float x, float y, enemyType type, enemySize size);
+int draw_any_enemy(Enemy enemy);
+int move_any_enemy(Enemy enemy);
