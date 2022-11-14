@@ -5,21 +5,7 @@ void cvPathLineTo_point(Point2 p)
     cvPathLineTo(p.x, p.y);
 }
 
-float get_size_multiplicator(enemySize size)
-{
-    switch (size)
-    {
-    case SMALL:
-        return 2.f;
-    case MEDIUM:
-        return 4.f;
-    case BIG:
-        return 6.f;
-    }
-    return 0.f;
-}
-
-void draw_fireball(Point2 center, unsigned int sides, float radius, unsigned int color)
+void draw_fireball(Point2 center, int sides, float radius, unsigned int color)
 {
     for (int i = 0; i < sides; i++)
     {
@@ -32,13 +18,13 @@ void draw_fireball(Point2 center, unsigned int sides, float radius, unsigned int
     // cvPathStroke(color, 1);
 }
 
-void draw_top(Point2 p, float size, float angle)
+void draw_magnet_line(Point2 p, float size, float angle)
 {
     Point2 top = {p.x, p.y - size * 1.6};
     cvPathLineTo_point(rotatePoint2(p, top, angle));
 }
 
-void draw_magnet(Point2 center, unsigned int sides, float radius, float angleOffset, float size, unsigned int color)
+void draw_magnet(Point2 center, int sides, float radius, float angleOffset, float size, unsigned int color)
 {
     sides++;
     for (int i = 0; i < sides; i++)
@@ -47,10 +33,10 @@ void draw_magnet(Point2 center, unsigned int sides, float radius, float angleOff
         Point2 point = {-radius + center.x, center.y};
         point = rotatePoint2(center, point, angle);
         if (i == 0)
-            draw_top(point, size, angleOffset);
+            draw_magnet_line(point, size, angleOffset);
         cvPathLineTo_point(point);
         if (i == (sides - 1))
-            draw_top(point, size, angleOffset);
+            draw_magnet_line(point, size, angleOffset);
     }
     cvPathStroke(color, 0);
 }
@@ -74,33 +60,33 @@ void draw_mine_body(Point2 center, float radius_big, float radius_small, float a
 void draw_floating_mine(Enemy enemy)
 {
     draw_mine_body(enemy.location.origin,
-                   6.f * get_size_multiplicator(enemy.size),
-                   2.f * get_size_multiplicator(enemy.size),
+                   MAX_RADIUS_MINES * enemy.kSize,
+                   FLOATING_SMALL_RADIUS * enemy.kSize,
                    enemy.angle, 3);
 }
 
 void draw_fireball_mine(Enemy enemy)
 {
     draw_mine_body(enemy.location.origin,
-                   6.f * get_size_multiplicator(enemy.size),
-                   3.f * get_size_multiplicator(enemy.size),
+                   MAX_RADIUS_MINES * enemy.kSize,
+                   FIREBALL_MINE_SMALL_RADIUS * enemy.kSize,
                    enemy.angle, 4);
-    draw_fireball((Point2)enemy.location.origin, 12, get_size_multiplicator(enemy.size), CV_COL32_WHITE);
+    draw_fireball((Point2)enemy.location.origin, 12, enemy.kSize, CV_COL32_WHITE);
 }
 
 void draw_magnetic_mine(Enemy enemy)
 {
     draw_mine_body(enemy.location.origin,
-                   6.f * get_size_multiplicator(enemy.size),
-                   2.5 * get_size_multiplicator(enemy.size),
+                   MAX_RADIUS_MINES * enemy.kSize,
+                   MAGNETIC_SMALL_RADIUS * enemy.kSize,
                    enemy.angle, 4);
-    draw_magnet((Point2)enemy.location.origin, 12, 1.2 * get_size_multiplicator(enemy.size), enemy.angle, get_size_multiplicator(enemy.size), CV_COL32_WHITE);
+    draw_magnet((Point2)enemy.location.origin, 12, 1.2 * enemy.kSize, enemy.angle, enemy.kSize, CV_COL32_WHITE);
 }
 
 void draw_magnet_fire_mine(Enemy enemy)
 {
-    float size = 6.f * get_size_multiplicator(enemy.size);
-    float sizeTop = size + 1.5 * get_size_multiplicator(enemy.size);
+    float sizeTop = MAX_RADIUS_MINES * enemy.kSize;
+    float size = MAGNET_FIRE_SMALL_RADIUS * enemy.kSize;
     Point2 center = {enemy.location.origin.x, enemy.location.origin.y};
 
     for (int i = 0; i < 4; i++)
@@ -114,14 +100,14 @@ void draw_magnet_fire_mine(Enemy enemy)
     }
     cvPathStroke(CV_COL32_WHITE, 1);
 
-    draw_fireball((Point2)enemy.location.origin, 12, 0.5 * get_size_multiplicator(enemy.size), CV_COL32_WHITE);
-    draw_magnet((Point2)enemy.location.origin, 12, 2.f * get_size_multiplicator(enemy.size), enemy.angle + M_PI / 6.f, get_size_multiplicator(enemy.size), CV_COL32_WHITE);
+    draw_fireball((Point2)enemy.location.origin, 12, enemy.kSize, CV_COL32_WHITE);
+    draw_magnet((Point2)enemy.location.origin, 12, 2.f * enemy.kSize, enemy.angle + M_PI / 6.f, enemy.kSize, CV_COL32_WHITE);
 }
 
 void draw_minelayer(Enemy enemy)
 {
     Point2 center = enemy.location.origin;
-    float size = get_size_multiplicator(MEDIUM);
+    float size = enemy.kSize;
 
     Point2 point[9] = {
         {center.x - 09.f * size, center.y + 2.f * size},
