@@ -3,13 +3,13 @@
 #include "Tools/axis.h"
 #include <stdbool.h>
 #include <math.h>
-#include <canvas.h>
+//#include <canvas.h>
 #include <stdlib.h>
 #include <time.h>
 
 #define MAX_RADIUS_MINES 6.0F
 #define FLOATING_SMALL_RADIUS 2.0F
-#define FIREBALL_MINE_SMALL_RADIUS 3.0F
+#define FIREBALL_MINE_SMALL_RADIUS 3.5F
 #define MAGNETIC_SMALL_RADIUS 2.5F
 #define MAGNET_FIRE_SMALL_RADIUS 4.5F
 
