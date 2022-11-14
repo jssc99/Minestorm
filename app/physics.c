@@ -1,7 +1,5 @@
 #include "physics.h"
 
-// SAT
-
 bool sphere_collision_SAT(Point2 center, float radius, Sat sat[], int nbSegments)
 {
     for (int i = 0; i < nbSegments; i++)
@@ -26,10 +24,11 @@ Sat* generate_SAT(Point2 p[], int nbSegments)
     return range;
 }
 
-// Checks collision between 2 spheres
-bool SS_collision_SS(Point2 p1, float size1, Point2 p2, float size2)
+// Checks collision between 2 spheres/points
+// (if radius = 1.f -> sphere becomes point)
+bool SS_collision_SS(Point2 p1, float radius1, Point2 p2, float radius2)
 {
-    if (distPoint2(p1, p2) <= size1 + size2)
+    if (distPoint2(p1, p2) <= radius1 + radius2)
         return true;
     return false;
 }
@@ -40,8 +39,9 @@ bool point_collision_rectangle(Point2 p, float xmin, float ymin, float xmax, flo
         return false;
     return true;
 }
-// Checks collision between a sphere and a rectangle
-bool SS_collision_rectangle(Point2 p, float size, float xmin, float ymin, float xmax, float ymax)
+// Checks collision between a sphere/point and a rectangle 
+// (if radius = 1.f -> sphere becomes point)
+bool SS_collision_rectangle(Point2 p, float radius, float xmin, float ymin, float xmax, float ymax)
 {
-    return point_collision_rectangle(p, xmin + size, ymin + size, xmax - size, ymax - size);
+    return point_collision_rectangle(p, xmin + radius, ymin + radius, xmax - radius, ymax - radius);
 }
