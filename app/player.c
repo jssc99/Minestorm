@@ -66,7 +66,7 @@ Player player_init(Player p, float x, float y, float size)
     return p;
 }
 
-void draw_circle(Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
+void draw_circle(Sat* sat, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
     point[0].x = radius * sinf(angleOffset) + center.x;
@@ -86,7 +86,7 @@ void draw_circle(Point2 center, unsigned int sides, float radius, float angleOff
     }
     cvPathStroke(color, 1);
 
-    // return generate_SAT(point, sides);
+    sat = generate_SAT(point, sides);
 }
 
 // Draw the player
@@ -96,14 +96,14 @@ void draw_player(Player *player, unsigned int color)
     // Player* p = player;
     Point2 origin = p.axis.origin;
     // player->sat =
-    draw_circle(origin, 3, p.size, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
+    draw_circle(&p.sat, p.axis.origin, 3, p.size, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
     if (DEBUG_PLAYER)
     {
 
         Point2 x = addVector2(origin, multVector2(p.axis.x, 2.0));
         Point2 y = addVector2(origin, multVector2(p.axis.y, 2.0));
-        Point2 z = addVector2(origin, multVector2(p.inertia, p.size / 2));
-        Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed / 2));
+        Point2 z = addVector2(origin, multVector2(p.inertia, p.size *5/ MAX_SPEED_SHIP));
+        Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed *5 / MAX_SPEED_SHIP));
 
         if (p.displayInertia)
             cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
@@ -116,8 +116,8 @@ void draw_player(Player *player, unsigned int color)
         }
         if (p.displaySS)
         {
-            draw_circle(origin, 50, p.size, 0, CV_COL32(255, 255, 255, 200));         // Surrounding sphere
-            draw_circle((Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
+            draw_circle(NULL, origin, 50, p.size, 0, CV_COL32(255, 255, 255, 200));         // Surrounding sphere
+            draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
         }
     }
     // cvAddLine(p.axis.origin.x, p.axis.origin.y, p.axis.origin.x + 30 * p.axis.y.x, p.axis.origin.x + 30 * p.axis.y.y, CV_COL32(0, 0, 255, 255));
@@ -146,36 +146,49 @@ void rotate_player(Player* p, float angle)
     return p;
 }
 // Check collision between a sphere and the screen and replace the object
-void SS_collision_border_replace(Point2 *p, float size)
+void SS_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
 {
-    if (p->x > 1000 - size)
+    if (p->x > maxScreen.x - size)
         p->x = size;
     else if (p->x < size)
-        p->x = 1000 - size;
-    if (p->y > 800 - size)
+        p->x = maxScreen.x - size;
+    if (p->y > maxScreen.y - size)
         p->y = size;
     else if (p->y < size)
-        p->y = 800 - size;
+        p->y = maxScreen.y - size;
 }
 
 // Update the player each frame
-void update_player(Player* p, float deltaTime)
+void update_player(Player* p, float deltaTime, Point2 maxScreen)
 {
+     // INPUTS
+    if (igIsKeyDown(ImGuiKey_D))
+        turnleft_player(p, deltaTime);
+    if (igIsKeyDown(ImGuiKey_G))
+        turnright_player(p, deltaTime);
+    if (igIsKeyDown(ImGuiKey_R))
+        *p = accelerate_player(*p, deltaTime);
+    //Collisions
     /*if (SS_collision_rectangle(p.axis.origin, p.size, 0, 0, 1000, 800))
         p = player_init(p, 500, 400, 30);*/
-    SS_collision_border_replace(&p->axis.origin, p->size);
-    p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
-    // Deceleration
-    p->speed = normVector2(p->inertia);
-    p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
-    // p->speed *= DECELERATION;
-    p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
-    // test collision mine
+    SS_collision_border_replace(&p->axis.origin, p->size, maxScreen);
+        // test collision mine
     if (SS_collision_SS(p->axis.origin, p->size, (Float2){500, 400}, 15))
     {
         *p = player_init(*p, 400, 300, p->size);
         p->lives--;
     }
+    else
+    {
+    p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
+    // Deceleration
+    p->speed = normVector2(p->inertia);
+    p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
+    // p->speed *= DECELERATION;
+    // Displacement
+    p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
+    }
+    
     p->firecd += deltaTime;
     return p;
 }
@@ -184,7 +197,7 @@ void update_player(Player* p, float deltaTime)
 Bullet init_bullet(Player p)
 {
     Bullet b;
-    b.direction = p.targetLine;
+    b.direction = multVector2(p.targetLine, 1 +(p.speed/MAX_SPEED_SHIP)); // Keeps the ship's speed
     b.location = addVector2(p.axis.origin, p.targetLine);
     b.size = p.size / 10;
     b.lifespan = (800 / p.size) * 4 / 5;
@@ -192,11 +205,11 @@ Bullet init_bullet(Player p)
 }
 
 // Bullet evolution
-void update_bullet(Bullet *b, float deltaTime)
+void update_bullet(Bullet *b, float deltaTime, Point2 maxScreen)
 // TODO: void update_bullet(Bullet* b, float deltaTime)
 {
     b->location = addVector2(b->location, multVector2(b->direction, 30* deltaTime));
-    SS_collision_border_replace(&b->location, b->size);
+    SS_collision_border_replace(&b->location, b->size, maxScreen);
     b->lifespan -= deltaTime * 30;
     if (b->lifespan < 0)
         b->lifespan = 0;
