@@ -41,7 +41,7 @@ typedef struct Enemy
     float angle;
 } Enemy;
 
-
 Enemy init_enemy(float x, float y, enemyType type, enemySize size);
+float current_enemy_size(float size, enemyType type);
 int draw_any_enemy(Enemy enemy);
 int move_any_enemy(Enemy enemy);

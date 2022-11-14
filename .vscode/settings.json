@@ -9,5 +9,8 @@
         "player.h": "c",
         "*.tcc": "c",
         "enemy.h": "c"
-    }
+    },
+    "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+        "clang-analyzer-optin.performance.Padding"
+    ]
 }

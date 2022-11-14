@@ -1,5 +1,8 @@
 #include "enemy.h"
 
+#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#include <cimgui.h>
+
 void cvPathLineTo_point(Point2 p)
 {
     cvPathLineTo(p.x, p.y);
@@ -7,15 +10,19 @@ void cvPathLineTo_point(Point2 p)
 
 void draw_fireball(Point2 center, int sides, float radius, unsigned int color)
 {
-    for (int i = 0; i < sides; i++)
-    {
-        float angle = M_PI * 2.f * (float)i / (float)sides;
-        Point2 point = {radius + center.x, center.y};
-        point = rotatePoint2(center, point, angle);
-        cvPathLineTo_point(point);
-    }
-    cvPathFill(color);
-    // cvPathStroke(color, 1);
+    ImDrawList *drawList = igGetWindowDrawList();
+    ImDrawList_AddCircleFilled(drawList, (ImVec2){center.x, center.y}, radius, color, sides); 
+    
+    /*
+  for (int i = 0; i < sides; i++)
+  {
+       float angle = M_PI * 2.f * (float)i / (float)sides;
+       Point2 point = {radius + center.x, center.y};
+       point = rotatePoint2(center, point, angle);
+       cvPathLineTo_point(point);
+  }*/
+    // cvPathFill(color);
+    //  cvPathStroke(color, 1);
 }
 
 void draw_magnet_line(Point2 p, float size, float angle)

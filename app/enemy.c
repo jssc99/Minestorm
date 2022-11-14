@@ -92,7 +92,7 @@ int draw_any_enemy(Enemy enemy)
         return 0;
 
     case FIREBALL:
-        draw_fireball((Point2)enemy.location.origin, 10, enemy.kSize, CV_COL32_WHITE);
+        draw_fireball((Point2)enemy.location.origin, 10, 2.f * enemy.kSize, CV_COL32_WHITE);
         return 0;
 
     case MINELAYER:
