@@ -169,11 +169,11 @@ Player update_player(Player p, float deltaTime)
     // p.speed *= DECELERATION;
     p.axis = translateAxis2(p.axis, multVector2(p.inertia, deltaTime));
     // test collision mine
-   /* if (SS_collision_SS(p.axis.origin, p.size, (Float2){500, 400}, 15))
+    if (SS_collision_SS(p.axis.origin, p.size, (Float2){500, 400}, 15))
     {
         p = player_init(p, 400, 300, p.size);
         p.lives--;
-    }*/
+    }
 
     return p;
 }
@@ -197,7 +197,7 @@ Bullet update_bullet(Bullet b, float deltaTime)
     b.lifespan -= deltaTime;
     if (b.lifespan < 0)
         b.lifespan = 0;
-    //if (SS_collision_SS(b.location, b.size, (Point2){500, 400}, 15))
+    if (SS_collision_SS(b.location, b.size, (Point2){500, 400}, 15))
         b.lifespan = 0;
     return b;
 }
@@ -228,38 +228,3 @@ Player accelerate_player(Player p, float deltaTime)
 
     return p;
 }
-/*
-void counter_update(App *app, float frame)
-{
-    Counter->time_updated += frame;
-    while (Counter->time_updated >= Counter->timer)
-    {
-        Counter->value++;
-        Counter->time_updated -= Counter->timer;
-    }
-    Counter->timer = 1.f / Counter->freq;
-}
-
-void candy_counter(Counter *counter, const char *text)
-{
-    float frameTime = void counter_update(Counter *Counter, float frame)
-{
-    Counter->time_updated += frame;
-    while (Counter->time_updated >= Counter->timer)
-    {
-        Counter->value++;
-        Counter->time_updated -= Counter->timer;
-    }
-    Counter->timer = 1.f / Counter->freq;
-}
-
-void candy_counter(Counter *counter, const char *text)
-{
-    float frameTime = get_f
-    pg_io_get_frame_time();
-    counter_update(counter, frameTime);
-
-
-    counter_update(counter, frameTime);
-}
-*/
