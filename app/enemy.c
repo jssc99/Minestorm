@@ -28,7 +28,7 @@ float get_max_size(enemySize size, enemyType type)
     case FIREBALL_MINE:
     case MAGNETIC:
     case MAGNET_FIRE:
-        return MAX_RADIUS_MINES * multiplier;
+        return MINE_BIG_RADIUS * multiplier;
 
     case FIREBALL:
         return multiplier;
