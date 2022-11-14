@@ -1,18 +1,27 @@
 #include "player.h"
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include <cimgui.h>
-#include <canvas.h>
 
 bool DEBUG_PLAYER = 1;
 const float MAX_SPEED_SHIP = 10;
 const float ACCELERATION = 0.01;
-const float DECELERATION = 0.99;
+const float DECELERATION = 0.01;
+/*
+void on_off(bool *b)
+{
+    if (b)
+        b = false;
+    else
+        b = true;
+}
+*/
 
 void debug_menu_player(Player *p, bool debugPlayer)
 {
-    igBegin("Player", &debugPlayer , ImGuiWindowFlags_None);
+    igBegin("Player", &debugPlayer, ImGuiWindowFlags_None);
+    igText("Lives = %d", p->lives);
+    igText("Speed = %f", p->speed);
     if (DEBUG_PLAYER && igButton("Display axis", (ImVec2){0, 0}))
     {
+        //   on_off(p->displayAxis);
         if (p->displayAxis)
             p->displayAxis = false;
         else
@@ -34,15 +43,23 @@ void debug_menu_player(Player *p, bool debugPlayer)
         else
             p->displayInertia = true;
     }
+    if (DEBUG_PLAYER && igButton("Display SS", (ImVec2){0, 0}))
+    {
+        if (p->displaySS)
+            p->displaySS = false;
+        else
+            p->displaySS = true;
+    }
     igEnd();
 }
 // Initialize Player at position(x,y) First time think about setting lives to 3.
 Player player_init(Player p, float x, float y, float size)
 {
-    p = (Player){0};
     p.axis = (Axis2){{x, y},
                      {0, -size},
                      {size, 0}};
+    p.inertia = (Vector2){0, 0};
+    p.speed = 0;
     p.moveLine = p.axis.x;
     p.targetLine = p.moveLine;
     p.size = size;
@@ -68,13 +85,17 @@ void draw_circle(Point2 center, unsigned int sides, float radius, float angleOff
         cvPathLineTo(point[i].x, point[i].y);
     }
     cvPathStroke(color, 1);
+
+    //return generate_SAT(point, sides);
 }
 
 // Draw the player
-void draw_player(Player p, unsigned int color, float sz)
+void draw_player(Player* player, unsigned int color)
 {
+    Player p = *player;
     Point2 origin = p.axis.origin;
-    draw_circle(origin, 3, sz, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
+    //player->sat = 
+    draw_circle(origin, 3, p.size, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
     if (DEBUG_PLAYER)
     {
 
@@ -90,6 +111,11 @@ void draw_player(Player p, unsigned int color, float sz)
         {
             cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline
             cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
+        }
+        if (p.displaySS)
+        {
+            draw_circle(origin, 50, p.size, 0, CV_COL32(255, 255, 255, 200));         // Surrounding sphere
+            draw_circle((Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
         }
     }
     // cvAddLine(p.axis.origin.x, p.axis.origin.y, p.axis.origin.x + 30 * p.axis.y.x, p.axis.origin.x + 30 * p.axis.y.y, CV_COL32(0, 0, 255, 255));
@@ -131,7 +157,7 @@ void SS_collision_border_replace(Point2 *p, float size)
 }
 
 // Update the player each frame
-Player update_player(Player p)
+Player update_player(Player p, float deltaTime)
 {
     /*if (SS_collision_rectangle(p.axis.origin, p.size, 0, 0, 1000, 800))
         p = player_init(p, 500, 400, 30);*/
@@ -139,9 +165,15 @@ Player update_player(Player p)
     p.targetLine = p.axis.x; // multVector2(addVector2(p.axis.x,p.axis.y), 0.5);
     // Deceleration
     p.speed = normVector2(p.inertia);
-    p.inertia = multVector2(p.inertia, DECELERATION);
+    p.inertia = multVector2(p.inertia, 1 - DECELERATION * deltaTime);
     // p.speed *= DECELERATION;
-    p.axis = translateAxis2(p.axis, p.inertia);
+    p.axis = translateAxis2(p.axis, multVector2(p.inertia, deltaTime));
+    // test collision mine
+    if (SS_collision_SS(p.axis.origin, p.size, (Float2){500, 400}, 15))
+    {
+        p = player_init(p, 400, 300, p.size);
+        p.lives--;
+    }
 
     return p;
 }
@@ -158,48 +190,43 @@ Bullet init_bullet(Player p)
 }
 
 // Bullet evolution
-Bullet update_bullet(Bullet b)
+Bullet update_bullet(Bullet b, float deltaTime)
 {
-    b.location = addVector2(b.location, b.direction);
+    b.location = addVector2(b.location, multVector2(b.direction, deltaTime));
     SS_collision_border_replace(&b.location, b.size);
-    b.lifespan--;
+    b.lifespan -= deltaTime;
+    if (b.lifespan < 0)
+        b.lifespan = 0;
+    if (SS_collision_SS(b.location, b.size, (Point2){500, 400}, 15))
+        b.lifespan = 0;
     return b;
 }
 // Turn the player to the left igIsKeyDown(ImGuiKey_D)
-Player turnleft_player(Player p)
+Player turnleft_player(Player p, float deltaTime)
 {
-    p = rotate_player(p, -M_PI / 24);
-    // p.moveLine = p.axis.x;
+    p = rotate_player(p, -M_PI / 24 * deltaTime);
     return p;
 }
 
 // Turn the player to the right igIsKeyDown(ImGuiKey_G)
-Player turnright_player(Player p)
+Player turnright_player(Player p, float deltaTime)
 {
-    p = rotate_player(p, M_PI / 24);
+    p = rotate_player(p, M_PI / 24 * deltaTime);
     return p;
 }
 
-Player accelerate_player(Player p)
+Player accelerate_player(Player p, float deltaTime)
 {
     if (p.speed < MAX_SPEED_SHIP)
     {
-        p.speed += ACCELERATION;
+        p.speed += ACCELERATION * deltaTime;
     }
     else
         p.inertia = multVector2(p.inertia, MAX_SPEED_SHIP / p.speed);
-    p.inertia = addVector2(p.inertia, multVector2(p.targetLine, ACCELERATION));
+    p.inertia = addVector2(p.inertia, multVector2(p.targetLine, ACCELERATION * deltaTime));
     p.moveLine = p.targetLine;
 
     return p;
-}
-
-// Checks collision between a sphere and a rectangle
-bool SS_collision_rectangle(Point2 p, float size, float xmin, float ymin, float xmax, float ymax)
-{
-    if (p.x <= xmax - size && p.x >= xmin + size && p.y <= ymax - size && p.y >= ymin + size)
-        return false;
-    return true;
 }
 /*
 void counter_update(App *app, float frame)
