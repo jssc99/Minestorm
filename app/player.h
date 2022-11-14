@@ -1,7 +1,6 @@
 #pragma once
 #include "physics.h"
 
-
 typedef struct Player
 {
     Axis2 axis;

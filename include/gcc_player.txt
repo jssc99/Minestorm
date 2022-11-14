@@ -1,0 +1,2 @@
+In /2022...minestorm-pebe
+clear && gcc app/app.c app/main.c app/player.c app/enemy.c include/toolbox.a -Iinclude -Llibs/x86_64-linux-gnu -lglfw3 -lcanvas -lstdc++ -ldl -lm -lpthread -o minestorm && make clean && ./minestorm
