@@ -1,11 +1,12 @@
 PROGRAM=minestorm
 
-CFLAGS=-O0 -g -Wall -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration -Iinclude
+CFLAGS=-O0 -g -Wall -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration
 CFLAGS+=-Wno-unused-variable -Wno-deprecated-declarations
+CPPFLAGS=-Iinclude -MMD
 
 LDLIBS=include/toolbox.a -Llibs/x86_64-linux-gnu -lglfw3 -lcanvas -lstdc++ -ldl -lm -lpthread
 
-OBJS=app/main.o app/app.o app/player.o app/enemy.o app/physics.o
+OBJS=app/main.o app/app.o app/player.o app/enemy.o app/draw_enemy.o app/move_enemy.o app/physics.o
 DEPS=$(OBJS:.o=.d)
 
 .PHONY: all clean
@@ -15,10 +16,10 @@ all: $(PROGRAM)
 -include $(DEPS)
 
 %.o: %.c
-	gcc -c $(CFLAGS) $< -o $@
+	gcc -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 $(PROGRAM): $(OBJS)
-	gcc $(CFLAGS) $^ $(LDLIBS) -o $@
+	gcc $(CFLAGS) $(CPPFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
 	rm -f $(OBJS) $(DEPS) config.bin

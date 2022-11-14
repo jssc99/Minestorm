@@ -1,22 +1,40 @@
 #include "enemy.h"
-#include "draw_enemy.c"
-#include "move_enemy.c"
+//#include "draw_enemy.c"
+//#include "move_enemy.c"
 
-float current_enemy_size(float size, enemyType type)
+float get_size_multiplier(enemySize size)
 {
+    switch (size)
+    {
+    case SMALL:
+        return 2.f;
+    case MEDIUM:
+        return 4.f;
+    case BIG:
+        return 6.f;
+
+    default:
+        return 0.f;
+    }
+}
+
+float get_max_size(enemySize size, enemyType type)
+{
+    float multiplier = get_size_multiplier(size);
+
     switch (type)
     {
     case FLOATING:
     case FIREBALL_MINE:
     case MAGNETIC:
     case MAGNET_FIRE:
-        return MAX_RADIUS_MINES * size;
+        return MAX_RADIUS_MINES * multiplier;
 
     case FIREBALL:
-        return size;
+        return multiplier;
 
     case MINELAYER:
-        return 11.7 * size; // 11.7 = distance origin to furthest point from origin of figure
+        return 11.7 * multiplier; // 11.7 = distance origin to furthest point from origin of figure
     }
     return 0.f;
 }
@@ -43,23 +61,6 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
         break;
     }
 
-    switch (enemy.size)
-    {
-    case SMALL:
-        enemy.kSize = 2.f;
-        break;
-    case MEDIUM:
-        enemy.kSize = 4.f;
-        break;
-    case BIG:
-        enemy.kSize = 6.f;
-        break;
-
-    default:
-        enemy.kSize = 0.f;
-        break;
-    }
-
     if (type == FLOATING || type == FIREBALL_MINE)
     {
         srand(time(NULL));
@@ -68,68 +69,4 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
     else
         enemy.angle = 0.f;
     return enemy;
-}
-
-// draw enemy depending on its type & size (see enemyType & enemySize)
-int draw_any_enemy(Enemy enemy)
-{
-    switch (enemy.type)
-    {
-    case FLOATING:
-        draw_floating_mine(enemy);
-        return 0;
-
-    case FIREBALL_MINE:
-        draw_fireball_mine(enemy);
-        return 0;
-
-    case MAGNETIC:
-        draw_magnetic_mine(enemy);
-        return 0;
-
-    case MAGNET_FIRE:
-        draw_magnet_fire_mine(enemy);
-        return 0;
-
-    case FIREBALL:
-        draw_fireball((Point2)enemy.location.origin, 10, 2.f * enemy.kSize, CV_COL32_WHITE);
-        return 0;
-
-    case MINELAYER:
-        draw_minelayer(enemy);
-        return 0;
-    }
-    return -1;
-}
-
-// move enemy depending on its type & size (see enemyType & enemySize)
-int move_any_enemy(Enemy enemy)
-{
-    switch (enemy.type)
-    {
-    case FLOATING:
-        move_floating_mine(enemy);
-        return 0;
-
-    case FIREBALL_MINE:
-        move_fireball_mine(enemy);
-        return 0;
-
-    case MAGNETIC:
-        move_magnetic_mine(enemy);
-        return 0;
-
-    case MAGNET_FIRE:
-        move_magnet_fire_mine(enemy);
-        return 0;
-
-    case FIREBALL:
-        move_fireball(enemy);
-        return 0;
-
-    case MINELAYER:
-        move_minelayer(enemy);
-        return 0;
-    }
-    return -1;
 }
