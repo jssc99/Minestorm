@@ -14,10 +14,10 @@ typedef struct Sat
     float max;
 } Sat;
 
-bool sphere_collision_SAT(Point2 center, float radius, Sat sat[], int nbSegments);
-Sat *generate_SAT(Point2 p[], int nbSegments);
+bool sphere_collision_SAT(Point2 center, float radius, Sat* range, int nbSegments);
+void generate_SAT(Sat* range, Point2 *p, int nbSegments);
 
 // Collisions
-bool SS_collision_SS(Point2 p1, float radius1, Point2 p2, float radius2);
+bool sphere_collision_sphere(Point2 p1, float radius1, Point2 p2, float radius2);
 bool point_collision_rectangle(Point2 p, float xmin, float ymin, float xmax, float ymax);
-bool SS_collision_rectangle(Point2 p, float radius, float xmin, float ymin, float xmax, float ymax);
+bool sphere_collision_rectangle(Point2 p, float radius, float xmin, float ymin, float xmax, float ymax);

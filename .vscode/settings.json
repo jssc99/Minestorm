@@ -8,7 +8,8 @@
         "app.h": "c",
         "player.h": "c",
         "physics.h": "c",
-        "enemy.h": "c"
+        "enemy.h": "c",
+        "points.h": "c"
     },
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
         "clang-analyzer-optin.performance.Padding"

@@ -13,6 +13,8 @@ void on_off(bool *b)
         b = true;
 }
 */
+static ImDrawList *drawList;
+static ImU32 color;
 
 void debug_menu_player(Player *p, bool debugPlayer)
 {
@@ -43,12 +45,12 @@ void debug_menu_player(Player *p, bool debugPlayer)
         else
             p->displayInertia = true;
     }
-    if (DEBUG_PLAYER && igButton("Display SS", (ImVec2){0, 0}))
+    if (DEBUG_PLAYER && igButton("Display sphere", (ImVec2){0, 0}))
     {
-        if (p->displaySS)
-            p->displaySS = false;
+        if (p->displaySSphere)
+            p->displaySSphere = false;
         else
-            p->displaySS = true;
+            p->displaySSphere = true;
     }
     igEnd();
 }
@@ -66,7 +68,7 @@ Player player_init(Player p, float x, float y, float size)
     return p;
 }
 
-void draw_circle(Sat* sat, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
+void draw_circle(Sat *sat, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
     point[0].x = radius * sinf(angleOffset) + center.x;
@@ -86,7 +88,9 @@ void draw_circle(Sat* sat, Point2 center, unsigned int sides, float radius, floa
     }
     cvPathStroke(color, 1);
 
-    sat = generate_SAT(point, sides);
+    if (sat)
+        generate_SAT(sat, &point[0], sides);
+    //for (int i = 0; i < sides
 }
 
 // Draw the player
@@ -96,14 +100,14 @@ void draw_player(Player *player, unsigned int color)
     // Player* p = player;
     Point2 origin = p.axis.origin;
     // player->sat =
-    draw_circle(&p.sat, p.axis.origin, 3, p.size, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
+    draw_circle(p.sat, p.axis.origin, 3, p.size, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
     if (DEBUG_PLAYER)
     {
 
         Point2 x = addVector2(origin, multVector2(p.axis.x, 2.0));
         Point2 y = addVector2(origin, multVector2(p.axis.y, 2.0));
-        Point2 z = addVector2(origin, multVector2(p.inertia, p.size *5/ MAX_SPEED_SHIP));
-        Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed *5 / MAX_SPEED_SHIP));
+        Point2 z = addVector2(origin, multVector2(p.inertia, p.size * 5 / MAX_SPEED_SHIP));
+        Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed * 5 / MAX_SPEED_SHIP));
 
         if (p.displayInertia)
             cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
@@ -114,10 +118,11 @@ void draw_player(Player *player, unsigned int color)
             cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline
             cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
         }
-        if (p.displaySS)
+        if (p.displaySSphere)
         {
-            draw_circle(NULL, origin, 50, p.size, 0, CV_COL32(255, 255, 255, 200));         // Surrounding sphere
-            draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
+            //ImDrawList_AddCircle(drawList, (ImVec2){origin.x, origin.y}, p.size, color, 10, 1.0f); // Surrounding sphere
+            draw_circle(NULL, origin, 50, p.size, 0, CV_COL32(255, 255, 255, 200));
+            draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200));                               // Surrounding sphere mine
         }
     }
     // cvAddLine(p.axis.origin.x, p.axis.origin.y, p.axis.origin.x + 30 * p.axis.y.x, p.axis.origin.x + 30 * p.axis.y.y, CV_COL32(0, 0, 255, 255));
@@ -140,13 +145,12 @@ void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int c
 }
 
 // Rotate the player
-void rotate_player(Player* p, float angle)
+void rotate_player(Player *p, float angle)
 {
     p->axis = rotateAxis2(p->axis, angle);
-    return p;
 }
 // Check collision between a sphere and the screen and replace the object
-void SS_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
+void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
 {
     if (p->x > maxScreen.x - size)
         p->x = size;
@@ -159,45 +163,44 @@ void SS_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
 }
 
 // Update the player each frame
-void update_player(Player* p, float deltaTime, Point2 maxScreen)
+void update_player(Player *p, float deltaTime, Point2 maxScreen)
 {
-     // INPUTS
+    // INPUTS
     if (igIsKeyDown(ImGuiKey_D))
         turnleft_player(p, deltaTime);
     if (igIsKeyDown(ImGuiKey_G))
         turnright_player(p, deltaTime);
     if (igIsKeyDown(ImGuiKey_R))
         *p = accelerate_player(*p, deltaTime);
-    //Collisions
-    /*if (SS_collision_rectangle(p.axis.origin, p.size, 0, 0, 1000, 800))
+    // Collisions
+    /*if (sphere_collision_rectangle(p.axis.origin, p.size, 0, 0, 1000, 800))
         p = player_init(p, 500, 400, 30);*/
-    SS_collision_border_replace(&p->axis.origin, p->size, maxScreen);
-        // test collision mine
-    if (SS_collision_SS(p->axis.origin, p->size, (Float2){500, 400}, 15))
+    sphere_collision_border_replace(&p->axis.origin, p->size, maxScreen);
+    // test collision mine
+    if (sphere_collision_sphere(p->axis.origin, p->size, (Float2){500, 400}, 15))
     {
         *p = player_init(*p, 400, 300, p->size);
         p->lives--;
     }
     else
     {
-    p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
-    // Deceleration
-    p->speed = normVector2(p->inertia);
-    p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
-    // p->speed *= DECELERATION;
-    // Displacement
-    p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
+        p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
+        // Deceleration
+        p->speed = normVector2(p->inertia);
+        p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
+        // p->speed *= DECELERATION;
+        // Displacement
+        p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
     }
-    
+
     p->firecd += deltaTime;
-    return p;
 }
 
 // Create a bullet
 Bullet init_bullet(Player p)
 {
     Bullet b;
-    b.direction = multVector2(p.targetLine, 1 +(p.speed/MAX_SPEED_SHIP)); // Keeps the ship's speed
+    b.direction = multVector2(p.targetLine, 1 + (p.speed / MAX_SPEED_SHIP)); // Keeps the ship's speed
     b.location = addVector2(p.axis.origin, p.targetLine);
     b.size = p.size / 10;
     b.lifespan = (800 / p.size) * 4 / 5;
@@ -208,27 +211,25 @@ Bullet init_bullet(Player p)
 void update_bullet(Bullet *b, float deltaTime, Point2 maxScreen)
 // TODO: void update_bullet(Bullet* b, float deltaTime)
 {
-    b->location = addVector2(b->location, multVector2(b->direction, 30* deltaTime));
-    SS_collision_border_replace(&b->location, b->size, maxScreen);
+    b->location = addVector2(b->location, multVector2(b->direction, 30 * deltaTime));
+    sphere_collision_border_replace(&b->location, b->size, maxScreen);
     b->lifespan -= deltaTime * 30;
     if (b->lifespan < 0)
         b->lifespan = 0;
-    if (SS_collision_SS(b->location, b->size, (Point2){500, 400}, 15))
+    if (sphere_collision_sphere(b->location, b->size, (Point2){500, 400}, 15))
         b->lifespan = 0;
     // return b;
 }
 // Turn the player to the left igIsKeyDown(ImGuiKey_D)
-void  turnleft_player(Player* p, float deltaTime)
+void turnleft_player(Player *p, float deltaTime)
 {
-    rotate_player(p, -M_PI  * deltaTime );
-    return p;
+    rotate_player(p, -M_PI * deltaTime);
 }
 
 // Turn the player to the right igIsKeyDown(ImGuiKey_G)
-void  turnright_player(Player* p, float deltaTime)
+void turnright_player(Player *p, float deltaTime)
 {
-    rotate_player(p, M_PI * deltaTime );
-    return p;
+    rotate_player(p, M_PI * deltaTime);
 }
 
 Player accelerate_player(Player p, float deltaTime)

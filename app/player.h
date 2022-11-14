@@ -7,6 +7,7 @@ typedef struct Player
     Vector2 targetLine;
     Vector2 moveLine;
     Vector2 inertia;
+    Point2 shape[3];
     Sat sat[3];
     float size;
     float speed;
@@ -15,7 +16,7 @@ typedef struct Player
     bool displayAxis;
     bool displaySpeed;
     bool displayInertia;
-    bool displaySS;
+    bool displaySSphere;
 } Player;
 
 typedef struct Bullet
@@ -38,7 +39,7 @@ void update_player(Player* p, float deltaTime, Point2 maxScreen);
 void  turnleft_player(Player* p, float deltaTime);
 void  turnright_player(Player* p, float deltaTime);
 Player accelerate_player(Player p, float deltaTime);
-void SS_collision_border_replace(Point2 *p, float size, Point2 maxScreen);
+void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen);
 void on_off(bool *b);
 void debug_menu_player(Player* p, bool debugPlayer);
 
