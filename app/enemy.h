@@ -37,11 +37,16 @@ typedef struct Enemy
     float speed;
     enemyType type;
     enemySize size;
-    float kSize;
     float angle;
 } Enemy;
 
 Enemy init_enemy(float x, float y, enemyType type, enemySize size);
-float current_enemy_size(float size, enemyType type);
-int draw_any_enemy(Enemy enemy);
+
+float get_size_multiplier(enemySize size);
+float get_max_size(enemySize size, enemyType type);
+
+// Move function
 int move_any_enemy(Enemy enemy);
+
+// Draw function
+int draw_any_enemy(Enemy enemy);
