@@ -7,7 +7,7 @@
         "canvas.h": "c",
         "app.h": "c",
         "player.h": "c",
-        "*.tcc": "c",
+        "physics.h": "c",
         "enemy.h": "c"
     },
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
