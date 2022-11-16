@@ -7,6 +7,7 @@ float get_size_multiplier(enemySize size)
     case SMALL:
         return 2.f;
     case MEDIUM:
+    case FIXED:
         return 4.f;
     case BIG:
         return 6.f;
