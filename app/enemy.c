@@ -1,6 +1,4 @@
 #include "enemy.h"
-//#include "draw_enemy.c"
-//#include "move_enemy.c"
 
 float get_size_multiplier(enemySize size)
 {
@@ -39,21 +37,46 @@ float get_max_size(enemySize size, enemyType type)
     return 0.f;
 }
 
+float get_small_size(enemySize size, enemyType type)
+{
+    float multiplier = get_size_multiplier(size);
+
+    switch (type)
+    {
+    case FLOATING:
+        return FLOATING_SMALL_RADIUS * multiplier;
+
+    case FIREBALL_MINE:
+        return FIREBALL_MINE_SMALL_RADIUS * multiplier;
+
+    case MAGNETIC:
+        return MAGNETIC_SMALL_RADIUS * multiplier;
+
+    case MAGNET_FIRE:
+        return MAGNET_FIRE_SMALL_RADIUS * multiplier;
+
+    case FIREBALL:
+        return multiplier;
+
+    case MINELAYER:
+        return 11.7 * multiplier; // 11.7 = distance origin to furthest point from origin of figure
+    }
+    return 0.f;
+}
+
 Enemy init_enemy(float x, float y, enemyType type, enemySize size)
 {
     Enemy enemy;
     enemy.location = (Axis2){{x, y}, {1.f, 0.f}, {0.f, 1.f}};
-    enemy.isBorn = false;
+    enemy.status = NONE;
     enemy.speed = 0.f;
     enemy.type = type;
 
     switch (type)
     {
     case MINELAYER:
-        enemy.size = MEDIUM;
-        break;
     case FIREBALL:
-        enemy.size = SMALL;
+        enemy.size = FIXED;
         break;
 
     default:
