@@ -97,14 +97,11 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
         enemy.nbPoints = 8;
         break;
 
-    case FIREBALL:
-        enemy.nbPoints = 12;
-        break;
-
     case MINELAYER:
         enemy.nbPoints = 9;
         break;
     
+    case FIREBALL:
     default:
         enemy.nbPoints = 0;
         break;
