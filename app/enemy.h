@@ -62,10 +62,13 @@ float get_size_multiplier(enemySize size);
 float get_max_size(enemySize size, enemyType type);
 float get_small_size(enemySize size, enemyType type);
 
+// Update func
+void update_pos_any_mine(Enemy *e);
+
 // Move function
-int move_any_enemy(Enemy enemy);
+void move_any_enemy(Enemy enemy);
 
 // Draw function
-int draw_any_enemy(Enemy *e);
+void draw_any_enemy(Enemy *e);
 
 void draw_player_draw(Player p);

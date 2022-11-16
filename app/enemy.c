@@ -7,9 +7,9 @@ float get_size_multiplier(enemySize size)
     case SMALL:
         return 2.f;
     case MEDIUM:
-    case FIXED:
         return 4.f;
     case BIG:
+    case FIXED:
         return 6.f;
 
     default:
@@ -100,7 +100,7 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
     case MINELAYER:
         enemy.nbPoints = 9;
         break;
-    
+
     case FIREBALL:
     default:
         enemy.nbPoints = 0;
@@ -115,4 +115,66 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
     else
         enemy.angle = 0.f;
     return enemy;
+}
+
+void update_pos_basic_mine(Enemy *e)
+{
+    Point2 center = e->location.origin;
+    float radius_big = get_max_size(e->size, e->type);
+    float radius_small = get_small_size(e->size, e->type);
+
+    float angle = e->angle;
+    float rotation = M_PI / ((float)e->nbPoints / 2.f);
+
+    for (int i = 0; i < e->nbPoints; i += 2)
+    {
+        e->points[i] = rotatePoint2(center, (Point2){center.x, center.y + radius_big}, angle);
+        angle += rotation;
+        (e->points[i + 1]) = rotatePoint2(center, (Point2){center.x, center.y + radius_small}, angle);
+        angle += rotation;
+    }
+}
+
+void update_pos_magnet_fire_mine(Enemy *e)
+{
+    Point2 center = e->location.origin;
+    float sizeTop = get_max_size(e->size, e->type);
+    float size = get_small_size(e->size, e->type);
+
+    for (int i = 0; i < 8; i += 2)
+    {
+        float angle = M_PI * i / 4.f + e->angle;
+        e->points[i] = rotatePoint2(center, (Point2){center.x + sizeTop, center.y}, angle);
+        e->points[i + 1] = rotatePoint2(center, (Point2){center.x + size, center.y}, angle);
+    }
+}
+
+void update_pos_minelayer(Enemy *e)
+{
+    float x = e->location.origin.x;
+    float y = e->location.origin.y;
+
+    Point2 point[9] = {
+        {x - 26.f, y + 10.f},
+        {x - 36.f, y + 14.f},
+        {x - 30.f, y},
+        {x - 12.f, y},
+        {x /*  */, y - 12.f},
+        {x + 12.f, y},
+        {x + 30.f, y},
+        {x + 36.f, y + 14.f},
+        {x + 26.f, y + 10.f}};
+
+    for (int i = 0; i < 9; i++)
+        e->points[i] = rotatePoint2(e->location.origin, point[i], e->angle);
+}
+
+void update_pos_any_mine(Enemy *e)
+{
+    if (e->type == FLOATING || e->type == FIREBALL_MINE || e->type == MAGNETIC)
+        update_pos_basic_mine(e);
+    if (e->type == MAGNET_FIRE)
+        update_pos_magnet_fire_mine(e);
+    if (e->type == MINELAYER)
+        update_pos_minelayer(e);
 }
