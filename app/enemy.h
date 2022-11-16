@@ -15,6 +15,8 @@
 #define MAGNETIC_SMALL_RADIUS 2.5F
 #define MAGNET_FIRE_SMALL_RADIUS 4.5F
 
+#define NB_POINTS_FIREBALL 12
+
 typedef enum enemyType
 {
     FLOATING,
@@ -27,10 +29,10 @@ typedef enum enemyType
 
 typedef enum enemySize
 {
-    FIXED,
     SMALL,
     MEDIUM,
-    BIG
+    BIG,
+    FIXED
 } enemySize;
 
 typedef enum Status
@@ -50,6 +52,8 @@ typedef struct Enemy
     enemySize size;
     float speed;
     float angle;
+    int nbPoints;
+    Point2 points[10];
 } Enemy;
 
 Enemy init_enemy(float x, float y, enemyType type, enemySize size);
@@ -62,6 +66,6 @@ float get_small_size(enemySize size, enemyType type);
 int move_any_enemy(Enemy enemy);
 
 // Draw function
-int draw_any_enemy(Enemy enemy);
+int draw_any_enemy(Enemy *e);
 
-void draw_player_draw(Player player);
+void draw_player_draw(Player p);

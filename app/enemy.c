@@ -84,6 +84,31 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
         break;
     }
 
+    switch (type)
+    {
+    case FLOATING:
+        enemy.nbPoints = 6;
+        break;
+
+    case FIREBALL_MINE:
+    case MAGNETIC:
+    case MAGNET_FIRE:
+        enemy.nbPoints = 8;
+        break;
+
+    case FIREBALL:
+        enemy.nbPoints = 12;
+        break;
+
+    case MINELAYER:
+        enemy.nbPoints = 9;
+        break;
+    
+    default:
+        enemy.nbPoints = 0;
+        break;
+    }
+
     if (type == FLOATING || type == FIREBALL_MINE)
     {
         srand(time(NULL));
