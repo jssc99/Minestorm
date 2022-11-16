@@ -37,8 +37,6 @@ typedef enum enemySize
 
 typedef enum Status
 {
-    NONE,
-    BORN,
     BABY,
     ADULT,
     DEAD

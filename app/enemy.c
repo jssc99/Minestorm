@@ -69,7 +69,7 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
 {
     Enemy enemy;
     enemy.location = (Axis2){{x, y}, {1.f, 0.f}, {0.f, 1.f}};
-    enemy.status = NONE;
+    enemy.status = BABY;
     enemy.speed = 0.f;
     enemy.type = type;
 
