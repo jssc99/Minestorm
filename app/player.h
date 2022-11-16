@@ -17,6 +17,7 @@ typedef struct Player
     bool displaySpeed;
     bool displayInertia;
     bool displaySSphere;
+    bool collisionTests;
 } Player;
 
 typedef struct Bullet
@@ -29,7 +30,7 @@ typedef struct Bullet
 
 //Draw
 
-void draw_circle(Sat* sat, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color);
+void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color);
 
 // Player
 Player player_init(Player p, float x, float y, float size);
@@ -43,8 +44,11 @@ void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen);
 void on_off(bool *b);
 void debug_menu_player(Player* p, bool debugPlayer);
 
+
 // Bullet
 Bullet init_bullet(Player p);
 void update_bullet(Bullet* b,  float deltaTime, Point2 maxScreen);
 void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color);
 
+//Test collisions
+void test_collision(Player player1, ImVec2 mousePos);

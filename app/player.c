@@ -4,15 +4,7 @@ bool DEBUG_PLAYER = 1;
 const float MAX_SPEED_SHIP = 500;
 const float ACCELERATION = 20;
 const float DECELERATION = 0.7;
-/*
-void on_off(bool *b)
-{
-    if (b)
-        b = false;
-    else
-        b = true;
-}
-*/
+
 static ImDrawList *drawList;
 static ImU32 color;
 
@@ -22,36 +14,16 @@ void debug_menu_player(Player *p, bool debugPlayer)
     igText("Lives = %d", p->lives);
     igText("Speed = %f", p->speed);
     if (DEBUG_PLAYER && igButton("Display axis", (ImVec2){0, 0}))
-    {
-        //   on_off(p->displayAxis);
-        if (p->displayAxis)
-            p->displayAxis = false;
-        else
-        {
-            p->displayAxis = true;
-        }
-    }
+        p->displayAxis = !p->displayAxis;
     if (DEBUG_PLAYER && igButton("Display speed", (ImVec2){0, 0}))
-    {
-        if (p->displaySpeed)
-            p->displaySpeed = false;
-        else
-            p->displaySpeed = true;
-    }
+        p->displaySpeed = !p->displaySpeed;
     if (DEBUG_PLAYER && igButton("Display inertia", (ImVec2){0, 0}))
-    {
-        if (p->displayInertia)
-            p->displayInertia = false;
-        else
-            p->displayInertia = true;
-    }
+        p->displayInertia = !p->displayInertia;
     if (DEBUG_PLAYER && igButton("Display sphere", (ImVec2){0, 0}))
-    {
-        if (p->displaySSphere)
-            p->displaySSphere = false;
-        else
-            p->displaySSphere = true;
-    }
+        p->displaySSphere = !p->displaySSphere;
+    if (DEBUG_PLAYER && igButton("Collision Tests", (ImVec2){0, 0}))
+        p->collisionTests = !p->collisionTests;
+
     igEnd();
 }
 // Initialize Player at position(x,y) First time think about setting lives to 3.
@@ -67,8 +39,8 @@ Player player_init(Player p, float x, float y, float size)
     p.size = size;
     return p;
 }
-
-void draw_circle(Sat *sat, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
+// Draw a cricle or a polygon
+void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
     point[0].x = radius * sinf(angleOffset) + center.x;
@@ -88,47 +60,48 @@ void draw_circle(Sat *sat, Point2 center, unsigned int sides, float radius, floa
     }
     cvPathStroke(color, 1);
 
-    if (sat)
-        generate_SAT(sat, &point[0], sides);
-    //for (int i = 0; i < sides
+    if (cBox)
+    {
+        for (unsigned int i = 0; i < sides; i++)
+            cBox[i] = point[i];
+    } // for (int i = 0; i < sides
 }
 
 // Draw the player
-void draw_player(Player *player, unsigned int color)
+void draw_player(Player *p, unsigned int color)
 {
-    Player p = *player; // TODO: Use a pointer
     // Player* p = player;
-    Point2 origin = p.axis.origin;
+    Point2 origin = p->axis.origin;
     // player->sat =
-    draw_circle(p.sat, p.axis.origin, 3, p.size, getAngleVector2(p.axis.x, (Float2){0, 1}), color);
+    draw_circle(p->shape, p->axis.origin, 5, p->size, getAngleVector2(p->axis.x, (Float2){0, 1}), color);
     if (DEBUG_PLAYER)
     {
 
-        Point2 x = addVector2(origin, multVector2(p.axis.x, 2.0));
-        Point2 y = addVector2(origin, multVector2(p.axis.y, 2.0));
-        Point2 z = addVector2(origin, multVector2(p.inertia, p.size * 5 / MAX_SPEED_SHIP));
-        Point2 dz = addVector2(origin, multVector2(p.moveLine, p.speed * 5 / MAX_SPEED_SHIP));
+        Point2 x = addVector2(origin, multVector2(p->axis.x, 2.0));
+        Point2 y = addVector2(origin, multVector2(p->axis.y, 2.0));
+        Point2 z = addVector2(origin, multVector2(p->inertia, p->size * 5 / MAX_SPEED_SHIP));
+        Point2 dz = addVector2(origin, multVector2(p->moveLine, p->speed * 5 / MAX_SPEED_SHIP));
 
-        if (p.displayInertia)
+        if (p->displayInertia)
             cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
-        if (p.displaySpeed)
+        if (p->displaySpeed)
             cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
-        if (p.displayAxis)
+        if (p->displayAxis)
         {
             cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline
             cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
         }
-        if (p.displaySSphere)
+        if (p->displaySSphere)
         {
-            //ImDrawList_AddCircle(drawList, (ImVec2){origin.x, origin.y}, p.size, color, 10, 1.0f); // Surrounding sphere
-            draw_circle(NULL, origin, 50, p.size, 0, CV_COL32(255, 255, 255, 200));
-            draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200));                               // Surrounding sphere mine
+            // ImDrawList_AddCircle(drawList, (ImVec2){origin.x, origin.y}, p->size, color, 10, 1.0f); // Surrounding sphere
+            draw_circle(NULL, origin, 50, p->size, 0, CV_COL32(255, 255, 255, 200));
+            draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
         }
     }
-    // cvAddLine(p.axis.origin.x, p.axis.origin.y, p.axis.origin.x + 30 * p.axis.y.x, p.axis.origin.x + 30 * p.axis.y.y, CV_COL32(0, 0, 255, 255));
+    // cvAddLine(p->axis.origin.x, p->axis.origin.y, p->axis.origin.x + 30 * p->axis.y.x, p->axis.origin.x + 30 * p->axis.y.y, CV_COL32(0, 0, 255, 255));
     //  cvAddLine(400, 300, 440, 300, CV_COL32(255, 0, 0, 255));
     //  cvAddLine(400, 300, 400, 330, CV_COL32(0, 0, 255, 255));
-    //      AddTriangle(ImVec2(p.axis.x+sz*0.5f, p.axis.y), ImVec2(p.axis.x+sz,p.axis.y+sz-0.5f), ImVec2(p.axis.x,p.axis.y+sz-0.5f), color, th); x += sz+spacing;
+    //      AddTriangle(ImVec2(p->axis.x+sz*0.5f, p->axis.y), ImVec2(p->axis.x+sz,p->axis.y+sz-0.5f), ImVec2(p->axis.x,p->axis.y+sz-0.5f), color, th); x += sz+spacing;
 }
 // draw 1 bullet
 void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color)
@@ -244,4 +217,61 @@ Player accelerate_player(Player p, float deltaTime)
     p.moveLine = p.targetLine;
 
     return p;
+}
+
+void test_collision(Player player1, ImVec2 mousePos)
+{
+    // Rectangle collision
+    // bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 2, 460, 360, 540, 440);
+    draw_circle(NULL, (Point2){500, 400}, 4, 40 * sqrtf(2), M_PI / 4, CV_COL32_WHITE);
+
+    // Sat collision
+    Point2 quad[4] = {{390.f, 350.f}, {410.f, 440.f}, {520.f, 440.f}, {540.f, 380.f}};
+    Point2 triangle[3] = {{520.f, 390.f}, {480.f, 390.f}, {500.f, 430.f}};
+    Point2 poly[6] = {{480.f, 320.f}, {410.f, 350.f}, {390.f, 400.f}, {410.f, 440.f}, {520.f, 470.f}, {540.f, 380.f}};
+    for (int i = 0; i < 6; i++)
+    {
+        poly[i] = rotatePoint2((Point2){500, 400}, poly[i], M_PI / 6);
+    }
+    Point2 poly_[6];
+    for (int i = 0; i < 6; i++)
+        poly_[i] = poly[6 - 1 - i];
+    Point2 poly_m[6];
+    for (int i = 0; i < 6; i++)
+    {
+        poly_m[i].x = poly[i].x + mousePos.x - 500.f;
+        poly_m[i].y = poly[i].y + mousePos.y - 400.f;
+    }
+    for (int i = 0; i < 6; i++)
+    {
+        cvAddLine(poly_m[i].x, poly_m[i].y, poly_m[(i + 1) % 6].x, poly_m[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
+    }
+    draw_circle(NULL, circumcenterTriangle(triangle[1], triangle[2], triangle[0]), 50, 4 * 3 * sqrtf(3), 0, CV_COL32(0, 0, 255, 255));
+    /*    for (int i = 0; i < 4; i++)
+            {
+                cvAddLine(quad[i].x, quad[i].y, quad[(i + 1) % 4].x, quad[(i + 1) % 4].y, CV_COL32(255, 0, 0, 255));
+            }
+
+       bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, quad, 4);
+
+    for (int i = 0; i < 3; i++)
+    {
+        cvAddLine(triangle[i].x, triangle[i].y, triangle[(i + 1) % 3].x, triangle[(i + 1) % 3].y, CV_COL32(255, 0, 0, 255));
+    }
+    bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, triangle, 3);
+    */
+
+    cvAddLine(poly[0].x, poly[0].y, poly[(0 + 1) % 6].x, poly[(0 + 1) % 6].y, CV_COL32(255, 0, 255, 255));
+    for (int i = 1; i < 6; i++)
+    {
+        cvAddLine(poly[i].x, poly[i].y, poly[(i + 1) % 6].x, poly[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
+    }
+    // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, &player1.shape, 3);
+    bool collision = SAT_collision_SAT(&poly_m, 6, &poly, 6);
+    for (int i = 0; i < 3; i++)
+    {
+        printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);
+    }
+    draw_circle(NULL, (Point2){mousePos.x, mousePos.y}, 50, 2, 0, CV_COL32((255 * collision), (!collision * 255), 0, 255));
+    // printf("min = %f, max = %f, x = %f, y = %f\n", player1.sat->min, player1.sat->max, player1.sat->normal.x, player1.sat->normal.y);
 }

@@ -87,13 +87,13 @@ Vector2 multVector2(Vector2 v, float mul)
 //Normalize Vector2
 Vector2 normalizedVector2(Vector2 v)
 {
-    return multVector2(v, normVector2(v));
+    return multVector2(v, 1.0 / normVector2(v));
 }
 
 //Get the normal vector from a vector2
 Vector2 getNormalVectorVector2(Vector2 v)
 {
-    return rotatePoint2((Float2){0,0}, normalizedVector2(v), M_PI);
+    return rotatePoint2((Float2){0,0}, normalizedVector2(v), M_PI/2);
 }
 
 //Get the normal vector from 2 points
