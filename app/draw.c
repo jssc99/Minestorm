@@ -80,15 +80,15 @@ void draw_player_draw(Player p)
 
     Point2 point[10] = {
         {x /*  */, y - 30.f},
-        {x + 05.f, y},
-        {x + 10.f, y},
-        {x + 15.f, y + 20.f},
-        {x + 04.2, y + 07.f},
-        {x /*  */, y + 12.f},
-        {x - 04.2, y + 07.f},
-        {x - 15.f, y + 20.f},
+        {x - 05.f, y},
         {x - 10.f, y},
-        {x - 05.f, y}};
+        {x - 15.f, y + 20.f},
+        {x - 04.2, y + 07.f},
+        {x /*  */, y + 12.f},
+        {x + 04.2, y + 07.f},
+        {x + 15.f, y + 20.f},
+        {x + 10.f, y},
+        {x + 05.f, y}};
 
     for (int i = 0; i < 10; i++)
         PathLineTo_point2(point[i]);
