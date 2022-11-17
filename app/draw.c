@@ -17,7 +17,7 @@ void PathLineTo_point2(Point2 p)
     ImDrawList_PathLineTo(drawList, (ImVec2){p.x, p.y});
 }
 
-void draw_mine(Point2 *points, int nbPoints)
+void draw_poly(Point2 *points, int nbPoints)
 {
     for (int i = 0; i < nbPoints; i++)
         PathLineTo_point2(points[i]);
@@ -61,7 +61,7 @@ void draw_any_enemy(Enemy *e)
     else
     {
         if (e->type != FIREBALL)
-            draw_mine(e->points, e->nbPoints);
+            draw_poly(e->points, e->nbPoints);
         if (e->type == FIREBALL_MINE || e->type == MAGNET_FIRE)
             draw_fireball(e->location.origin, get_size_multiplier(e->size));
         if (e->type == FIREBALL)
