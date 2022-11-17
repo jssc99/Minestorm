@@ -109,7 +109,6 @@ void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int c
         cvPathLineTo(point.x, point.y);
     }
     cvPathFill(color);
-    // cvPathStroke(color, 1);
 }
 
 // Rotate the player

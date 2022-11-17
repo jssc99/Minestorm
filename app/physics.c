@@ -112,6 +112,10 @@ void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
     else if (p->y < size)
         p->y = maxScreen.y - size;
 }
+
+//Check collision between a polygon and a border
+//1-Check the circumcirlce first
+//2-Then for each summit 'p' of a polygon, check if outside the screen.
 void poly_collision_border_replace(Point2 p[], Point2 *center, int nbSides, float size, Point2 maxScreen)
 {
     if (sphere_collision_rectangle(*center, size, 0, 0, maxScreen.x, maxScreen.y))

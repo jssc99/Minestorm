@@ -17,6 +17,7 @@ typedef struct App
     bool debugMenu;
     int width;
     int height;
+    Point2 maxScreen;
 
     // enemy debug
     unsigned int id;
