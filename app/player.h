@@ -40,7 +40,6 @@ void update_player(Player* p, float deltaTime, Point2 maxScreen);
 void  turnleft_player(Player* p, float deltaTime);
 void  turnright_player(Player* p, float deltaTime);
 Player accelerate_player(Player p, float deltaTime);
-void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen);
 void on_off(bool *b);
 void debug_menu_player(Player* p, bool debugPlayer);
 

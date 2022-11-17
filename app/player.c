@@ -64,15 +64,13 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
     {
         for (unsigned int i = 0; i < sides; i++)
             cBox[i] = point[i];
-    } // for (int i = 0; i < sides
+    }
 }
 
 // Draw the player
 void draw_player(Player *p, unsigned int color)
 {
-    // Player* p = player;
     Point2 origin = p->axis.origin;
-    // player->sat =
     draw_circle(p->shape, p->axis.origin, 5, p->size, getAngleVector2(p->axis.x, (Float2){0, 1}), color);
     if (DEBUG_PLAYER)
     {
@@ -98,10 +96,6 @@ void draw_player(Player *p, unsigned int color)
             draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
         }
     }
-    // cvAddLine(p->axis.origin.x, p->axis.origin.y, p->axis.origin.x + 30 * p->axis.y.x, p->axis.origin.x + 30 * p->axis.y.y, CV_COL32(0, 0, 255, 255));
-    //  cvAddLine(400, 300, 440, 300, CV_COL32(255, 0, 0, 255));
-    //  cvAddLine(400, 300, 400, 330, CV_COL32(0, 0, 255, 255));
-    //      AddTriangle(ImVec2(p->axis.x+sz*0.5f, p->axis.y), ImVec2(p->axis.x+sz,p->axis.y+sz-0.5f), ImVec2(p->axis.x,p->axis.y+sz-0.5f), color, th); x += sz+spacing;
 }
 // draw 1 bullet
 void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color)
@@ -122,18 +116,6 @@ void rotate_player(Player *p, float angle)
 {
     p->axis = rotateAxis2(p->axis, angle);
 }
-// Check collision between a sphere and the screen and replace the object
-void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
-{
-    if (p->x > maxScreen.x - size)
-        p->x = size;
-    else if (p->x < size)
-        p->x = maxScreen.x - size;
-    if (p->y > maxScreen.y - size)
-        p->y = size;
-    else if (p->y < size)
-        p->y = maxScreen.y - size;
-}
 
 // Update the player each frame
 void update_player(Player *p, float deltaTime, Point2 maxScreen)
@@ -146,9 +128,12 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen)
     if (igIsKeyDown(ImGuiKey_R))
         *p = accelerate_player(*p, deltaTime);
     // Collisions
-    /*if (sphere_collision_rectangle(p.axis.origin, p.size, 0, 0, 1000, 800))
-        p = player_init(p, 500, 400, 30);*/
-    sphere_collision_border_replace(&p->axis.origin, p->size, maxScreen);
+    if (sphere_collision_rectangle(p->axis.origin, p->size, 0, 0, maxScreen.x, maxScreen.y))
+    {
+        SAT_collision_border_replace(p->shape, 5, p->size, maxScreen);
+        //  p = player_init(p, 500, 400, 30);*/
+        // sphere_collision_border_replace(&p->axis.origin, p->size, maxScreen);
+    }
     // test collision mine
     if (sphere_collision_sphere(p->axis.origin, p->size, (Float2){500, 400}, 15))
     {
@@ -267,7 +252,7 @@ void test_collision(Player player1, ImVec2 mousePos)
         cvAddLine(poly[i].x, poly[i].y, poly[(i + 1) % 6].x, poly[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
     }
     // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, &player1.shape, 3);
-    bool collision = SAT_collision_SAT(&poly_m, 6, &poly, 6);
+    bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
     for (int i = 0; i < 3; i++)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);

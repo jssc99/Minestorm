@@ -1,6 +1,7 @@
 #include "physics.h"
 
 #define DEBUG true
+
 // Detect a collision between a sphere and a SAT
 bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegments)
 {
@@ -78,7 +79,7 @@ Sat generate_SAT(Point2 p[], int pIdx, int nbSegments)
 }
 
 // Checks collision between 2 spheres/points
-// (if radius = 1.f -> sphere becomes point)
+// (if radius = 0.f -> sphere becomes point)
 bool sphere_collision_sphere(Point2 p1, float radius1, Point2 p2, float radius2)
 {
     if (distPoint2(p1, p2) <= radius1 + radius2)
@@ -93,8 +94,34 @@ bool point_collision_rectangle(Point2 p, float xmin, float ymin, float xmax, flo
     return true;
 }
 // Checks collision between a sphere/point and a rectangle
-// (if radius = 1.f -> sphere becomes point)
+// (if radius = 0.f -> sphere becomes point)
 bool sphere_collision_rectangle(Point2 p, float radius, float xmin, float ymin, float xmax, float ymax)
 {
     return point_collision_rectangle(p, xmin + radius, ymin + radius, xmax - radius, ymax - radius);
+}
+
+// Check collision between a sphere and the screen and replace the object
+void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
+{
+    if (p->x > maxScreen.x - size)
+        p->x = size;
+    else if (p->x < size)
+        p->x = maxScreen.x - size;
+    if (p->y > maxScreen.y - size)
+        p->y = size;
+    else if (p->y < size)
+        p->y = maxScreen.y - size;
+}
+void SAT_collision_border_replace(Point2 *p, int nbSides, float size, Point2 maxScreen)
+{
+    Point2 screen[2] = { {0, 0}, maxScreen };
+    SAT_collision_SAT(p, nbSides, screen, 2);
+    if (p->x > maxScreen.x - size)
+        p->x = size;
+    else if (p->x < size)
+        p->x = maxScreen.x - size;
+    if (p->y > maxScreen.y - size)
+        p->y = size;
+    else if (p->y < size)
+        p->y = maxScreen.y - size;
 }
