@@ -7,8 +7,8 @@ typedef struct Player
     Vector2 targetLine;
     Vector2 moveLine;
     Vector2 inertia;
-    Point2 shape[3];
-    Sat sat[3];
+    Point2 shape[5];
+    //Sat sat[3];
     float size;
     float speed;
     float firecd;

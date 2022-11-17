@@ -10,7 +10,8 @@
         "physics.h": "c",
         "enemy.h": "c",
         "menu.h": "c",
-        "points.h": "c"
+        "points.h": "c",
+        "glfw3.h": "c"
     },
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
         "clang-analyzer-optin.performance.Padding"

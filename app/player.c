@@ -11,6 +11,7 @@ static ImU32 color;
 void debug_menu_player(Player *p, bool debugPlayer)
 {
     igBegin("Player", &debugPlayer, ImGuiWindowFlags_None);
+    igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
     igText("Lives = %d", p->lives);
     igText("Speed = %f", p->speed);
     if (DEBUG_PLAYER && igButton("Display axis", (ImVec2){0, 0}))
@@ -130,7 +131,7 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen)
     // Collisions
     if (sphere_collision_rectangle(p->axis.origin, p->size, 0, 0, maxScreen.x, maxScreen.y))
     {
-        SAT_collision_border_replace(p->shape, 5, p->size, maxScreen);
+        poly_collision_border_replace(p->shape, &p->axis.origin, 5, p->size, maxScreen);
         //  p = player_init(p, 500, 400, 30);*/
         // sphere_collision_border_replace(&p->axis.origin, p->size, maxScreen);
     }
@@ -252,7 +253,8 @@ void test_collision(Player player1, ImVec2 mousePos)
         cvAddLine(poly[i].x, poly[i].y, poly[(i + 1) % 6].x, poly[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
     }
     // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, &player1.shape, 3);
-    bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
+    // bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
+    bool collision = sphere_collision_rectangle((Point2){mousePos.x,mousePos.y}, 20, 0, 0, 700, 800);
     for (int i = 0; i < 3; i++)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);

@@ -90,8 +90,8 @@ bool sphere_collision_sphere(Point2 p1, float radius1, Point2 p2, float radius2)
 bool point_collision_rectangle(Point2 p, float xmin, float ymin, float xmax, float ymax)
 {
     if (p.x > xmax || p.x < xmin || p.y > ymax || p.y < ymin)
-        return false;
-    return true;
+        return true;
+    return false;
 }
 // Checks collision between a sphere/point and a rectangle
 // (if radius = 0.f -> sphere becomes point)
@@ -112,16 +112,19 @@ void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
     else if (p->y < size)
         p->y = maxScreen.y - size;
 }
-void SAT_collision_border_replace(Point2 *p, int nbSides, float size, Point2 maxScreen)
+void poly_collision_border_replace(Point2 p[], Point2 *origin, int nbSides, float size, Point2 maxScreen)
 {
-    Point2 screen[2] = { {0, 0}, maxScreen };
-    SAT_collision_SAT(p, nbSides, screen, 2);
-    if (p->x > maxScreen.x - size)
-        p->x = size;
-    else if (p->x < size)
-        p->x = maxScreen.x - size;
-    if (p->y > maxScreen.y - size)
-        p->y = size;
-    else if (p->y < size)
-        p->y = maxScreen.y - size;
+    //Point2 screen[2] = {{0, 0}, {0, maxScreen.y}, maxScreen, {maxScreen.x, 0}};
+    // SAT_collision_SAT(p, nbSides, screen, 4);
+    for (int i = 0; i < nbSides; i++)
+    {
+        if (p[i].x > maxScreen.x)
+            origin->x = size;
+        else if (p[i].x < 0)
+            origin->x = maxScreen.x - size;
+        if (p[i].y > maxScreen.y)
+            origin->y = size;
+        else if (p[i].y < 0)
+            origin->y = maxScreen.y - size;
+    }
 }
