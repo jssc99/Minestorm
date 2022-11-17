@@ -84,22 +84,22 @@ Vector2 multVector2(Vector2 v, float mul)
     return (Float2){v.x * mul, v.y * mul};
 }
 
-//Normalize Vector2
+// Normalize Vector2
 Vector2 normalizedVector2(Vector2 v)
 {
     return multVector2(v, 1.0 / normVector2(v));
 }
 
-//Get the normal vector from a vector2
+// Get the normal vector from a vector2
 Vector2 getNormalVectorVector2(Vector2 v)
 {
-    return rotatePoint2((Float2){0,0}, normalizedVector2(v), M_PI/2);
+    return rotatePoint2((Float2){0, 0}, normalizedVector2(v), M_PI / 2);
 }
 
-//Get the normal vector from 2 points
+// Get the normal vector from 2 points
 Vector2 getNormalVectorPoint2(Point2 a, Point2 b)
 {
-    return getNormalVectorVector2(setVector2Point2(a,b));
+    return getNormalVectorVector2(setVector2Point2(a, b));
 }
 
 // Dot product of 2 vectors in 2D
@@ -117,12 +117,13 @@ float determinantVector2(Vector2 v1, Vector2 v2)
 // Get an angle from 2 vectors in 2D
 float getAngleVector2(Vector2 v1, Vector2 v2)
 {
-    float cos = dotProductVector2(v1, v2) / (normVector2(v1) * normVector2(v2));
+    float denom = (normVector2(v1) * normVector2(v2));
+    if (!denom)
+        return 0;
+    float cos = dotProductVector2(v1, v2) / denom;
     float angle = acosf(cos);
     if (determinantVector2(v1, v2) >= 0)
-    {
         return angle;
-    }
     return -angle;
 }
 

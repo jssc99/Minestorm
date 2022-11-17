@@ -5,8 +5,8 @@ const float MAX_SPEED_SHIP = 500;
 const float ACCELERATION = 20;
 const float DECELERATION = 0.7;
 
-static ImDrawList *drawList;
-static ImU32 color;
+#define drawList igGetBackgroundDrawList_Nil()
+// static ImU32 color;
 
 void debug_menu_player(Player *p, bool debugPlayer)
 {
@@ -71,33 +71,34 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
 // Draw the player
 void draw_player(Player *p, unsigned int color)
 {
-    Point2 origin = p->axis.origin;
     draw_circle(p->shape, p->axis.origin, 5, p->size, getAngleVector2(p->axis.x, (Float2){0, 1}), color);
-    if (DEBUG_PLAYER)
+}
+// Draw debug
+void draw_debug(Player *p)
+{
+    Point2 origin = p->axis.origin;
+    Point2 x = addVector2(origin, multVector2(p->axis.x, 2.0));
+    Point2 y = addVector2(origin, multVector2(p->axis.y, 2.0));
+    Point2 z = addVector2(origin, multVector2(p->inertia, p->size * 5 / MAX_SPEED_SHIP));
+    Point2 dz = addVector2(origin, multVector2(p->moveLine, p->speed * 5 / MAX_SPEED_SHIP));
+
+    if (p->displayInertia)
+        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
+    if (p->displaySpeed)
+        cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
+    if (p->displayAxis)
     {
-
-        Point2 x = addVector2(origin, multVector2(p->axis.x, 2.0));
-        Point2 y = addVector2(origin, multVector2(p->axis.y, 2.0));
-        Point2 z = addVector2(origin, multVector2(p->inertia, p->size * 5 / MAX_SPEED_SHIP));
-        Point2 dz = addVector2(origin, multVector2(p->moveLine, p->speed * 5 / MAX_SPEED_SHIP));
-
-        if (p->displayInertia)
-            cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
-        if (p->displaySpeed)
-            cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
-        if (p->displayAxis)
-        {
-            cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline
-            cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
-        }
-        if (p->displaySSphere)
-        {
-            // ImDrawList_AddCircle(drawList, (ImVec2){origin.x, origin.y}, p->size, color, 10, 1.0f); // Surrounding sphere
-            draw_circle(NULL, origin, 50, p->size, 0, CV_COL32(255, 255, 255, 200));
-            draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
-        }
+        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline
+        cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
+    }
+    if (p->displaySSphere)
+    {
+        ImDrawList_AddCircle(drawList, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 10, 1.0f); // Surrounding sphere
+        // draw_circle(NULL, origin, 50, p->size, 0, CV_COL32(255, 255, 255, 200));
+        draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
     }
 }
+
 // draw 1 bullet
 void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color)
 {
@@ -250,10 +251,10 @@ void test_collision(Player player1, ImVec2 mousePos)
     // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, &player1.shape, 3);
     // bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
     bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 20, 0, 0, 700, 800);
-    for (int i = 0; i < 3; i++)
+    /*for (int i = 0; i < 3; i++)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);
     }
-    draw_circle(NULL, (Point2){mousePos.x, mousePos.y}, 50, 2, 0, CV_COL32((255 * collision), (!collision * 255), 0, 255));
+    */draw_circle(NULL, (Point2){mousePos.x, mousePos.y}, 50, 2, 0, CV_COL32((255 * collision), (!collision * 255), 0, 255));
     // printf("min = %f, max = %f, x = %f, y = %f\n", player1.sat->min, player1.sat->max, player1.sat->normal.x, player1.sat->normal.y);
 }

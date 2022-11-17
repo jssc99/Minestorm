@@ -35,6 +35,7 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
 // Player
 Player player_init(Player p, float x, float y, float size);
 void draw_player(Player* p, unsigned int color);
+void draw_debug(Player *p);
 void rotate_player(Player* p, float angle);
 void update_player(Player* p, float deltaTime, Point2 maxScreen);
 void  turnleft_player(Player* p, float deltaTime);
