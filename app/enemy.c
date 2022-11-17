@@ -110,32 +110,25 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
     return enemy;
 }
 
-void update_xy_mine(Vector2 dir, float *x, float *y, float radiusX, float radiusY)
-{
-    *x += dir.x;
-    if (*x - radiusX < 0.f)
-        *x = 700 - radiusX;
-    else if (*x + radiusX >= 700)
-        *x = radiusX;
-
-    *y += dir.y;
-    if (*y - radiusY < 0.f)
-        *y = 800 - radiusY;
-    else if (*y + radiusY >= 800)
-        *y = radiusY;
-
-   // if (sphere_collision_rectangle())
-}
-
 void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
 {
     if (e->type == MAGNETIC || e->type == MAGNET_FIRE)
-        e->angle = atan2f(e->location.origin.y - pPos.y, e->location.origin.x - pPos.x);
+    {   // normalise vector from enemy to player
+        e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
+        e->location.y = rotatePoint2((Point2){0, 0}, e->location.x, M_PI / 2.f);
+        e->angle = getAngleVector2((Float2){-1, 0}, e->location.x);
+    }
+
+    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.x.x, e->location.origin.y + 20 * e->location.x.y, CV_COL32(255, 0, 0, 255));
+    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.y.x, e->location.origin.y + 20 * e->location.y.y, CV_COL32(0, 255, 0, 255));
 
     float radiusBig = get_max_size(e->size, e->type);
     float radiusSmall = get_small_size(e->size, e->type);
 
-    update_xy_mine(e->location.x, &e->location.origin.x, &e->location.origin.y, radiusBig, radiusBig);
+    e->location.origin.x += e->location.x.x;
+    e->location.origin.y += e->location.x.y;
+
+    poly_collision_border_replace(e->points, &e->location.origin, e->nbPoints, radiusBig, (Point2){700, 800});
 
     Point2 center = e->location.origin;
     float angle = e->angle;
@@ -156,20 +149,23 @@ void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
 
 void update_pos_minelayer(Enemy *e)
 {
-    update_xy_mine(e->location.x, &e->location.origin.x, &e->location.origin.y, MINELAYER_LENGTH_X, MINELAYER_LENGTH_Y);
+    e->location.origin.x += e->location.x.x;
+    e->location.origin.y += e->location.x.y;
+
+    poly_collision_border_replace(e->points, &e->location.origin, e->nbPoints, MINELAYER_LENGTH_X, (Point2){700, 800});
 
     float x = e->location.origin.x;
     float y = e->location.origin.y;
 
     Point2 point[9] = {
         {x - 26.f, y + 10.f},
-        {x - 36.f, y + 14.f},
-        {x - 30.f, y},
-        {x - 12.f, y},
+        {x - 38.f, y + 20.f},
+        {x - 32., y},
+        {x - 14.f, y},
         {x /*  */, y - 12.f},
-        {x + 12.f, y},
-        {x + 30.f, y},
-        {x + 36.f, y + 14.f},
+        {x + 14.f, y},
+        {x + 32., y},
+        {x + 38.f, y + 20.f},
         {x + 26.f, y + 10.f}};
 
     for (int i = 0; i < 9; i++)
@@ -178,13 +174,22 @@ void update_pos_minelayer(Enemy *e)
 
 void update_pos_any_mine(Enemy *e, Vector2 posPlayer)
 {
-    if (e->type == FLOATING || e->type == FIREBALL_MINE || e->type == MAGNETIC)
+    switch (e->type)
+    {
+    case FLOATING:
+    case FIREBALL_MINE:
+    case MAGNETIC:
         update_pos_basic_mine(e, posPlayer, 0);
-    if (e->type == MAGNET_FIRE)
+        break;
+
+    case MAGNET_FIRE:
         update_pos_basic_mine(e, posPlayer, 1);
-    // update_pos_magnet_fire_mine(e);
-    if (e->type == MINELAYER)
+        break;
+
+    case MINELAYER:
         update_pos_minelayer(e);
+        break;
+    }
 }
 
 void create_minefield(Enemy e[], int nbEnemy, int width, int height)

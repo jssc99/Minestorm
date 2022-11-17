@@ -56,7 +56,7 @@ void draw_baby_mine(Enemy *e)
 // draw enemy depending on its type & size (see enemyType & enemySize)
 void draw_any_enemy(Enemy *e)
 {
-    if (e->status == BABY)
+    if (e->status == CHILD)
         draw_baby_mine(e);
     else
     {
