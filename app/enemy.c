@@ -153,8 +153,8 @@ void update_pos_minelayer(Enemy *e)
     if (e->location.origin.x + 11.7 >= 750)
         e->location.origin.x = 11.7;
     e->location.origin.y += e->location.x.y;
-    if (e->location.origin.y + radius_big >= 800)
-        e->location.origin.y = radius_big;
+    if (e->location.origin.y + MINE_BIG_RADIUS >= 800)
+        e->location.origin.y = MINE_BIG_RADIUS;
     float x = e->location.origin.x;
     float y = e->location.origin.y;
 

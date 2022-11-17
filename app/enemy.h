@@ -16,7 +16,7 @@
 #define MAGNET_FIRE_SMALL_RADIUS 4.5F
 
 #define NB_POINTS_FIREBALL 12
-#define MINELAYER_ 4.5F
+#define MINELAYER_RADIUS 11.7f
 
 typedef enum enemyType
 {
