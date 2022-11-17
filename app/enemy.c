@@ -117,11 +117,17 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
     return enemy;
 }
 
-void update_pos_basic_mine(Enemy *e)
+void update_pos_basic_mine(Enemy *e, bool alignPoints)
 {
-    Point2 center = e->location.origin;
     float radius_big = get_max_size(e->size, e->type);
     float radius_small = get_small_size(e->size, e->type);
+    e->location.origin.x += e->location.x.x;
+    if (e->location.origin.x + radius_big >= 750)
+        e->location.origin.x = radius_big;
+    e->location.origin.y += e->location.x.y;
+    if (e->location.origin.y + radius_big >= 800)
+        e->location.origin.y = radius_big;
+    Point2 center = e->location.origin;
 
     float angle = e->angle;
     float rotation = M_PI / ((float)e->nbPoints / 2.f);
@@ -129,28 +135,26 @@ void update_pos_basic_mine(Enemy *e)
     for (int i = 0; i < e->nbPoints; i += 2)
     {
         e->points[i] = rotatePoint2(center, (Point2){center.x, center.y + radius_big}, angle);
-        angle += rotation;
+        if (!alignPoints)
+            angle += rotation;
         (e->points[i + 1]) = rotatePoint2(center, (Point2){center.x, center.y + radius_small}, angle);
-        angle += rotation;
-    }
-}
-
-void update_pos_magnet_fire_mine(Enemy *e)
-{
-    Point2 center = e->location.origin;
-    float sizeTop = get_max_size(e->size, e->type);
-    float size = get_small_size(e->size, e->type);
-
-    for (int i = 0; i < 8; i += 2)
-    {
-        float angle = M_PI * i / 4.f + e->angle;
-        e->points[i] = rotatePoint2(center, (Point2){center.x + sizeTop, center.y}, angle);
-        e->points[i + 1] = rotatePoint2(center, (Point2){center.x + size, center.y}, angle);
+        if (alignPoints)
+            angle += 2.f * rotation;
+        else
+            angle += rotation;
     }
 }
 
 void update_pos_minelayer(Enemy *e)
 {
+    e->location.origin.x += e->location.x.x;
+    e->location.origin.y += e->location.x.y;
+    e->location.origin.x += e->location.x.x;
+    if (e->location.origin.x + 11.7 >= 750)
+        e->location.origin.x = 11.7;
+    e->location.origin.y += e->location.x.y;
+    if (e->location.origin.y + radius_big >= 800)
+        e->location.origin.y = radius_big;
     float x = e->location.origin.x;
     float y = e->location.origin.y;
 
@@ -172,9 +176,24 @@ void update_pos_minelayer(Enemy *e)
 void update_pos_any_mine(Enemy *e)
 {
     if (e->type == FLOATING || e->type == FIREBALL_MINE || e->type == MAGNETIC)
-        update_pos_basic_mine(e);
+        update_pos_basic_mine(e, 0);
     if (e->type == MAGNET_FIRE)
-        update_pos_magnet_fire_mine(e);
+        update_pos_basic_mine(e, 1);
+    // update_pos_magnet_fire_mine(e);
     if (e->type == MINELAYER)
         update_pos_minelayer(e);
+}
+
+void create_minefield(Enemy e[], int nbEnemy, int width, int height)
+{
+    srand(time(NULL));
+    for (int i = 0; i < nbEnemy; i++)
+    {
+        e[i].location.origin.x = 10 + rand() % (width - 20);
+        e[i].location.origin.y = 160 + rand() % (height - 180);
+    } /*
+     printf("[ ");
+     for (int i = 0; i < nbEnemy; ++i)
+         printf("%.2f,%.2f%s", e[i].location.origin.x, e[i].location.origin.y, (i < nbEnemy - 1) ? ", " : " ");
+     printf("]\n");*/
 }

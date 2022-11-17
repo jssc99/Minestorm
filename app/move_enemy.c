@@ -31,7 +31,7 @@ void move_minelayer(Enemy enemy)
 }
 
 // move enemy depending on its type & size (see enemyType & enemySize)
-int move_any_enemy(Enemy enemy)
+void move_any_enemy(Enemy enemy)
 {
     switch (enemy.type)
     {

@@ -8,7 +8,9 @@
 #define GREY igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 0.5}))
 #define PLAYER1_BLUE igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
 
-static ImDrawList *drawList;
+#define drawList igGetBackgroundDrawList_Nil()
+
+//static ImDrawList *drawList;
 
 void PathLineTo_point2(Point2 p)
 {
@@ -54,7 +56,6 @@ void draw_baby_mine(Enemy *e)
 // draw enemy depending on its type & size (see enemyType & enemySize)
 void draw_any_enemy(Enemy *e)
 {
-    drawList = igGetBackgroundDrawList_Nil();
     if (e->status == BABY)
         draw_baby_mine(e);
     else

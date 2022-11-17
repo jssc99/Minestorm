@@ -19,8 +19,8 @@ int main()
             fprintf(stderr, "glfwInit() failed: %s\n", error);
         }
 
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        window = glfwCreateWindow(1000, 800, "Minestorm", NULL, NULL);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        window = glfwCreateWindow(750, 800, "Minestorm", NULL, NULL);
         if (window == NULL)
         {
             const char *error;
@@ -47,6 +47,7 @@ int main()
         cvNewFrame();
 
         appUpdate(&app);
+        if (app.closeGame) glfwSetWindowShouldClose(window, 1);
 
         // End
         cvEndFrame();

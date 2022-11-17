@@ -16,6 +16,7 @@
 #define MAGNET_FIRE_SMALL_RADIUS 4.5F
 
 #define NB_POINTS_FIREBALL 12
+#define MINELAYER_ 4.5F
 
 typedef enum enemyType
 {
@@ -56,6 +57,8 @@ typedef struct Enemy
 
 Enemy init_enemy(float x, float y, enemyType type, enemySize size);
 
+void create_minefield(Enemy e[], int nbEnemy, int width, int height);
+
 float get_size_multiplier(enemySize size);
 float get_max_size(enemySize size, enemyType type);
 float get_small_size(enemySize size, enemyType type);
@@ -69,4 +72,8 @@ void move_any_enemy(Enemy enemy);
 // Draw function
 void draw_any_enemy(Enemy *e);
 
+
+
+
+// temp
 void draw_player_draw(Player p);
