@@ -16,7 +16,8 @@
 #define MAGNET_FIRE_SMALL_RADIUS 4.5F
 
 #define NB_POINTS_FIREBALL 12
-#define MINELAYER_RADIUS 11.7f
+#define MINELAYER_LENGTH_X 36.f
+#define MINELAYER_LENGTH_Y 14.f
 
 typedef enum enemyType
 {
@@ -39,6 +40,7 @@ typedef enum enemySize
 typedef enum Status
 {
     BABY,
+    CHILD,
     ADULT,
     DEAD
 } Status;
@@ -49,7 +51,6 @@ typedef struct Enemy
     Status status;
     enemyType type;
     enemySize size;
-    float speed;
     float angle;
     int nbPoints;
     Point2 points[10];
@@ -64,16 +65,13 @@ float get_max_size(enemySize size, enemyType type);
 float get_small_size(enemySize size, enemyType type);
 
 // Update func
-void update_pos_any_mine(Enemy *e);
+void update_pos_any_mine(Enemy *e, Vector2 posPlayer);
 
 // Move function
 void move_any_enemy(Enemy enemy);
 
 // Draw function
 void draw_any_enemy(Enemy *e);
-
-
-
 
 // temp
 void draw_player_draw(Player p);

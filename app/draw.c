@@ -67,9 +67,9 @@ void draw_any_enemy(Enemy *e)
         if (e->type == FIREBALL)
             draw_fireball(e->location.origin, 0.5 * get_size_multiplier(e->size));
         if (e->type == MAGNETIC)
-            draw_magnet(e->location.origin, 16, get_size_multiplier(e->size), e->angle + M_PI / 4.f, get_size_multiplier(e->size));
+            draw_magnet(e->location.origin, 16, get_size_multiplier(e->size), e->angle - M_PI / 2.f, get_size_multiplier(e->size));
         if (e->type == MAGNET_FIRE)
-            draw_magnet(e->location.origin, 16, 2.f * get_size_multiplier(e->size), e->angle + M_PI / 5.f, get_size_multiplier(e->size));
+            draw_magnet(e->location.origin, 16, 2.f * get_size_multiplier(e->size), e->angle - M_PI / 2.f, get_size_multiplier(e->size));
     }
 }
 
