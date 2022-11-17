@@ -112,19 +112,20 @@ void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
     else if (p->y < size)
         p->y = maxScreen.y - size;
 }
-void poly_collision_border_replace(Point2 p[], Point2 *origin, int nbSides, float size, Point2 maxScreen)
+void poly_collision_border_replace(Point2 p[], Point2 *center, int nbSides, float size, Point2 maxScreen)
 {
-    //Point2 screen[2] = {{0, 0}, {0, maxScreen.y}, maxScreen, {maxScreen.x, 0}};
-    // SAT_collision_SAT(p, nbSides, screen, 4);
-    for (int i = 0; i < nbSides; i++)
+    if (sphere_collision_rectangle(*center, size, 0, 0, maxScreen.x, maxScreen.y))
     {
-        if (p[i].x > maxScreen.x)
-            origin->x = size;
-        else if (p[i].x < 0)
-            origin->x = maxScreen.x - size;
-        if (p[i].y > maxScreen.y)
-            origin->y = size;
-        else if (p[i].y < 0)
-            origin->y = maxScreen.y - size;
+        for (int i = 0; i < nbSides; i++)
+        {
+            if (p[i].x > maxScreen.x)
+                center->x = size;
+            else if (p[i].x < 0)
+                center->x = maxScreen.x - size;
+            if (p[i].y > maxScreen.y)
+                center->y = size;
+            else if (p[i].y < 0)
+                center->y = maxScreen.y - size;
+        }
     }
 }

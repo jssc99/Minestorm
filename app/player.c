@@ -129,12 +129,8 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen)
     if (igIsKeyDown(ImGuiKey_R))
         *p = accelerate_player(*p, deltaTime);
     // Collisions
-    if (sphere_collision_rectangle(p->axis.origin, p->size, 0, 0, maxScreen.x, maxScreen.y))
-    {
-        poly_collision_border_replace(p->shape, &p->axis.origin, 5, p->size, maxScreen);
-        //  p = player_init(p, 500, 400, 30);*/
-        // sphere_collision_border_replace(&p->axis.origin, p->size, maxScreen);
-    }
+    poly_collision_border_replace(p->shape, &p->axis.origin, 5, p->size, maxScreen);
+
     // test collision mine
     if (sphere_collision_sphere(p->axis.origin, p->size, (Float2){500, 400}, 15))
     {
@@ -254,7 +250,7 @@ void test_collision(Player player1, ImVec2 mousePos)
     }
     // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, &player1.shape, 3);
     // bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
-    bool collision = sphere_collision_rectangle((Point2){mousePos.x,mousePos.y}, 20, 0, 0, 700, 800);
+    bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 20, 0, 0, 700, 800);
     for (int i = 0; i < 3; i++)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);
