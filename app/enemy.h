@@ -54,6 +54,7 @@ typedef struct Enemy
     float angle;
     int nbPoints;
     Point2 points[10];
+    int deathScore;
 } Enemy;
 
 Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size);
@@ -65,7 +66,7 @@ float get_max_size(enemySize size, enemyType type);
 float get_small_size(enemySize size, enemyType type);
 
 // Update func
-void update_pos_any_mine(Enemy *e, Vector2 posPlayer);
+void update_pos_any_enemy(Enemy *e, Vector2 posPlayer);
 
 // Move function
 void move_any_enemy(Enemy enemy);

@@ -74,7 +74,7 @@ void draw_any_enemy(Enemy *e)
     }
 }
 
-ImU32 get_player_color(playerNb)
+ImU32 get_player_color(int playerNb)
 {
     if (playerNb == 1)
         return PLAYER1;
