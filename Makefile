@@ -1,4 +1,4 @@
-PROGRAM=minestorm
+PROGRAM=minestorm.exe
 
 CFLAGS=-O0 -g -Wall -Wextra -Wno-unused-parameter -Werror=implicit-function-declaration
 CFLAGS+=-Wno-unused-variable -Wno-deprecated-declarations
@@ -22,4 +22,4 @@ $(PROGRAM): $(OBJS)
 	gcc $(CFLAGS) $(CPPFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
-	rm -f $(OBJS) $(DEPS) config.bin
+	rm -f $(OBJS) $(DEPS) config.bin minestorm

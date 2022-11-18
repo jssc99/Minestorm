@@ -2,4 +2,5 @@
 **/*.d
 imgui.ini
 minestorm
+minestorm.exe
 app/app.c
