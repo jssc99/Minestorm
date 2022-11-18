@@ -187,11 +187,11 @@ void update_pos_minelayer(Enemy *e)
     Point2 point[9] = {
         {x - 26.f, y + 10.f},
         {x - 38.f, y + 20.f},
-        {x - 32., y},
+        {x - 32.f, y},
         {x - 14.f, y},
         {x /*  */, y - 12.f},
         {x + 14.f, y},
-        {x + 32., y},
+        {x + 32.f, y},
         {x + 38.f, y + 20.f},
         {x + 26.f, y + 10.f}};
 
