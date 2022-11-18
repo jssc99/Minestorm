@@ -6,13 +6,14 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
 
-#define WHITE igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}))
 #define GREY igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 0.5}))
-#define PLAYER1_BLUE igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
+#define WHITE igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}))
+#define PLAYER1 igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
+#define PLAYER2 igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.5f, 1.0f}))
 
 #define drawList igGetBackgroundDrawList_Nil()
 
-//static ImDrawList *drawList;
+// static ImDrawList *drawList;
 
 void PathLineTo_point2(Point2 p)
 {
@@ -58,7 +59,7 @@ void draw_baby_mine(Enemy *e)
 // draw enemy depending on its type & size (see enemyType & enemySize)
 void draw_any_enemy(Enemy *e)
 {
-    if (e->status == BABY)
+    if (e->status == CHILD)
         draw_baby_mine(e);
     else
     {
@@ -75,12 +76,23 @@ void draw_any_enemy(Enemy *e)
     }
 }
 
-void draw_player(Player p)
+ImU32 get_player_color(playerNb)
+{
+    if (playerNb == 1)
+        return PLAYER1;
+    else
+        return PLAYER2;
+}
+
+void draw_player(Player p, int playerNb)
 {
     float x = p.axis.origin.x;
     float y = p.axis.origin.y;
 
     for (int i = 0; i < 10; i++)
         PathLineTo_point2(p.shape[i]);
-    ImDrawList_PathStroke(drawList, PLAYER1_BLUE, ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
+    ImDrawList_PathStroke(drawList,
+                          get_player_color(playerNb),
+                          ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll,
+                          1.5f);
 }
