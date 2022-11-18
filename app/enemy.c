@@ -201,9 +201,6 @@ void update_pos_minelayer(Enemy *e)
 
 void update_pos_any_mine(Enemy *e, Vector2 posPlayer)
 {
-    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.x.x, e->location.origin.y + 20 * e->location.x.y, CV_COL32(255, 0, 0, 255));
-    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.y.x, e->location.origin.y + 20 * e->location.y.y, CV_COL32(0, 255, 0, 255));
-
     switch (e->type)
     {
     case FLOATING:
@@ -234,9 +231,5 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height)
         e[i].location.origin.x = 100 + rand() % (width - 120);
         e[i].location.origin.y = 160 + rand() % (height - 180);
         e[i].status = CHILD;
-    } /*
-     printf("[ ");
-     for (int i = 0; i < nbEnemy; ++i)
-         printf("%.2f,%.2f%s", e[i].location.origin.x, e[i].location.origin.y, (i < nbEnemy - 1) ? ", " : " ");
-     printf("]\n");*/
+    }
 }

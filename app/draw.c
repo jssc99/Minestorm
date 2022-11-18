@@ -11,25 +11,23 @@
 #define PLAYER1 igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
 #define PLAYER2 igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.5f, 1.0f}))
 
-#define drawList igGetBackgroundDrawList_Nil()
-
-// static ImDrawList *drawList;
+#define DRAW_LIST igGetBackgroundDrawList_Nil()
 
 void PathLineTo_point2(Point2 p)
 {
-    ImDrawList_PathLineTo(drawList, (ImVec2){p.x, p.y});
+    ImDrawList_PathLineTo(DRAW_LIST, (ImVec2){p.x, p.y});
 }
 
 void draw_poly(Point2 *points, int nbPoints)
 {
     for (int i = 0; i < nbPoints; i++)
         PathLineTo_point2(points[i]);
-    ImDrawList_PathStroke(drawList, WHITE, ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
+    ImDrawList_PathStroke(DRAW_LIST, WHITE, ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
 }
 
 void draw_fireball(Point2 center, float radius)
 {
-    ImDrawList_AddCircle(drawList, (ImVec2){center.x, center.y}, radius, WHITE, NB_POINTS_FIREBALL, 1.5f);
+    ImDrawList_AddCircle(DRAW_LIST, (ImVec2){center.x, center.y}, radius, WHITE, NB_POINTS_FIREBALL, 1.5f);
 }
 
 void draw_magnet(Point2 center, int sides, float radius, float angleOffset, float length)
@@ -44,7 +42,7 @@ void draw_magnet(Point2 center, int sides, float radius, float angleOffset, floa
         if (i == sides)
             PathLineTo_point2(rotatePoint2(point, (Point2){point.x, point.y + length * 1.6}, angle));
     }
-    ImDrawList_PathStroke(drawList, WHITE, ImDrawFlags_RoundCornersAll, 1.5f);
+    ImDrawList_PathStroke(DRAW_LIST, WHITE, ImDrawFlags_RoundCornersAll, 1.5f);
 }
 
 void draw_baby_mine(Enemy *e)
@@ -52,8 +50,8 @@ void draw_baby_mine(Enemy *e)
     float radius = 4.f;
     float x = e->location.origin.x;
     float y = e->location.origin.y;
-    ImDrawList_AddLine(drawList, (ImVec2){x - radius, y - radius}, (ImVec2){x + 0.5f + radius, y + radius}, GREY, 1.5f);
-    ImDrawList_AddLine(drawList, (ImVec2){x - radius, y + radius}, (ImVec2){x + 0.5f + radius, y - radius}, GREY, 1.5f);
+    ImDrawList_AddLine(DRAW_LIST, (ImVec2){x - radius, y - radius}, (ImVec2){x + 0.5f + radius, y + radius}, GREY, 1.5f);
+    ImDrawList_AddLine(DRAW_LIST, (ImVec2){x - radius, y + radius}, (ImVec2){x + 0.5f + radius, y - radius}, GREY, 1.5f);
 }
 
 // draw enemy depending on its type & size (see enemyType & enemySize)
@@ -91,8 +89,5 @@ void draw_player(Player p, int playerNb)
 
     for (int i = 0; i < 10; i++)
         PathLineTo_point2(p.shape[i]);
-    ImDrawList_PathStroke(drawList,
-                          get_player_color(playerNb),
-                          ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll,
-                          1.5f);
+    ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerNb), ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
 }
