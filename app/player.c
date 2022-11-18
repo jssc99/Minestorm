@@ -28,8 +28,9 @@ void debug_menu_player(Player *p, bool debugPlayer)
     igEnd();
 }
 // Initialize Player at position(x,y) First time think about setting lives to 3.
-Player player_init(Player p, float x, float y, float size)
+Player player_init(float x, float y, float size)
 {
+    Player p;
     p.axis = (Axis2){{x, y},
                      {0, -1},
                      {1, 0}};
@@ -40,7 +41,7 @@ Player player_init(Player p, float x, float y, float size)
     p.size = size;
     return p;
 }
-// Draw a cricle or a polygon
+// Draw a circle or a polygon
 void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
 {
     Point2 point[sides];
@@ -69,12 +70,12 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
 }
 
 // Draw the player
-void init_points_player(Player *p, unsigned int color)
+void init_points_player(Player *p)
 {
     float x = p->axis.origin.x;
     float y = p->axis.origin.y;
     Point2 origin = p->axis.origin;
-    Vector2 axeY = p->axis.x;
+    Vector2 axeY = p->axis.x; // initialize Rocket with arrow up
     Vector2 axeX = p->axis.y;
     Point2 point[10] = {
         translatePoint2(origin, multVector2(axeY, 25.f)), // Head
@@ -91,7 +92,7 @@ void init_points_player(Player *p, unsigned int color)
     for (int i = 0; i < 10; i++)
         p->shape[i] = point[i];
 }
-//Collision with enemy
+// Collision with enemy
 
 // Draw debug
 void draw_debug(Player *p)
@@ -108,14 +109,15 @@ void draw_debug(Player *p)
         cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
     if (p->displayAxis)
     {
-        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline *2 
+        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline *2
         cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
     }
     if (p->displaySSphere)
     {
-        ImDrawList_AddCircle(drawList, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 10, 1.0f); // Surrounding sphere
+        ImDrawList_AddCircle(drawList, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 50, 0.5f); // Surrounding sphere
         // draw_circle(NULL, origin, 50, p->size, 0, CV_COL32(255, 255, 255, 200));
-        draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
+        // draw_circle(NULL, (Float2){500, 400}, 50, 15, 0, CV_COL32(255, 255, 255, 200)); // Surrounding sphere mine
+        ImDrawList_AddCircle(drawList, (ImVec2){500, 400}, 15, CV_COL32(255, 255, 255, 200), 50, 0.5f);
     }
 }
 
@@ -138,6 +140,31 @@ void rotate_player(Player *p, float angle)
     p->axis = rotateAxis2(p->axis, angle);
 }
 
+// Fire a bullet
+void fire_bullet(Player *p, float deltaTime, Point2 maxScreen)
+{
+    if (p->firecd > 0.25)
+    {
+        for (int i = 0; i < 50; i++)
+        {
+            if (p->bullets[i].lifespan == 0)
+            {
+                p->bullets[i] = init_bullet(*p);
+                break;
+            }
+        }
+        p->firecd = 0;
+    }
+// Ci-desoous dans app
+    for (int i = 0; i < MAX_BULLETS; i++)
+    {
+        if (p->bullets[i].lifespan)
+        {
+            update_bullet(&p->bullets[i], deltaTime, maxScreen);
+            draw_bullet(p->bullets[i].location, 50, p->bullets[i].size, CV_COL32(255, 255 / MAX_BULLETS * i, 0, 255));
+        }
+    }
+}
 // Update the player each frame
 void update_player(Player *p, float deltaTime, Point2 maxScreen)
 {
@@ -148,13 +175,16 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen)
         turnright_player(p, deltaTime);
     if (igIsKeyDown(ImGuiKey_R))
         *p = accelerate_player(*p, deltaTime);
+    if (igIsKeyDown(ImGuiKey_F))
+        fire_bullet(p, deltaTime, maxScreen);
+
     // Collisions
-    poly_collision_border_replace(p->shape, &p->axis.origin, 5, p->size, maxScreen);
+    poly_collision_border_replace(p->shape, &p->axis.origin, 10, p->size, maxScreen);
 
     // test collision mine
     if (sphere_collision_sphere(p->axis.origin, p->size, (Float2){500, 400}, 15))
     {
-        *p = player_init(*p, 400, 300, p->size);
+        *p = player_init(400, 300, p->size);
         p->lives--;
     }
     else
@@ -171,6 +201,7 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen)
     }
 
     p->firecd += deltaTime;
+    init_points_player(p);
 }
 
 // Create a bullet
@@ -195,7 +226,6 @@ void update_bullet(Bullet *b, float deltaTime, Point2 maxScreen)
         b->lifespan = 0;
     if (sphere_collision_sphere(b->location, b->size, (Point2){500, 400}, 15))
         b->lifespan = 0;
-    // return b;
 }
 // Turn the player to the left igIsKeyDown(ImGuiKey_D)
 void turnleft_player(Player *p, float deltaTime)
@@ -271,8 +301,8 @@ void test_collision(Player player1, ImVec2 mousePos)
         cvAddLine(poly[i].x, poly[i].y, poly[(i + 1) % 6].x, poly[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
     }
     // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, &player1.shape, 3);
-    // bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
-    bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 20, 0, 0, 700, 800);
+    bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
+   // bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 20, 0, 0, 700, 800);
     /*for (int i = 0; i < 3; i++)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);

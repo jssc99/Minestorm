@@ -123,12 +123,12 @@ void poly_collision_border_replace(Point2 p[], Point2 *center, int nbSides, floa
         for (int i = 0; i < nbSides; i++)
         {
             if (p[i].x > maxScreen.x)
-                center->x = size;
+                center->x = size; // -size if detect on origin
             else if (p[i].x < 0)
                 center->x = maxScreen.x - size;
             if (p[i].y > maxScreen.y)
                 center->y = size;
-            else if (p[i].y < 0)
+            else if (p[i].y < 0)    //-size if detect on origin
                 center->y = maxScreen.y - size;
         }
     }

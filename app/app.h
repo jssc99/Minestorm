@@ -4,6 +4,8 @@
 #include "enemy.h"
 #include "menu.h"
 
+
+
 typedef struct Game
 {
     Menu menu;
