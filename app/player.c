@@ -31,11 +31,11 @@ void debug_menu_player(Player *p, bool debugPlayer)
 Player player_init(Player p, float x, float y, float size)
 {
     p.axis = (Axis2){{x, y},
-                     {0, -size},
-                     {size, 0}};
+                     {0, -1},
+                     {1, 0}};
     p.inertia = (Vector2){0, 0};
     p.speed = 0;
-    p.moveLine = p.axis.x;
+    p.moveLine = multVector2(p.axis.x, size);
     p.targetLine = p.moveLine;
     p.size = size;
     return p;
@@ -69,16 +69,36 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
 }
 
 // Draw the player
-void draw_player(Player *p, unsigned int color)
+void init_points_player(Player *p, unsigned int color)
 {
-    draw_circle(p->shape, p->axis.origin, 5, p->size, getAngleVector2(p->axis.x, (Float2){0, 1}), color);
+    float x = p->axis.origin.x;
+    float y = p->axis.origin.y;
+    Point2 origin = p->axis.origin;
+    Vector2 axeY = p->axis.x;
+    Vector2 axeX = p->axis.y;
+    Point2 point[10] = {
+        translatePoint2(origin, multVector2(axeY, 25.f)), // Head
+        translatePoint2(origin, multVector2(axeX, -5.f)),
+        translatePoint2(origin, multVector2(axeX, -10.f)),
+        translatePoint2(origin, addVector2(multVector2(axeX, -15.f), multVector2(axeY, -20.f))),
+        translatePoint2(origin, addVector2(multVector2(axeX, -4.2f), multVector2(axeY, -07.f))),
+        translatePoint2(origin, multVector2(axeY, -12.f)), // Tail
+        translatePoint2(origin, addVector2(multVector2(axeX, +4.2f), multVector2(axeY, -07.f))),
+        translatePoint2(origin, addVector2(multVector2(axeX, +15.f), multVector2(axeY, -20.f))),
+        translatePoint2(origin, multVector2(axeX, 10.f)),
+        translatePoint2(origin, multVector2(axeX, 5.f))};
+
+    for (int i = 0; i < 10; i++)
+        p->shape[i] = point[i];
 }
+//Collision with enemy
+
 // Draw debug
 void draw_debug(Player *p)
 {
     Point2 origin = p->axis.origin;
-    Point2 x = addVector2(origin, multVector2(p->axis.x, 2.0));
-    Point2 y = addVector2(origin, multVector2(p->axis.y, 2.0));
+    Point2 x = addVector2(origin, multVector2(p->axis.x, p->size * 2.0));
+    Point2 y = addVector2(origin, multVector2(p->axis.y, p->size * 2.0));
     Point2 z = addVector2(origin, multVector2(p->inertia, p->size * 5 / MAX_SPEED_SHIP));
     Point2 dz = addVector2(origin, multVector2(p->moveLine, p->speed * 5 / MAX_SPEED_SHIP));
 
@@ -88,7 +108,7 @@ void draw_debug(Player *p)
         cvAddLine(origin.x, origin.y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
     if (p->displayAxis)
     {
-        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline
+        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline *2 
         cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
     }
     if (p->displaySSphere)
@@ -139,7 +159,9 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen)
     }
     else
     {
-        p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
+        // p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
+        p->moveLine = multVector2(p->axis.x, p->size);
+        p->targetLine = p->moveLine;
         // Deceleration
         p->speed = normVector2(p->inertia);
         p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
@@ -255,6 +277,7 @@ void test_collision(Player player1, ImVec2 mousePos)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);
     }
-    */draw_circle(NULL, (Point2){mousePos.x, mousePos.y}, 50, 2, 0, CV_COL32((255 * collision), (!collision * 255), 0, 255));
+    */
+    draw_circle(NULL, (Point2){mousePos.x, mousePos.y}, 50, 2, 0, CV_COL32((255 * collision), (!collision * 255), 0, 255));
     // printf("min = %f, max = %f, x = %f, y = %f\n", player1.sat->min, player1.sat->max, player1.sat->normal.x, player1.sat->normal.y);
 }

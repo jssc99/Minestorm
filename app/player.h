@@ -1,5 +1,6 @@
 #pragma once
 #include "physics.h"
+//#include "draw.c"
 
 typedef struct Player
 {
@@ -7,7 +8,7 @@ typedef struct Player
     Vector2 targetLine;
     Vector2 moveLine;
     Vector2 inertia;
-    Point2 shape[5];
+    Point2 shape[10];
     //Sat sat[3];
     float size;
     float speed;
@@ -34,7 +35,8 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
 
 // Player
 Player player_init(Player p, float x, float y, float size);
-void draw_player(Player* p, unsigned int color);
+void init_points_player(Player *p, unsigned int color);
+//void draw_player(Player* p, unsigned int color);
 void draw_debug(Player *p);
 void rotate_player(Player* p, float angle);
 void update_player(Player* p, float deltaTime, Point2 maxScreen);

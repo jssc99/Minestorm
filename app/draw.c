@@ -1,3 +1,5 @@
+#pragma once
+
 #include "enemy.h"
 #include "player.h"
 
@@ -56,7 +58,7 @@ void draw_baby_mine(Enemy *e)
 // draw enemy depending on its type & size (see enemyType & enemySize)
 void draw_any_enemy(Enemy *e)
 {
-    if (e->status == CHILD)
+    if (e->status == BABY)
         draw_baby_mine(e);
     else
     {
@@ -73,24 +75,12 @@ void draw_any_enemy(Enemy *e)
     }
 }
 
-void draw_player_draw(Player p)
+void draw_player(Player p)
 {
     float x = p.axis.origin.x;
     float y = p.axis.origin.y;
 
-    Point2 point[10] = {
-        {x /*  */, y - 30.f},
-        {x - 05.f, y},
-        {x - 10.f, y},
-        {x - 15.f, y + 20.f},
-        {x - 04.2, y + 07.f},
-        {x /*  */, y + 12.f},
-        {x + 04.2, y + 07.f},
-        {x + 15.f, y + 20.f},
-        {x + 10.f, y},
-        {x + 05.f, y}};
-
     for (int i = 0; i < 10; i++)
-        PathLineTo_point2(point[i]);
+        PathLineTo_point2(p.shape[i]);
     ImDrawList_PathStroke(drawList, PLAYER1_BLUE, ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
 }
