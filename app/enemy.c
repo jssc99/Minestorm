@@ -85,7 +85,7 @@ Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size)
     }
 
     if (size == FIXED && type != MINELAYER && type != FIREBALL)
-        size == SMALL;
+        size = SMALL; // J'ai retire un = en trop, Warning
 
     switch (type)
     {

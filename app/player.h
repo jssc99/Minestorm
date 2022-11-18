@@ -2,6 +2,9 @@
 #include "physics.h"
 //#include "draw.c"
 #define MAX_BULLETS 5
+static const float MAX_SPEED_SHIP = 500;
+static const float ACCELERATION = 20;
+static const float DECELERATION = 0.7;
 
 typedef struct Bullet
 {
@@ -18,7 +21,6 @@ typedef struct Player
     Vector2 moveLine;
     Vector2 inertia;
     Point2 shape[10];
-    //Sat sat[3];
     float size;
     float speed;
     float firecd;
@@ -38,11 +40,12 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
 // Player
 Player player_init( float x, float y, float size);
 void init_points_player(Player *p);
+void player_spawn(Player *p, float x, float y);
 void draw_player(Player p, int playerNb);
 //void draw_player(Player* p, unsigned int color);
-void draw_debug(Player *p);
+void draw_debug_player(Player *p);
 void rotate_player(Player* p, float angle);
-void update_player(Player* p, float deltaTime, Point2 maxScreen);
+void update_player(Player* p, float deltaTime, Point2 maxScreen, bool p2);
 void  turnleft_player(Player* p, float deltaTime);
 void  turnright_player(Player* p, float deltaTime);
 Player accelerate_player(Player p, float deltaTime);
@@ -52,8 +55,9 @@ void debug_menu_player(Player* p, bool debugPlayer);
 
 // Bullet
 Bullet init_bullet(Player p);
-void update_bullet(Bullet* b,  float deltaTime, Point2 maxScreen);
-void draw_bullet(Point2 center, unsigned int sides, float radius, unsigned int color);
+void update_one_bullet(Bullet* b,  float deltaTime, Point2 maxScreen);
+void update_bullet(Player *p, float deltaTime, Point2 maxScreen);
+void draw_bullet(Point2 center, float radius, unsigned int color);
 void fire_bullet(Player *p, float deltaTime, Point2 maxScreen);
 
 //Test collisions
