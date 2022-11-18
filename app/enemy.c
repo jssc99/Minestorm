@@ -84,37 +84,67 @@ Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size)
         enemy.location = (Axis2){{100, 100}, {1.f, 0.f}, {0.f, 1.f}};
     }
 
-    switch (type)
-    {
-    case MINELAYER:
-    case FIREBALL:
-        enemy.size = FIXED;
-        break;
-
-    default:
-        enemy.size = size;
-        break;
-    }
+    if (size == FIXED && type != MINELAYER && type != FIREBALL)
+        size == SMALL;
 
     switch (type)
     {
     case FLOATING:
         enemy.nbPoints = 6;
+        if (size == BIG)
+            enemy.deathScore = 100;
+        if (size == MEDIUM)
+            enemy.deathScore = 135;
+        if (size == SMALL)
+            enemy.deathScore = 200;
         break;
 
     case FIREBALL_MINE:
+        enemy.nbPoints = 8;
+        if (size == BIG)
+            enemy.deathScore = 325;
+        if (size == MEDIUM)
+            enemy.deathScore = 360;
+        if (size == SMALL)
+            enemy.deathScore = 425;
+        break;
+
     case MAGNETIC:
+        enemy.nbPoints = 8;
+        if (size == BIG)
+            enemy.deathScore = 500;
+        if (size == MEDIUM)
+            enemy.deathScore = 535;
+        if (size == SMALL)
+            enemy.deathScore = 600;
+        break;
+
     case MAGNET_FIRE:
         enemy.nbPoints = 8;
+        if (size == BIG)
+            enemy.deathScore = 750;
+        if (size == MEDIUM)
+            enemy.deathScore = 785;
+        if (size == SMALL)
+            enemy.deathScore = 850;
+        break;
+
+    case FIREBALL:
+        enemy.nbPoints = 0;
+        enemy.deathScore = 110;
+        enemy.size = FIXED;
         break;
 
     case MINELAYER:
         enemy.nbPoints = 9;
+        enemy.deathScore = 1000;
+        enemy.size = FIXED;
         break;
 
-    case FIREBALL:
     default:
         enemy.nbPoints = 0;
+        enemy.deathScore = 0;
+        enemy.size = size;
         break;
     }
     return enemy;
@@ -159,11 +189,11 @@ void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
 
 void update_pos_fireball(Enemy *e, Vector2 pPos)
 {
-    if (e->points[0].x != 1) // === bool fireball location.x updated ('points' for fireball is unused)
+    if (!e->nbPoints) // === bool fireball nbPoints updated ('points' for fireball is unused)
     {
         e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
         e->location.y = rotatePoint2((Point2){0, 0}, e->location.x, M_PI / 2.f);
-        e->points[0].x = 1;
+        e->nbPoints++;
     }
     e->location.origin.x += e->location.x.x;
     e->location.origin.y += e->location.x.y;
@@ -187,11 +217,11 @@ void update_pos_minelayer(Enemy *e)
     Point2 point[9] = {
         {x - 26.f, y + 10.f},
         {x - 38.f, y + 20.f},
-        {x - 32., y},
+        {x - 32.f, y},
         {x - 14.f, y},
         {x /*  */, y - 12.f},
         {x + 14.f, y},
-        {x + 32., y},
+        {x + 32.f, y},
         {x + 38.f, y + 20.f},
         {x + 26.f, y + 10.f}};
 
@@ -199,11 +229,8 @@ void update_pos_minelayer(Enemy *e)
         e->points[i] = rotatePoint2(e->location.origin, point[i], e->angle);
 }
 
-void update_pos_any_mine(Enemy *e, Vector2 posPlayer)
+void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
 {
-    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.x.x, e->location.origin.y + 20 * e->location.x.y, CV_COL32(255, 0, 0, 255));
-    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.y.x, e->location.origin.y + 20 * e->location.y.y, CV_COL32(0, 255, 0, 255));
-
     switch (e->type)
     {
     case FLOATING:
@@ -216,12 +243,12 @@ void update_pos_any_mine(Enemy *e, Vector2 posPlayer)
         update_pos_basic_mine(e, posPlayer, 1);
         break;
 
-    case MINELAYER:
-        update_pos_minelayer(e);
-        break;
-
     case FIREBALL:
         update_pos_fireball(e, posPlayer);
+        break;
+
+    case MINELAYER:
+        update_pos_minelayer(e);
         break;
     }
 }
@@ -234,9 +261,5 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height)
         e[i].location.origin.x = 100 + rand() % (width - 120);
         e[i].location.origin.y = 160 + rand() % (height - 180);
         e[i].status = CHILD;
-    } /*
-     printf("[ ");
-     for (int i = 0; i < nbEnemy; ++i)
-         printf("%.2f,%.2f%s", e[i].location.origin.x, e[i].location.origin.y, (i < nbEnemy - 1) ? ", " : " ");
-     printf("]\n");*/
+    }
 }

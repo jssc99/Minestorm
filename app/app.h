@@ -11,6 +11,8 @@ typedef struct Game
     Menu menu;
     Enemy enemies[6];
     Player player1;
+    Player player2;
+    int score;
 } Game;
 
 typedef struct App
