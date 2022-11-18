@@ -72,6 +72,3 @@ void move_any_enemy(Enemy enemy);
 
 // Draw function
 void draw_any_enemy(Enemy *e);
-
-// temp
-void draw_player_draw(Player p);
