@@ -66,13 +66,23 @@ float get_small_size(enemySize size, enemyType type)
     return 0.f;
 }
 
-Enemy init_enemy(float x, float y, enemyType type, enemySize size)
+Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size)
 {
     Enemy enemy;
-    enemy.location = (Axis2){{x, y}, {1.f, 0.f}, {0.f, 1.f}};
     enemy.status = BABY;
     enemy.type = type;
-    enemy.angle = 0.f;
+    if (type == FLOATING || type == FIREBALL_MINE)
+    {
+        enemy.angle = (rand() % 360) * M_PI / 180.f;
+        enemy.location.origin = (Point2){100, 100};
+        enemy.location.x = normalizedVector2(rotatePoint2((Point2){1.f, 0.f}, enemy.location.origin, enemy.angle));
+        enemy.location.y = rotatePoint2((Point2){0, 0}, enemy.location.x, M_PI / 2.f);
+    }
+    else
+    {
+        enemy.angle = 0.f;
+        enemy.location = (Axis2){{100, 100}, {1.f, 0.f}, {0.f, 1.f}};
+    }
 
     switch (type)
     {
@@ -113,20 +123,20 @@ Enemy init_enemy(float x, float y, enemyType type, enemySize size)
 void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
 {
     if (e->type == MAGNETIC || e->type == MAGNET_FIRE)
-    {   // normalise vector from enemy to player
+    { // normalise vector ( enemy to player )
         e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
+        if (700 - fabsf(e->location.origin.x - pPos.x) <= fabsf(e->location.origin.x - pPos.x))
+            e->location.x.x *= -1;
+        if (800 - fabsf(e->location.origin.y - pPos.y) <= fabsf(e->location.origin.y - pPos.y))
+            e->location.x.y *= -1;
         e->location.y = rotatePoint2((Point2){0, 0}, e->location.x, M_PI / 2.f);
         e->angle = getAngleVector2((Float2){-1, 0}, e->location.x);
     }
-
-    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.x.x, e->location.origin.y + 20 * e->location.x.y, CV_COL32(255, 0, 0, 255));
-    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.y.x, e->location.origin.y + 20 * e->location.y.y, CV_COL32(0, 255, 0, 255));
+    e->location.origin.x += e->location.x.x;
+    e->location.origin.y += e->location.x.y;
 
     float radiusBig = get_max_size(e->size, e->type);
     float radiusSmall = get_small_size(e->size, e->type);
-
-    e->location.origin.x += e->location.x.x;
-    e->location.origin.y += e->location.x.y;
 
     poly_collision_border_replace(e->points, &e->location.origin, e->nbPoints, radiusBig, (Point2){700, 800});
 
@@ -145,6 +155,23 @@ void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
         else
             angle += rotation;
     }
+}
+
+void update_pos_fireball(Enemy *e, Vector2 pPos)
+{
+    if (e->points[0].x != 1) // === bool fireball location.x updated ('points' for fireball is unused)
+    {
+        e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
+        e->location.y = rotatePoint2((Point2){0, 0}, e->location.x, M_PI / 2.f);
+        e->points[0].x = 1;
+    }
+    e->location.origin.x += e->location.x.x;
+    e->location.origin.y += e->location.x.y;
+
+    float radiusBig = get_max_size(e->size, e->type);
+
+    if (sphere_collision_rectangle(e->location.origin, radiusBig, 0, 0, 700, 800))
+        e->status = DEAD;
 }
 
 void update_pos_minelayer(Enemy *e)
@@ -174,6 +201,9 @@ void update_pos_minelayer(Enemy *e)
 
 void update_pos_any_mine(Enemy *e, Vector2 posPlayer)
 {
+    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.x.x, e->location.origin.y + 20 * e->location.x.y, CV_COL32(255, 0, 0, 255));
+    cvAddLine(e->location.origin.x, e->location.origin.y, e->location.origin.x + 20 * e->location.y.x, e->location.origin.y + 20 * e->location.y.y, CV_COL32(0, 255, 0, 255));
+
     switch (e->type)
     {
     case FLOATING:
@@ -189,6 +219,10 @@ void update_pos_any_mine(Enemy *e, Vector2 posPlayer)
     case MINELAYER:
         update_pos_minelayer(e);
         break;
+
+    case FIREBALL:
+        update_pos_fireball(e, posPlayer);
+        break;
     }
 }
 
@@ -197,7 +231,7 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height)
     srand(time(NULL));
     for (int i = 0; i < nbEnemy; i++)
     {
-        e[i].location.origin.x = 10 + rand() % (width - 20);
+        e[i].location.origin.x = 100 + rand() % (width - 120);
         e[i].location.origin.y = 160 + rand() % (height - 180);
         e[i].status = CHILD;
     } /*

@@ -56,7 +56,7 @@ typedef struct Enemy
     Point2 points[10];
 } Enemy;
 
-Enemy init_enemy(float x, float y, enemyType type, enemySize size);
+Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size);
 
 void create_minefield(Enemy e[], int nbEnemy, int width, int height);
 

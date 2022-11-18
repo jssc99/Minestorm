@@ -21,7 +21,8 @@ typedef struct App
 
     // enemy debug
     unsigned int id;
-    bool movePoint;
+    bool movePointE;
+    bool movePointP;
     bool rotate;
     float angle;
 } App;
