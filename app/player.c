@@ -109,9 +109,8 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2)
                 accelerate_player(p, deltaTime);
             if ((igIsKeyDown(ImGuiKey_F) && !p2) || (igIsKeyDown(ImGuiKey_K) && p2))
                 fire_bullet(p, deltaTime, maxScreen);
-            if (((igIsKeyPressed(ImGuiKey_E, 0) || (igIsKeyPressed(ImGuiKey_T, 0))) && !p2) || (((igIsKeyPressed(ImGuiKey_U, 0)) || (igIsKeyPressed(ImGuiKey_O, 0)) && p2)))
+            if (((igIsKeyPressed(ImGuiKey_E, 0) || (igIsKeyPressed(ImGuiKey_T, 0))) && !p2) || ((igIsKeyPressed(ImGuiKey_U, 0) || (igIsKeyPressed(ImGuiKey_O, 0))) && p2))
                 teleport_player(p, maxScreen);
-
 
             // Collisions
             poly_collision_border_replace(p->shape, &p->axis.origin, 10, p->size, maxScreen);
@@ -207,8 +206,8 @@ void teleport_player(Player *p, Point2 maxScreen)
     {
         // while collision
         srand(time(NULL)); // i++ ?
-        int newPosx = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2*p->size);
-        int newPosY = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2*p->size);
+        int newPosx = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size);
+        int newPosY = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size);
         player_spawn(p, p->size + newPosx, p->size + newPosY);
         p->tpcd = 0;
     }
@@ -246,7 +245,8 @@ void test_collision(Player player1, ImVec2 mousePos)
 {
     // Rectangle collision
     // bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 2, 460, 360, 540, 440);
-    draw_circle(NULL, (Point2){500, 400}, 4, 40 * sqrtf(2), M_PI / 4, CV_COL32_WHITE);
+    Point2 carre[4];
+    draw_circle(&carre, (Point2){500, 400}, 4, 40 * sqrtf(2), M_PI / 4, CV_COL32_WHITE);
 
     // Sat collision
     /*
@@ -301,12 +301,15 @@ void test_collision(Player player1, ImVec2 mousePos)
     Point2 LEFTWING(player1);
     Point2 RIGHTWING(player1);
     Point2 TAIL(player1);
+    /*
     bool collision = (sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, arrow, 3)        //
                       || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, leftWing, 3)  //
                       || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, rightWing, 3) //
                       || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, tail, 3));
+                      */
     // bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
     // bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 20, 0, 0, 700, 800);
+     bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, carre, 4);
     /*for (int i = 0; i < 3; i++)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);

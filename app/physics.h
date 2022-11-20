@@ -25,3 +25,4 @@ bool point_collision_rectangle(Point2 p, float xmin, float ymin, float xmax, flo
 bool sphere_collision_rectangle(Point2 p, float radius, float xmin, float ymin, float xmax, float ymax);
 void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen);
 void poly_collision_border_replace(Point2 p[], Point2 *center, int nbSides, float size, Point2 maxScreen);
+//add an OBB for the mines

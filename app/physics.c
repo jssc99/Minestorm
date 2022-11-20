@@ -136,3 +136,5 @@ void poly_collision_border_replace(Point2 p[], Point2 *center, int nbSides, floa
         }
     }
 }
+
+//Add an OBB for the mines
