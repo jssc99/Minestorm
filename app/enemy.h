@@ -58,8 +58,11 @@ typedef struct Enemy
 } Enemy;
 
 Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size);
-
 void create_minefield(Enemy e[], int nbEnemy, int width, int height);
+
+void age_enemy(Enemy *e);
+void size_enemy(Enemy *e);
+void set_pos_enemy(Enemy *e, float x, float y);
 
 float get_size_multiplier(enemySize size);
 float get_max_size(enemySize size, enemyType type);
@@ -67,9 +70,6 @@ float get_small_size(enemySize size, enemyType type);
 
 // Update func
 void update_pos_any_enemy(Enemy *e, Vector2 posPlayer);
-
-// Move function
-void move_any_enemy(Enemy enemy);
 
 // Draw function
 void draw_any_enemy(Enemy *e);

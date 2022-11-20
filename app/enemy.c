@@ -1,6 +1,7 @@
 #include "enemy.h"
 #include "physics.h"
 
+// returns a mines size multiplier
 float get_size_multiplier(enemySize size)
 {
     switch (size)
@@ -18,6 +19,7 @@ float get_size_multiplier(enemySize size)
     }
 }
 
+// returns a mines biggest radius
 float get_max_size(enemySize size, enemyType type)
 {
     float multiplier = get_size_multiplier(size);
@@ -39,6 +41,7 @@ float get_max_size(enemySize size, enemyType type)
     return 0.f;
 }
 
+// returns a mines smallest inside radius
 float get_small_size(enemySize size, enemyType type)
 {
     float multiplier = get_size_multiplier(size);
@@ -66,6 +69,26 @@ float get_small_size(enemySize size, enemyType type)
     return 0.f;
 }
 
+// ages an enemy, loops around (DEAD -> BABY)
+void age_enemy(Enemy *e)
+{
+    e->status = (e->status + 1) % 4;
+}
+
+// changes an enemy 'size', unless size is FIXED, loops around (BIG -> SMALL)
+void size_enemy(Enemy *e)
+{
+    if (e->size != FIXED)
+        e->size = (e->size + 1) % 3;
+}
+
+// places enemy at a chosen point
+void set_pos_enemy(Enemy *e, float x, float y)
+{
+    e->location.origin = (Point2){x, y};
+}
+
+// init enemy type and size, requires pos of player
 Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size)
 {
     Enemy enemy;
@@ -229,6 +252,7 @@ void update_pos_minelayer(Enemy *e)
         e->points[i] = rotatePoint2(e->location.origin, point[i], e->angle);
 }
 
+// updates the pos of any mine inputed
 void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
 {
     switch (e->type)
@@ -253,6 +277,7 @@ void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
     }
 }
 
+// creates the minefield by giving every enemy a pos
 void create_minefield(Enemy e[], int nbEnemy, int width, int height)
 {
     srand(time(NULL));
