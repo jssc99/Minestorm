@@ -5,9 +5,9 @@ bool DEBUG_PLAYER = 1;
 #define drawList igGetBackgroundDrawList_Nil()
 // static ImU32 color;
 
-void debug_menu_player(Player *p, bool debugPlayer)
+void debug_menu_player(Player *p, bool debugMenu)
 {
-    igBegin("Player", &debugPlayer, ImGuiWindowFlags_None);
+    igBegin("Player", &debugMenu, ImGuiWindowFlags_None);
     igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
     igText("Lives = %d", p->lives);
     igText("Speed = %f", p->speed);
@@ -38,7 +38,8 @@ void player_spawn(Player *p, float x, float y)
 // Initialize Player at position(x,y) First time think about setting lives to 3.
 Player player_init(float x, float y, float size)
 {
-    Player p;
+    Player p = {0};
+    p.lives = 3;
     p.size = size;
     player_spawn(&p, x, y);
     return p;
@@ -53,20 +54,21 @@ void init_points_player(Player *p)
     Vector2 axeY = p->axis.x; // initialize Rocket with arrow up
     Vector2 axeX = p->axis.y;
     Point2 point[10] = {
-        translatePoint2(origin, multVector2(axeY, 25.f)), // Head
-        translatePoint2(origin, multVector2(axeX, -5.f)),
-        translatePoint2(origin, multVector2(axeX, -10.f)),
-        translatePoint2(origin, addVector2(multVector2(axeX, -15.f), multVector2(axeY, -20.f))),
-        translatePoint2(origin, addVector2(multVector2(axeX, -4.2f), multVector2(axeY, -07.f))),
-        translatePoint2(origin, multVector2(axeY, -12.f)), // Tail
-        translatePoint2(origin, addVector2(multVector2(axeX, +4.2f), multVector2(axeY, -07.f))),
-        translatePoint2(origin, addVector2(multVector2(axeX, +15.f), multVector2(axeY, -20.f))),
-        translatePoint2(origin, multVector2(axeX, 10.f)),
-        translatePoint2(origin, multVector2(axeX, 5.f))};
+        translatePoint2(origin, multVector2(axeY, 25.f)),                                        // Head   {0,25}
+        translatePoint2(origin, multVector2(axeX, -5.f)),                                        //        {0,-5}
+        translatePoint2(origin, multVector2(axeX, -8.f)),                                        //        {0,-8}
+        translatePoint2(origin, addVector2(multVector2(axeX, -15.f), multVector2(axeY, -20.f))), //        {-15,-20}
+        translatePoint2(origin, addVector2(multVector2(axeX, -4.2f), multVector2(axeY, -07.f))), //        {-4.-2,7}
+        translatePoint2(origin, multVector2(axeY, -12.f)),                                       // Tail   {0,-12}
+        translatePoint2(origin, addVector2(multVector2(axeX, +4.2f), multVector2(axeY, -07.f))), //        {4.2,7}
+        translatePoint2(origin, addVector2(multVector2(axeX, +15.f), multVector2(axeY, -20.f))), //        {15,20}
+        translatePoint2(origin, multVector2(axeX, 8.f)),                                         //        {0, 8}
+        translatePoint2(origin, multVector2(axeX, 5.f))};                                        //        {0, 5}
 
     for (int i = 0; i < 10; i++)
         p->shape[i] = point[i];
 }
+
 // Collision with enemy
 
 // Rotate the player
@@ -80,7 +82,7 @@ void fire_bullet(Player *p, float deltaTime, Point2 maxScreen)
 {
     if (p->firecd > 0.25)
     {
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < MAX_BULLETS; i++)
         {
             if (p->bullets[i].lifespan == 0)
             {
@@ -94,41 +96,49 @@ void fire_bullet(Player *p, float deltaTime, Point2 maxScreen)
 // Update the player each frame
 void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2)
 {
-    // INPUTS
-    if ((igIsKeyDown(ImGuiKey_D) && !p2) || (igIsKeyDown(ImGuiKey_J) && p2))
-        turnleft_player(p, deltaTime);
-    if ((igIsKeyDown(ImGuiKey_G) && !p2) || (igIsKeyDown(ImGuiKey_L) && p2))
-        turnright_player(p, deltaTime);
-    if ((igIsKeyDown(ImGuiKey_R) && !p2) || (igIsKeyDown(ImGuiKey_I) && p2))
-        *p = accelerate_player(*p, deltaTime);
-    if ((igIsKeyDown(ImGuiKey_F) && !p2) || (igIsKeyDown(ImGuiKey_K) && p2))
-        fire_bullet(p, deltaTime, maxScreen);
+    if (deltaTime)
 
-    // Collisions
-    poly_collision_border_replace(p->shape, &p->axis.origin, 10, p->size, maxScreen);
+        if (p->lives >= 0)
+        {
+            // INPUTS
+            if ((igIsKeyDown(ImGuiKey_D) && !p2) || (igIsKeyDown(ImGuiKey_J) && p2))
+                turnleft_player(p, deltaTime);
+            if ((igIsKeyDown(ImGuiKey_G) && !p2) || (igIsKeyDown(ImGuiKey_L) && p2))
+                turnright_player(p, deltaTime);
+            if ((igIsKeyDown(ImGuiKey_R) && !p2) || (igIsKeyDown(ImGuiKey_I) && p2))
+                accelerate_player(p, deltaTime);
+            if ((igIsKeyDown(ImGuiKey_F) && !p2) || (igIsKeyDown(ImGuiKey_K) && p2))
+                fire_bullet(p, deltaTime, maxScreen);
+            if (((igIsKeyPressed(ImGuiKey_E, 0) || (igIsKeyPressed(ImGuiKey_T, 0))) && !p2) || (((igIsKeyPressed(ImGuiKey_U, 0)) || (igIsKeyPressed(ImGuiKey_O, 0)) && p2)))
+                teleport_player(p, maxScreen);
 
-    // test collision mine
-    if (sphere_collision_sphere(p->axis.origin, p->size, (Float2){500, 400}, 15))
-    {
-        player_spawn(p, 400, 300);
-        p->lives--;
-    }
-    else
-    {
-        // p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
-        p->moveLine = multVector2(p->axis.x, p->size);
-        p->targetLine = p->moveLine;
-        // Deceleration
-        p->speed = normVector2(p->inertia);
-        p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
-        // p->speed *= DECELERATION;
-        // Displacement
-        p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
-    }
 
-    p->firecd += deltaTime;
-    init_points_player(p);
-    update_bullet(p, deltaTime, maxScreen);
+            // Collisions
+            poly_collision_border_replace(p->shape, &p->axis.origin, 10, p->size, maxScreen);
+
+            // test collision mine
+            if (sphere_collision_sphere(p->axis.origin, p->size, (Float2){500, 400}, 15))
+            {
+                player_spawn(p, 400, 300);
+                p->lives--;
+            }
+            else
+            {
+                // p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
+                p->moveLine = multVector2(p->axis.x, p->size);
+                p->targetLine = p->moveLine;
+                // Deceleration
+                p->speed = normVector2(p->inertia);
+                p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
+                // p->speed *= DECELERATION;
+                // Displacement
+                p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
+            }
+            update_bullet(p, deltaTime, maxScreen);
+            p->firecd += deltaTime;
+            p->tpcd += deltaTime;
+            init_points_player(p);
+        }
 }
 
 // Create a bullet
@@ -142,7 +152,7 @@ Bullet init_bullet(Player p)
     return b;
 }
 
-// Update ALL the bulletsof a player
+// Draw ALL the bullets of a player
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
@@ -178,18 +188,30 @@ void turnright_player(Player *p, float deltaTime)
     rotate_player(p, M_PI * deltaTime);
 }
 
-Player accelerate_player(Player p, float deltaTime)
+// Add ACCELERATION to speed
+void accelerate_player(Player *p, float deltaTime)
 {
-    if (p.speed < MAX_SPEED_SHIP)
+    if (p->speed < MAX_SPEED_SHIP)
     {
-        p.speed += ACCELERATION * deltaTime;
+        p->speed += ACCELERATION * deltaTime;
     }
     else
-        p.inertia = multVector2(p.inertia, MAX_SPEED_SHIP / p.speed);
-    p.inertia = addVector2(p.inertia, multVector2(p.targetLine, ACCELERATION * deltaTime));
-    p.moveLine = p.targetLine;
-
-    return p;
+        p->inertia = multVector2(p->inertia, MAX_SPEED_SHIP / p->speed);
+    p->inertia = addVector2(p->inertia, multVector2(p->targetLine, ACCELERATION * deltaTime));
+    p->moveLine = p->targetLine;
+}
+// Teleport player at a random position, should check the collisions first
+void teleport_player(Player *p, Point2 maxScreen)
+{
+    if (p->tpcd >= 3)
+    {
+        // while collision
+        srand(time(NULL)); // i++ ?
+        int newPosx = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2*p->size);
+        int newPosY = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2*p->size);
+        player_spawn(p, p->size + newPosx, p->size + newPosY);
+        p->tpcd = 0;
+    }
 }
 
 // Draw a circle or a polygon with Canvas (obsolete)
@@ -267,12 +289,18 @@ void test_collision(Player player1, ImVec2 mousePos)
     for (int i = 1; i < 6; i++)
     {
         cvAddLine(poly[i].x, poly[i].y, poly[(i + 1) % 6].x, poly[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
-    }*/
+    }
     Point2 largeBody[3] = {player1.shape[0], player1.shape[3], player1.shape[7]}; // exclude 2 points :(
     Point2 arrow[3] = {player1.shape[0], player1.shape[1], player1.shape[9]};
     Point2 leftWing[3] = {player1.axis.origin, player1.shape[2], player1.shape[3]};
     Point2 rightWing[3] = {player1.axis.origin, player1.shape[7], player1.shape[8]};
     Point2 tail[3] = {player1.shape[1], player1.shape[5], player1.shape[8]};
+    */
+    Point2 LARGEBODY(player1);
+    Point2 ARROW(player1);
+    Point2 LEFTWING(player1);
+    Point2 RIGHTWING(player1);
+    Point2 TAIL(player1);
     bool collision = (sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, arrow, 3)        //
                       || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, leftWing, 3)  //
                       || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, rightWing, 3) //

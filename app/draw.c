@@ -79,7 +79,7 @@ ImU32 get_player_color(int playerNb)
     else
         return PLAYER2;
 }
-//Draw the player
+// Draw the player
 void draw_player(Player p, int playerNb)
 {
     float x = p.axis.origin.x;
@@ -87,13 +87,13 @@ void draw_player(Player p, int playerNb)
 
     for (int i = 0; i < 10; i++)
         PathLineTo_point2(p.shape[i]);
-    ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerNb), ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
+    ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerNb), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.f);
 }
 
 // draw 1 bullet
 void draw_bullet(Point2 center, float radius, unsigned int color)
 {
-    ImDrawList_AddCircleFilled(DRAW_LIST, (ImVec2){center.x,center.y}, radius, color, 50);
+    ImDrawList_AddCircleFilled(DRAW_LIST, (ImVec2){center.x, center.y}, radius, color, 50);
 }
 
 // Draw debug
@@ -102,21 +102,25 @@ void draw_debug_player(Player *p)
     Point2 origin = p->axis.origin;
     Point2 x = addVector2(origin, multVector2(p->axis.x, p->size * 2.0));
     Point2 y = addVector2(origin, multVector2(p->axis.y, p->size * 2.0));
-    Point2 z = addVector2(origin, multVector2(p->inertia, p->size *2/ MAX_SPEED_SHIP));
-    Point2 dz = addVector2(p->shape[0], multVector2(p->moveLine, p->speed *2 / MAX_SPEED_SHIP));
+    Point2 z = addVector2(origin, multVector2(p->inertia, p->size * 2 / MAX_SPEED_SHIP));
+    Point2 dz = addVector2(p->shape[0], multVector2(p->moveLine, p->speed * 2 / MAX_SPEED_SHIP));
 
     if (p->displayInertia)
-        cvAddLine(origin.x, origin.y, z.x, z.y, CV_COL32(255, 0, 255, 255)); //  inertia
+    ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){z.x, z.y}, CV_COL32(255, 0, 255, 200), 2.0f);   //  inertia
     if (p->displaySpeed)
-        cvAddLine(p->shape[0].x, p->shape[0].y, dz.x, dz.y, CV_COL32(0, 0, 255, 255)); // speed * moveline
+    ImDrawList_AddLine(DRAW_LIST, (ImVec2){p->shape->x, p->shape->y}, (ImVec2){dz.x, dz.y}, CV_COL32(0, 0, 255, 200), 2.0f);   // speed * moveline
     if (p->displayAxis)
     {
-        cvAddLine(origin.x, origin.y, x.x, x.y, CV_COL32(255, 0, 0, 255)); // X axis aka targetline *2
-        cvAddLine(origin.x, origin.y, y.x, y.y, CV_COL32(0, 255, 0, 255)); //  Y axis
+        ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){x.x, x.y}, CV_COL32(255, 0, 0, 200), 2.0f); // X axis aka targetline *2
+        ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){y.x, y.y}, CV_COL32(0, 255, 0, 200), 2.0f); //  Y axis
     }
     if (p->displaySSphere)
     {
-        ImDrawList_AddCircle(DRAW_LIST, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 50, 0.5f); // Surrounding sphere
+        ImDrawList_AddCircle(DRAW_LIST, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 50, 0.5f);  // Surrounding sphere
         ImDrawList_AddCircle(DRAW_LIST, (ImVec2){500, 400}, 15, CV_COL32(255, 255, 255, 200), 50, 0.5f);
     }
+    Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
+    for (int i = 0; i < 3; i++)
+        PathLineTo_point2(largeBody[i]);
+    ImDrawList_PathStroke(DRAW_LIST, CV_COL32(255, 255, 255, 200), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.5f);
 }

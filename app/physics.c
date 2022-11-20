@@ -1,6 +1,7 @@
 #include "physics.h"
 
 #define DEBUG true
+#define DRAW_LIST igGetBackgroundDrawList_Nil()
 
 // Detect a collision between a sphere and a SAT
 bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegments)
@@ -13,7 +14,7 @@ bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegm
         {
             if (DEBUG)
             {
-                cvAddLine(poly[i].x, poly[i].y, poly[(i + 1) % nbSegments].x, poly[(i + 1) % nbSegments].y, CV_COL32(255 * (!i), 255 * (i != 1), 0, 255));
+                ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly[i].x, poly[i].y}, (ImVec2){poly[(i + 1) % nbSegments].x, poly[(i + 1) % nbSegments].y}, CV_COL32(255, 200 + 55 * (!i), 0, 200), 2.0f);
             }
             return false;
         }
@@ -48,8 +49,8 @@ bool SAT_collision_SAT(Point2 poly1[], int sidesP1, Point2 poly2[], int sidesP2)
         {
             if (DEBUG)
             {
-                cvAddLine(poly1[i].x, poly1[i].y, poly1[(i + 1) % sidesP1].x, poly1[(i + 1) % sidesP1].y, CV_COL32(255 * (!i), 255 * (i != 1), 0, 255));
-                cvAddLine(poly2[jSep].x, poly2[jSep].y, poly2[(jSep + 1) % sidesP2].x, poly2[(jSep + 1) % sidesP2].y, CV_COL32(255, 255, 0, 255));
+                ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly1[i].x, poly1[i].y}, (ImVec2){poly1[(i + 1) % sidesP1].x, poly1[(i + 1) % sidesP1].y}, CV_COL32(255, 200 + 55 * (!i), 0, 200), 2.0f);
+                ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly2[jSep].x, poly2[jSep].y}, (ImVec2){poly2[(jSep + 1) % sidesP2].x, poly2[(jSep + 1) % sidesP2].y}, CV_COL32(255, 200 + 55 * (!jSep), 0, 200), 2.0f);
             }
             return false;
         }
@@ -113,13 +114,15 @@ void sphere_collision_border_replace(Point2 *p, float size, Point2 maxScreen)
         p->y = maxScreen.y - size;
 }
 
-//Check collision between a polygon and a border
-//1-Check the circumcirlce first
-//2-Then for each summit 'p' of a polygon, check if outside the screen.
+// Check collision between a polygon and a border
+// 1-Check the circumcirlce first
+// 2-Then for each summit 'p' of a polygon, check if outside the screen.
+// Could use only origin for smoother animation
 void poly_collision_border_replace(Point2 p[], Point2 *center, int nbSides, float size, Point2 maxScreen)
 {
     if (sphere_collision_rectangle(*center, size, 0, 0, maxScreen.x, maxScreen.y))
     {
+
         for (int i = 0; i < nbSides; i++)
         {
             if (p[i].x > maxScreen.x)
@@ -128,7 +131,7 @@ void poly_collision_border_replace(Point2 p[], Point2 *center, int nbSides, floa
                 center->x = maxScreen.x - size;
             if (p[i].y > maxScreen.y)
                 center->y = size;
-            else if (p[i].y < 0)    //-size if detect on origin
+            else if (p[i].y < 0) //-size if detect on origin
                 center->y = maxScreen.y - size;
         }
     }
