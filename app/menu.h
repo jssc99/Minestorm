@@ -5,7 +5,7 @@
 
 typedef enum Menu
 {
-    PLAY,
+    MAIN,
     IN_GAME,
     PAUSE,
     GAMEOVER
