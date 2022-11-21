@@ -4,18 +4,7 @@
 #include <cimgui.h>
 #include <canvas.h>
 
-#include "player.h"
-#include "enemy.h"
-#include "menu.h"
-
-typedef struct Game
-{
-    Menu menu;
-    Enemy enemies[6];
-    Player player1;
-    Player player2;
-    int score;
-} Game;
+#include "game.h"
 
 typedef struct App
 {
