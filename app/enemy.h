@@ -3,7 +3,6 @@
 #include "Tools/axis.h"
 #include <stdbool.h>
 #include <math.h>
-//#include <canvas.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -34,15 +33,15 @@ typedef enum enemySize
     SMALL,
     MEDIUM,
     BIG,
-    FIXED
+    FIXED   // used for minelayer and fireball enemy
 } enemySize;
 
 typedef enum Status
 {
-    BABY,
-    CHILD,
-    ADULT,
-    DEAD
+    BABY,   // created but not placed
+    CHILD,  // placed but not moving
+    ADULT,  // moving around
+    DEAD    // killed or died
 } Status;
 
 typedef struct Enemy
@@ -57,7 +56,7 @@ typedef struct Enemy
     int deathScore;
 } Enemy;
 
-Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size);
+Enemy init_enemy(enemyType type, enemySize size);
 void create_minefield(Enemy e[], int nbEnemy, int width, int height);
 
 void age_enemy(Enemy *e);
