@@ -72,31 +72,29 @@ void draw_any_enemy(Enemy *e)
     }
 }
 
-ImU32 get_player_color(int playerNb)
+ImU32 get_player_color(int playerId)
 {
-    if (playerNb == 1)
+    if (playerId == 1)
         return PLAYER1;
     else
         return PLAYER2;
 }
-// Draw the player
-void draw_player(Player p, int playerNb)
-{
-    float x = p.axis.origin.x;
-    float y = p.axis.origin.y;
 
+// Draw the player
+void draw_player(Player p, int playerId)
+{
     for (int i = 0; i < 10; i++)
         PathLineTo_point2(p.shape[i]);
-    ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerNb), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.f);
+    ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerId), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.f);
 }
 
-// draw 1 bullet
+// Draw a bullet
 void draw_bullet(Point2 center, float radius, unsigned int color)
 {
     ImDrawList_AddCircleFilled(DRAW_LIST, (ImVec2){center.x, center.y}, radius, color, 50);
 }
 
-// Draw debug
+// Draw debug player
 void draw_debug_player(Player *p)
 {
     Point2 origin = p->axis.origin;
