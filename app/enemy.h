@@ -58,6 +58,7 @@ typedef struct Enemy
 
 Enemy init_enemy(enemyType type, enemySize size);
 void create_minefield(Enemy e[], int nbEnemy, int width, int height);
+bool is_any_enemy_alive(Enemy e[], int nbEnemies);
 
 void age_enemy(Enemy *e);
 void size_enemy(Enemy *e);
