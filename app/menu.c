@@ -109,7 +109,7 @@ void draw_gameover_menu(ImFont *font, int score)
     draw_instruction(font, 1);
     ImDrawList_AddText_FontPtr(DRAW_LIST, font, 40.f, (ImVec2){252.f, 360.f}, WHITE, "GAME OVER", NULL, 0.f, NULL);
     {
-        draw_score(font, score, 250.f, 400.f, GREEN);
+        draw_score(font, score, 265.f, 400.f, GREEN);
         ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 450.f}, BLUE, "Press 'SPACE' :    New Game", NULL);
         ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 465.f}, RED, "Press 'Esc'   :    Exit Game", NULL);
     }
@@ -117,7 +117,7 @@ void draw_gameover_menu(ImFont *font, int score)
 
 void draw_menu(Menu menu, ImFont *font, int score, bool p2, int p1_lives, int p2_lives)
 {
-    // middle_lines();
+    //middle_lines();
     switch (menu)
     {
     case PLAY:
