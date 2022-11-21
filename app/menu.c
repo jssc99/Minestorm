@@ -1,89 +1,139 @@
 #include "menu.h"
 
-static ImDrawList *drawList;
-static ImU32 color;
+#define WIDTH 700.f
+#define WIDTH_2 350.f
+#define HEIGHT 800.f
+#define HEIGHT_2 400.f
 
-void draw_play_menu()
+#define DRAW_LIST igGetForegroundDrawList_Nil()
+
+#define GREY igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 0.5}))
+#define WHITE igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}))
+#define RED igGetColorU32_Vec4(((ImVec4){1.0f, 0.0f, 0.0f, 1.0f}))
+#define DEEP_BLUE igGetColorU32_Vec4(((ImVec4){0.0f, 0.0f, 1.0f, 1.0f}))
+#define BLUE igGetColorU32_Vec4(((ImVec4){0.2f, 0.2f, 1.0f, 1.0f}))
+#define GREEN igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.0f, 1.0f}))
+#define PLAYER1 igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
+#define PLAYER2 igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.5f, 1.0f}))
+
+// debug for alignment
+void x_middle_line(void)
 {
-    color = igGetColorU32_Vec4(((ImVec4){0.f, 0.8f, 1.0f, 1.0f}));
-    ImDrawList_AddRectFilled(drawList, (ImVec2){20.f, 120.f}, (ImVec2){160.f, 160.f}, color, 10.f, ImDrawFlags_RoundCornersAll);
-    color = igGetColorU32_Vec4(((ImVec4){0.f, 1.0f, 0.1f, 1.0f}));
-    ImDrawList_AddRectFilled(drawList, (ImVec2){590.f, 120.f}, (ImVec2){730.f, 160.f}, color, 10.f, ImDrawFlags_RoundCornersAll);
+    ImDrawList_AddLine(DRAW_LIST, (ImVec2){WIDTH_2, 0}, (ImVec2){WIDTH_2, HEIGHT}, WHITE, 2.f);
+}
+void y_middle_line(void)
+{
+    ImDrawList_AddLine(DRAW_LIST, (ImVec2){0, HEIGHT_2}, (ImVec2){WIDTH, HEIGHT_2}, WHITE, 2.f);
+}
+void middle_lines(void)
+{
+    x_middle_line();
+    y_middle_line();
+}
 
-    color = igGetColorU32_Vec4(((ImVec4){1.f, 1.f, 1.f, 1.f}));
-    // ImFontAtlas *atlas = ImFontAtlas_ImFontAtlas();
-    // ImFont *font = ImFontAtlas_AddFontFromFileTTF(atlas, "assets/Roboto-Regular.ttf", 48.f, NULL, NULL);
-    // ImDrawList_AddText_FontPtr(drawList, font, 2.f, (ImVec2){25.f, 25.f}, color, "Player One", NULL, 10.f, NULL);
-    ImDrawList_AddText_Vec2(drawList, (ImVec2){25.f, 125.f}, color, "Player One", NULL);
+void draw_player_box(bool p2)
+{
+    ImDrawList_AddRectFilled(DRAW_LIST, (ImVec2){20.f, 120.f}, (ImVec2){160.f, 160.f}, PLAYER1, 10.f, ImDrawFlags_RoundCornersAll);
+    if (p2)
+        ImDrawList_AddRectFilled(DRAW_LIST, (ImVec2){540.f, 120.f}, (ImVec2){680.f, 160.f}, PLAYER2, 10.f, ImDrawFlags_RoundCornersAll);
+}
+
+void draw_instruction(ImFont *font, bool p2)
+{
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 30.f, (ImVec2){30.f, 125.f}, WHITE, "Player One", NULL, 0.f, NULL);
+    ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){25.f, 165.f}, WHITE, "Rotate: 'D' & 'G'", NULL);
+    ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){25.f, 180.f}, WHITE, "Move: 'R'", NULL);
+    ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){25.f, 195.f}, WHITE, "Shoot: 'F'", NULL);
+    ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){25.f, 210.f}, WHITE, "Teleport: 'E' or 'T'", NULL);
+
+    if (p2)
     {
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){25.f, 165.f}, color, "Rotate: 'D' & 'G'", NULL);
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){25.f, 180.f}, color, "Move: 'R'", NULL);
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){25.f, 195.f}, color, "Shoot: 'F'", NULL);
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){25.f, 210.f}, color, "Teleport: 'E' or 'T'", NULL);
+        ImDrawList_AddText_FontPtr(DRAW_LIST, font, 30.f, (ImVec2){548.f, 125.f}, WHITE, "Player Two", NULL, 0.f, NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){545.f, 165.f}, WHITE, "Rotate: 'J' & 'L'", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){545.f, 180.f}, WHITE, "Move: 'I'", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){545.f, 195.f}, WHITE, "Shoot: 'K'", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){545.f, 210.f}, WHITE, "Teleport: 'U' or 'O'", NULL);
     }
+}
 
-    ImDrawList_AddText_Vec2(drawList, (ImVec2){595.f, 125.f}, color, "Player Two", NULL);
+void draw_score(ImFont *font, int score, float x, float y, ImU32 color)
+{
+    char textTemp[30];
+    sprintf(textTemp, "Score : %8d", score);
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 35.f, (ImVec2){x, y}, color, textTemp, NULL, 0.f, NULL);
+}
+
+void draw_play_menu(ImFont *font)
+{
+    draw_player_box(1);
+    draw_instruction(font, 1);
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 35.f, (ImVec2){220.f, 360.f}, WHITE, "Do you want to play ?", NULL, 0.f, NULL);
     {
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){595.f, 165.f}, color, "Rotate: 'J' & 'L'", NULL);
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){595.f, 180.f}, color, "Move: 'I'", NULL);
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){595.f, 195.f}, color, "Shoot: 'K'", NULL);
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){595.f, 210.f}, color, "Teleport: 'U' or 'O'", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 410.f}, BLUE, "Press 'F'    :   Solo mode", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 425.f}, GREEN, "Press 'K'    :   Two player mode", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 440.f}, RED, "Press 'Esc'  :   Exit Game", NULL);
     }
+}
 
-    ImDrawList_AddText_Vec2(drawList, (ImVec2){300.f, 400.f}, color, "Do you want to play ?", NULL);
+void draw_lives(ImFont *font, int lives, float x, float y)
+{
+    char textTemp[30];
+    sprintf(textTemp, "Lives : %d", lives);
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 30.f, (ImVec2){x, y}, WHITE, textTemp, NULL, 0.f, NULL);
+}
+
+void draw_in_game_menu(ImFont *font, bool p2, int lives_p1, int lives_p2, int score)
+{
+    draw_player_box(p2);
+    draw_lives(font, lives_p1, 45.f, 125.f);
+    if (p2)
+        draw_lives(font, lives_p2, 565.f, 125.f);
+    draw_score(font, score, 250.f, 760.f, WHITE);
+}
+
+void draw_pause_menu(ImFont *font, int score, bool p2)
+{
+    draw_player_box(p2);
+    draw_instruction(font, p2);
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 35.f, (ImVec2){302.f, 360.f}, WHITE, "PAUSE", NULL, 0.f, NULL);
     {
-        color = igGetColorU32_Vec4(((ImVec4){0.f, 0.3f, 1.f, 1.f}));
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){300.f, 415.f}, color, "Press 'F'   : Solo mode", NULL);
-        color = igGetColorU32_Vec4(((ImVec4){0.f, 1.f, 0.f, 1.f}));
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){300.f, 430.f}, color, "Press 'K'   : Two player mode", NULL);
-        color = igGetColorU32_Vec4(((ImVec4){1.f, 0.f, 0.f, 1.f}));
-        ImDrawList_AddText_Vec2(drawList, (ImVec2){300.f, 445.f}, color, "Press 'Esc' : Exit", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 410.f}, BLUE, "Press 'SPACE' :    Resume", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 425.f}, RED, "Press 'Esc'   :    Exit Game", NULL);
+    }
+    draw_score(font, score, 250.f, 760.f, WHITE);
+}
+
+void draw_gameover_menu(ImFont *font, int score)
+{
+    draw_player_box(1);
+    draw_instruction(font, 1);
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 40.f, (ImVec2){252.f, 360.f}, WHITE, "GAME OVER", NULL, 0.f, NULL);
+    {
+        draw_score(font, score, 250.f, 400.f, GREEN);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 450.f}, BLUE, "Press 'SPACE' :    New Game", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 465.f}, RED, "Press 'Esc'   :    Exit Game", NULL);
     }
 }
 
-void draw_game_menu(/*bool 2player?, int lives_p1, int lives_p2, int score*/)
+void draw_menu(Menu menu, ImFont *font, int score, bool p2, int p1_lives, int p2_lives)
 {
-    color = igGetColorU32_Vec4(((ImVec4){0.f, 0.8f, 1.0f, 1.0f}));
-    ImDrawList_AddRectFilled(drawList, (ImVec2){20.f, 120.f}, (ImVec2){160.f, 160.f}, color, 10.f, ImDrawFlags_RoundCornersAll);
-    // draw lives p1
-
-    // ADD if game 2player
-    color = igGetColorU32_Vec4(((ImVec4){0.f, 1.0f, 0.1f, 1.0f}));
-    ImDrawList_AddRectFilled(drawList, (ImVec2){590.f, 120.f}, (ImVec2){730.f, 160.f}, color, 10.f, ImDrawFlags_RoundCornersAll);
-    // draw lives p2
-
-    // score
-
-    //space for pause ?
-}
-
-void draw_pause_menu()
-{
-}
-
-void draw_gameover_menu()
-{
-}
-
-void draw_menu(Menu menu)
-{
-    drawList = igGetForegroundDrawList_Nil();
+    // middle_lines();
     switch (menu)
     {
     case PLAY:
-        draw_play_menu();
+        draw_play_menu(font);
         break;
 
-    case GAME:
-        draw_game_menu();
+    case IN_GAME:
+        draw_in_game_menu(font, p2, p1_lives, p2_lives, score);
         break;
 
     case PAUSE:
-        draw_pause_menu();
+        draw_pause_menu(font, score, p2);
         break;
 
     case GAMEOVER:
-        draw_gameover_menu();
+        draw_gameover_menu(font, score);
         break;
 
     default:
