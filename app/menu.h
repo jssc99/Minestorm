@@ -5,11 +5,10 @@
 
 typedef enum Menu
 {
-    PAUSE,
-    IN_GAME,
-    GAMEOVER,
     PLAY,
-    OTHER
+    IN_GAME,
+    PAUSE,
+    GAMEOVER
 } Menu;
 
 void draw_menu(Menu menu, ImFont *font, int score, bool p2, int p1_lives, int p2_lives);
