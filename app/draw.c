@@ -48,11 +48,11 @@ void draw_magnet(Point2 center, int sides, float radius, float angleOffset, floa
 }
 
 // Draw a baby mine
-void draw_baby_mine(Enemy *e)
+void draw_baby_mine(Enemy e)
 {
     float radius = 4.f;
-    float x = e->location.origin.x;
-    float y = e->location.origin.y;
+    float x = e.location.origin.x;
+    float y = e.location.origin.y;
     ImDrawList_AddLine(DRAW_LIST, (ImVec2){x - radius, y - radius}, (ImVec2){x + 0.5f + radius, y + radius}, GREY, 1.5f);
     ImDrawList_AddLine(DRAW_LIST, (ImVec2){x - radius, y + radius}, (ImVec2){x + 0.5f + radius, y - radius}, GREY, 1.5f);
 }
@@ -61,8 +61,8 @@ void draw_baby_mine(Enemy *e)
 void draw_any_enemy(Enemy *e)
 {
     if (e->status == CHILD)
-        draw_baby_mine(e);
-    else
+        draw_baby_mine(*e);
+    else if (e->status == ADULT)
     {
         if (e->type != FIREBALL)
             draw_poly(e->points, e->nbPoints);
@@ -75,6 +75,12 @@ void draw_any_enemy(Enemy *e)
         if (e->type == MAGNET_FIRE)
             draw_magnet(e->location.origin, 16, 2.f * get_size_multiplier(e->size), e->angle - M_PI / 2.f, get_size_multiplier(e->size));
     }
+}
+
+void draw_all_enemy(Enemy e[], int size)
+{
+    for (int i = 0; i < size; i++)
+        draw_any_enemy(&(e[i]));
 }
 
 // Mini-func to get player color
