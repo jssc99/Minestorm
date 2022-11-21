@@ -1,10 +1,12 @@
 #pragma once
 
+#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#include <cimgui.h>
+#include <canvas.h>
+
 #include "player.h"
 #include "enemy.h"
 #include "menu.h"
-
-
 
 typedef struct Game
 {
@@ -22,6 +24,7 @@ typedef struct App
     int width;
     int height;
     Point2 maxScreen;
+    ImFont *font;
 
     // enemy debug
     unsigned int id;

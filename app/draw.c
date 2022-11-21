@@ -22,7 +22,7 @@ void draw_poly(Point2 *points, int nbPoints)
 {
     for (int i = 0; i < nbPoints; i++)
         PathLineTo_point2(points[i]);
-    ImDrawList_PathStroke(DRAW_LIST, WHITE, ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
+    ImDrawList_PathStroke(DRAW_LIST, WHITE, ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.5f);
 }
 
 // Draw a fireball
@@ -91,7 +91,7 @@ void draw_player(Player p, int playerId)
 {
     for (int i = 0; i < 10; i++)
         PathLineTo_point2(p.shape[i]);
-    ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerId), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.f);
+    ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerId), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 2.f);
 }
 
 // Draw a bullet
@@ -111,9 +111,9 @@ void draw_debug_player(Player *p)
     Point2 dz = addVector2(p->shape[0], multVector2(p->moveLine, p->speed * 2 / MAX_SPEED_SHIP));
 
     if (p->displayInertia)
-    ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){z.x, z.y}, CV_COL32(255, 0, 255, 200), 2.0f);   //  inertia
+        ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){z.x, z.y}, CV_COL32(255, 0, 255, 200), 2.0f); //  inertia
     if (p->displaySpeed)
-    ImDrawList_AddLine(DRAW_LIST, (ImVec2){p->shape->x, p->shape->y}, (ImVec2){dz.x, dz.y}, CV_COL32(0, 0, 255, 200), 2.0f);   // speed * moveline
+        ImDrawList_AddLine(DRAW_LIST, (ImVec2){p->shape->x, p->shape->y}, (ImVec2){dz.x, dz.y}, CV_COL32(0, 0, 255, 200), 2.0f); // speed * moveline
     if (p->displayAxis)
     {
         ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){x.x, x.y}, CV_COL32(255, 0, 0, 200), 2.0f); // X axis aka targetline *2
@@ -121,7 +121,7 @@ void draw_debug_player(Player *p)
     }
     if (p->displaySSphere)
     {
-        ImDrawList_AddCircle(DRAW_LIST, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 50, 0.5f);  // Surrounding sphere
+        ImDrawList_AddCircle(DRAW_LIST, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 50, 0.5f); // Surrounding sphere
         ImDrawList_AddCircle(DRAW_LIST, (ImVec2){500, 400}, 15, CV_COL32(255, 255, 255, 200), 50, 0.5f);
     }
     Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
