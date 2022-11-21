@@ -77,6 +77,7 @@ void draw_any_enemy(Enemy *e)
     }
 }
 
+// draw all enemy (calls draw_any_enemy())
 void draw_all_enemy(Enemy e[], int size)
 {
     for (int i = 0; i < size; i++)

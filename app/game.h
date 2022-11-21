@@ -19,3 +19,4 @@ typedef struct Game
 } Game;
 
 void init_game(Player *p1, Player *p2, Enemy *e, int level);
+void game_update(Enemy e[], Player *p1, Player *p2, float deltaTime, int nbEnemy);
