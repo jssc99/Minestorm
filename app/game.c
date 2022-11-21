@@ -48,11 +48,11 @@ void init_game(Player *p1, Player *p2, Enemy *e, int level)
 {
     if (p2)
     {
-        *p1 = player_init(250, 400, 2.f);
-        *p2 = player_init(450, 400, 2.f);
+        *p1 = player_init(250, 400, 25.f);
+        *p2 = player_init(450, 400, 25.f);
     }
     else
-        *p1 = player_init(350, 400, 2.f);
+        *p1 = player_init(350, 400, 25.f);
 
     create_minefield(e, MAX_ENEMY, 700, 800);
     asign_role(e, level);
