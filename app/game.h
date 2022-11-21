@@ -10,9 +10,9 @@
 typedef struct Game
 {
     Menu menu;
+    bool is_p2;
     Enemy enemy[MAX_ENEMY];
     Player player1;
-    bool is_p2;
     Player player2;
     int score;
     int level;

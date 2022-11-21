@@ -65,12 +65,15 @@ void game_update(Enemy e[], Player *p1, Player *p2, float deltaTime, int nbEnemy
     if (p2 && p2->lives)
     {
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
-        Enemy split[(nbEnemy / 2)];
-        for (int i = 0, j = 0; i < nbEnemy; j++, i += 2) // pas efficace mais bon..
+        Enemy split[(nbEnemy / 2)], split2[(nbEnemy / 2)];
+        for (int i = 0, j = 0; i < nbEnemy; j++, i += 2)
+        { // pas super efficace mais bon..
             split[j] = e[i];
-        update_pos_all_enemy(e, nbEnemy, p2->axis.origin);
+            split2[j] = e[i + 1];
+        }
         update_pos_all_enemy(split, nbEnemy / 2, p1->axis.origin);
+        update_pos_all_enemy(split2, nbEnemy / 2, p2->axis.origin);
     }
     else
-        update_pos_all_enemy(e, nbEnemy, p2->axis.origin);
+        update_pos_all_enemy(e, nbEnemy, p1->axis.origin);
 }
