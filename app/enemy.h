@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "player.h"
-
 #define MINE_BIG_RADIUS 6.0F
 #define FLOATING_SMALL_RADIUS 2.0F
 #define FIREBALL_MINE_SMALL_RADIUS 3.5F
@@ -56,8 +54,8 @@ typedef struct Enemy
     int deathScore;
 } Enemy;
 
-Enemy init_enemy(enemyType type, enemySize size);
 void create_minefield(Enemy e[], int nbEnemy, int width, int height);
+Enemy init_enemy(Point2 origin, enemyType type, enemySize size);
 bool is_any_enemy_alive(Enemy e[], int nbEnemies);
 
 void age_enemy(Enemy *e);
@@ -73,3 +71,7 @@ void update_pos_any_enemy(Enemy *e, Vector2 posPlayer);
 
 // Draw function
 void draw_any_enemy(Enemy *e);
+void draw_minefield(Enemy *e, int size);
+void draw_all_enemy(Enemy e[], int size);
+
+//void debug_enemy(App *app, Game *g);

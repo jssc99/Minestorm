@@ -98,22 +98,22 @@ void set_pos_enemy(Enemy *e, float x, float y)
 }
 
 // init enemy type and size, requires pos of player
-Enemy init_enemy(enemyType type, enemySize size)
+Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 {
     Enemy e;
-    e.status = BABY;
+    e.status = CHILD;
     e.type = type;
     if (type == FLOATING || type == FIREBALL_MINE)
     {
         e.angle = (rand() % 180) * M_PI;
-        e.location.origin = (Point2){100, 100};
+        e.location.origin = origin;
         e.location.x = normalizedVector2(rotatePoint2((Point2){1.f, 0.f}, e.location.origin, e.angle));
         e.location.y = rotatePoint2((Point2){0, 0}, e.location.x, M_PI / 2.f);
     }
     else
     {
         e.angle = 0.f;
-        e.location = (Axis2){{100, 100}, {1.f, 0.f}, {0.f, 1.f}};
+        e.location = (Axis2){origin, {1.f, 0.f}, {0.f, 1.f}};
     }
 
     if (size == FIXED && type != MINELAYER && type != FIREBALL)
@@ -296,7 +296,52 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height)
     for (int i = 0; i < nbEnemy; i++)
     {
         e[i].location.origin.x = 100 + rand() % (width - 120);
-        e[i].location.origin.y = 160 + rand() % (height - 180);
-        e[i].status = CHILD;
+        e[i].location.origin.y = 160 + rand() % (height - 200);
+        e[i].status = BABY;
     }
+}
+
+#include "app.h"
+#include "game.h"
+
+// debug options for enemy struct (and other stuff)
+void debug_enemy(App *app, Game *g)
+{
+    ImGuiIO *io = igGetIO();
+    Point2 mouse;
+    if (app->debugMenu)
+    {
+        igCheckbox("Move center with mouse e", &app->movePointE);
+        igCheckbox("Move center with mouse p", &app->movePointP);
+        igCheckbox("Rotate the figure(s)", &app->rotate);
+        igSliderAngle("Angle", &app->angle, 0.f, 360.f, "%.2f", 0);
+        igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
+    }
+    if (app->movePointE)
+    {
+        cvCoordsFromScreenSpace(io->MousePos.x, io->MousePos.y, &mouse.x, &mouse.y);
+        if (app->debugMenu)
+            igText("Mouse = { %.2f, %.2f }", mouse.x, mouse.y);
+        g->enemy[app->id].location.origin.x = mouse.x;
+        g->enemy[app->id].location.origin.y = mouse.y;
+    }
+    if (igIsMouseClicked(ImGuiMouseButton_Right, 0))
+        app->movePointE = !app->movePointE;
+    if (igIsMouseClicked(ImGuiMouseButton_Middle, 0))
+        app->movePointP = !app->movePointP;
+    if (io->MouseWheel && g->enemy[app->id].size != FIXED)
+        g->enemy[app->id].size = (g->enemy[app->id].size + 1) % 3;
+
+    if (app->rotate)
+        app->angle += 0.01;
+    if (app->angle > 2.f * M_PI + 0.0001)
+        app->angle = 0.f;
+    g->enemy[app->id].angle = app->angle;
+
+    if (igIsKeyPressed(ImGuiKey_C, 0))
+        app->debugMenu = !app->debugMenu;
+    if (igIsKeyPressed(ImGuiKey_X, 0))
+        g->enemy[app->id].status = (g->enemy[app->id].status + 1) % 3;
+    if (igIsKeyPressed(ImGuiKey_Z, 0))
+        g->menu = (g->menu + 1) % 4;
 }
