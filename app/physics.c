@@ -21,7 +21,7 @@ bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegm
     }
     return true;
 }
-// Detect a collision between 2 SAT (first one with the most sides)
+// Detect a collision between 2 SAT (first one with the most non parallel sides)
 bool SAT_collision_SAT(Point2 poly1[], int sidesP1, Point2 poly2[], int sidesP2)
 {
     for (int i = 0; i < sidesP1; i++)
@@ -78,7 +78,44 @@ Sat generate_SAT(Point2 p[], int pIdx, int nbSegments)
     }
     return range;
 }
-
+/*
+// Detect a collision between 2 SAT (first one with the most sides)
+bool SAT_collision_Rectangle(Point2 poly1[], int sidesP1, Point2 rectangle[])
+{
+    for (int i = 0; i < sidesP1; i++)
+    {
+        Sat range = generate_SAT(poly1, i, sidesP1);
+        float proj = dotProductVector2(rectangle[0], range.normal);
+        float min2 = proj;
+        float max2 = proj;
+        int jSep = i;
+        for (int j = 1; j < 4; j++)
+        {
+            proj = dotProductVector2(rectangle[j], range.normal);
+            if (proj < min2)
+            {
+                min2 = proj;
+                jSep = j;
+            }
+            if (proj > max2)
+            {
+                max2 = proj;
+                jSep = j;
+            }
+        }
+        if (max2 < range.min || min2 > range.max)
+        {
+            if (DEBUG)
+            {
+                ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly1[i].x, poly1[i].y}, (ImVec2){poly1[(i + 1) % sidesP1].x, poly1[(i + 1) % sidesP1].y}, CV_COL32(255, 200 + 55 * (!i), 0, 200), 2.0f);
+                ImDrawList_AddLine(DRAW_LIST, (ImVec2){rectangle[jSep].x, rectangle[jSep].y}, (ImVec2){rectangle[(jSep + 1) % 4].x, rectangle[(jSep + 1) % 4].y}, CV_COL32(255, 200 + 55 * (!jSep), 0, 200), 2.0f);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+*/
 // Checks collision between 2 spheres/points
 // (if radius = 0.f -> sphere becomes point)
 bool sphere_collision_sphere(Point2 p1, float radius1, Point2 p2, float radius2)

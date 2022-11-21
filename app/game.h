@@ -4,7 +4,7 @@
 #include "enemy.h"
 #include "menu.h"
 
-#define MAX_ENEMY 31
+#define MAX_ENEMY 2
 #define MAX_ON_SCREEN 6
 
 typedef struct Game

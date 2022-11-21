@@ -1,15 +1,16 @@
 #pragma once
 #include "physics.h"
+#include "enemy.h"
 #include <stdlib.h>
 #include <time.h>
 
 //#include "draw.c"
 // Player separation
-#define LARGEBODY(p) largeBody[3] = {p.shape[0], p.shape[3], p.shape[7]}; // Surrounding triangle
-#define ARROW(p) arrow[3] = {p.shape[0], p.shape[1], p.shape[9]};
-#define LEFTWING(p) leftWing[3] = {p.axis.origin, p.shape[2], p.shape[3]};
-#define RIGHTWING(p) rightWing[3] = {p.axis.origin, p.shape[7], p.shape[8]};
-#define TAIL(p) tail[3] = {p.shape[1], p.shape[5], p.shape[8]};
+#define LARGEBODY(p) {p.shape[0], p.shape[3], p.shape[7]} // Surrounding triangle
+#define ARROW(p) {p.shape[0], p.shape[1], p.shape[9]} 
+#define LEFTWING(p) {p.axis.origin, p.shape[2], p.shape[3]}
+#define RIGHTWING(p) {p.axis.origin, p.shape[7], p.shape[8]}
+#define TAIL(p) {p.shape[1], p.shape[5], p.shape[9]}
 #define MAX_BULLETS 5
 static const float MAX_SPEED_SHIP = 500;
 static const float ACCELERATION = 20;
@@ -25,6 +26,7 @@ typedef struct Bullet
 
 typedef struct Player
 {
+    Point2 spawnPoint;
     Axis2 axis;
     Vector2 targetLine;
     Vector2 moveLine;
@@ -68,4 +70,8 @@ void update_bullet(Player *p, float deltaTime, Point2 maxScreen);
 void fire_bullet(Player *p, float deltaTime, Point2 maxScreen);
 
 // Test collisions
-void test_collision(Player player1, ImVec2 mousePos);
+void test_collision(Player player1, Player player2, ImVec2 mousePos, Enemy e);
+bool collision_floating(Player *p, Enemy *e);
+bool collision_square_mine(Player *p, Enemy *e);
+void player_collision_enemy(Player *p, Enemy *e);
+

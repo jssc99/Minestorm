@@ -35,10 +35,10 @@ void asign_role(Enemy e[], int level)
     for (int i = 0; i < MAX_ENEMY - 1; i += 5)
     {
         e[i + 0] = init_enemy(e[i + 0].location.origin, FLOATING, BIG);
-        e[i + 1] = init_enemy(e[i + 1].location.origin, FLOATING, MEDIUM);
-        e[i + 2] = init_enemy(e[i + 2].location.origin, FLOATING, MEDIUM);
-        e[i + 3] = init_enemy(e[i + 3].location.origin, FLOATING, SMALL);
-        e[i + 4] = init_enemy(e[i + 4].location.origin, FLOATING, SMALL);
+        e[i + 1] = init_enemy(e[i + 1].location.origin, MINELAYER, BIG);
+        e[i + 2] = init_enemy(e[i + 2].location.origin, FLOATING, BIG);
+        e[i + 3] = init_enemy(e[i + 3].location.origin, MAGNETIC, BIG);
+        e[i + 4] = init_enemy(e[i + 4].location.origin, MAGNET_FIRE, BIG);
     }
     e[MAX_ENEMY - 1] = init_enemy(e[MAX_ENEMY - 1].location.origin, MINELAYER, FIXED);
 }
@@ -62,6 +62,8 @@ void game_update(Enemy e[], Player *p1, Player *p2, float deltaTime, int nbEnemy
 {
     if (p1->lives)
         update_player(p1, deltaTime, (Point2){700, 800}, 0);
+    for (int i = 0; i < MAX_ENEMY; i++)
+        player_collision_enemy(p1, e + i);
     if (p2 && p2->lives)
     {
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
@@ -74,6 +76,6 @@ void game_update(Enemy e[], Player *p1, Player *p2, float deltaTime, int nbEnemy
         update_pos_all_enemy(split, nbEnemy / 2, p1->axis.origin);
         update_pos_all_enemy(split2, nbEnemy / 2, p2->axis.origin);
     }
-    else
-        update_pos_all_enemy(e, nbEnemy, p1->axis.origin);
+    //else
+        //update_pos_all_enemy(e, nbEnemy, p1->axis.origin);
 }
