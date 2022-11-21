@@ -11,11 +11,13 @@
 
 #define DRAW_LIST igGetBackgroundDrawList_Nil()
 
+// Essier to use PathLineTo (by using a point)
 void PathLineTo_point2(Point2 p)
 {
     ImDrawList_PathLineTo(DRAW_LIST, (ImVec2){p.x, p.y});
 }
 
+// Draw any polygon
 void draw_poly(Point2 *points, int nbPoints)
 {
     for (int i = 0; i < nbPoints; i++)
@@ -23,11 +25,13 @@ void draw_poly(Point2 *points, int nbPoints)
     ImDrawList_PathStroke(DRAW_LIST, WHITE, ImDrawFlags_Closed || ImDrawFlags_RoundCornersAll, 1.5f);
 }
 
+// Draw a fireball
 void draw_fireball(Point2 center, float radius)
 {
     ImDrawList_AddCircle(DRAW_LIST, (ImVec2){center.x, center.y}, radius, WHITE, NB_POINTS_FIREBALL, 1.5f);
 }
 
+// Draw a magnet
 void draw_magnet(Point2 center, int sides, float radius, float angleOffset, float length)
 {
     for (int i = 0; i < (sides + 1); i++)
@@ -43,6 +47,7 @@ void draw_magnet(Point2 center, int sides, float radius, float angleOffset, floa
     ImDrawList_PathStroke(DRAW_LIST, WHITE, ImDrawFlags_RoundCornersAll, 1.5f);
 }
 
+// Draw a baby mine
 void draw_baby_mine(Enemy *e)
 {
     float radius = 4.f;
@@ -52,7 +57,7 @@ void draw_baby_mine(Enemy *e)
     ImDrawList_AddLine(DRAW_LIST, (ImVec2){x - radius, y + radius}, (ImVec2){x + 0.5f + radius, y - radius}, GREY, 1.5f);
 }
 
-// draw enemy depending on its type & size (see enemyType & enemySize)
+// draw an enemy depending on its type & size (see enemyType & enemySize)
 void draw_any_enemy(Enemy *e)
 {
     if (e->status == CHILD)
@@ -72,6 +77,7 @@ void draw_any_enemy(Enemy *e)
     }
 }
 
+// Mini-func to get player color
 ImU32 get_player_color(int playerId)
 {
     if (playerId == 1)
@@ -80,7 +86,7 @@ ImU32 get_player_color(int playerId)
         return PLAYER2;
 }
 
-// Draw the player
+// Draw a player
 void draw_player(Player p, int playerId)
 {
     for (int i = 0; i < 10; i++)
@@ -89,12 +95,13 @@ void draw_player(Player p, int playerId)
 }
 
 // Draw a bullet
+// // Can also serve as a more flexible fireball (due to color)
 void draw_bullet(Point2 center, float radius, unsigned int color)
 {
     ImDrawList_AddCircleFilled(DRAW_LIST, (ImVec2){center.x, center.y}, radius, color, 50);
 }
 
-// Draw debug player
+// Draw debug menu (player)
 void draw_debug_player(Player *p)
 {
     Point2 origin = p->axis.origin;
