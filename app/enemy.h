@@ -68,6 +68,7 @@ float get_small_size(enemySize size, enemyType type);
 
 // Update func
 void update_pos_any_enemy(Enemy *e, Vector2 posPlayer);
+void update_pos_all_enemy(Enemy e[], int size, Vector2 posPlayer);
 
 // Draw function
 void draw_any_enemy(Enemy *e);

@@ -289,6 +289,14 @@ void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
     }
 }
 
+// updates the pos of all mine inputed
+void update_pos_all_enemy(Enemy e[], int size, Vector2 posPlayer)
+{
+    for (int i = 0; i < size; i++)
+        if (e[i].status == ADULT)
+            update_pos_any_enemy(&(e[i]), posPlayer);
+}
+
 // creates the minefield by giving every enemy a pos
 void create_minefield(Enemy e[], int nbEnemy, int width, int height)
 {
