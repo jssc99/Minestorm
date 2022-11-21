@@ -44,15 +44,15 @@ typedef struct Player
 } Player;
 
 // Draw
-
 void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color);
+void draw_player(Player p, int playerNb);
+void draw_debug_player(Player *p);
+void draw_bullet(Point2 center, float radius, unsigned int color);
 
 // Player
 Player player_init(float x, float y, float size);
 void init_points_player(Player *p);
 void player_spawn(Player *p, float x, float y);
-void draw_player(Player p, int playerNb);
-void draw_debug_player(Player *p);
 void rotate_player(Player *p, float angle);
 void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2);
 void turnleft_player(Player *p, float deltaTime);
@@ -65,7 +65,6 @@ void debug_menu_player(Player *p, bool debugMenu);
 Bullet init_bullet(Player p);
 void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen);
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen);
-void draw_bullet(Point2 center, float radius, unsigned int color);
 void fire_bullet(Player *p, float deltaTime, Point2 maxScreen);
 
 // Test collisions
