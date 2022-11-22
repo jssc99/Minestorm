@@ -153,9 +153,6 @@ void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
 
 void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptDeltaTime, int *score)
 {
-    if (p1->lives)
-        update_player(p1, deltaTime, (Point2){700, 800}, 0);
-
     test_all_collision(en, p1, p2, score);
 
     int nbEnAdult = 0;
@@ -169,7 +166,9 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
                 nbEnAdult--;
             }
     }
-    
+
+    if (p1->lives > 0)
+        update_player(p1, deltaTime, (Point2){700, 800}, 0);
     if (p2 && (p2->lives > 0))
     {
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
@@ -184,5 +183,4 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
     }
     else
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
-
 }
