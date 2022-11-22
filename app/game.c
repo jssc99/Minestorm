@@ -20,8 +20,8 @@ void asign_role(Enemy en[], int level)
         en[i + 2] = init_enemy(en[i + 2].location.origin, type, SMALL);
         en[i + 3] = init_enemy(en[i + 3].location.origin, type, SMALL);
         en[i + 4] = init_enemy(en[i + 4].location.origin, type, MEDIUM);
-        en[i + 3] = init_enemy(en[i + 5].location.origin, type, SMALL);
-        en[i + 4] = init_enemy(en[i + 6].location.origin, type, SMALL);
+        en[i + 5] = init_enemy(en[i + 5].location.origin, type, SMALL);
+        en[i + 6] = init_enemy(en[i + 6].location.origin, type, SMALL);
     }
     en[MAX_ENEMY - 1] = init_enemy(en[MAX_ENEMY - 1].location.origin, MINELAYER, FIXED);
 }
@@ -30,14 +30,26 @@ void asign_role(Enemy en[], int level)
 // p2 = NULL if 1 player game
 void init_game(Player *p1, Player *p2, Enemy *en, int level)
 {
-    if (p2)
+    if (level == 1)
     {
-        *p1 = player_init(250, 400, 25.f);
-        *p2 = player_init(450, 400, 25.f);
+        if (p2)
+        {
+            *p1 = player_init(250, 400, 25.f);
+            *p2 = player_init(450, 400, 25.f);
+        }
+        else
+            *p1 = player_init(350, 400, 25.f);
     }
     else
-        *p1 = player_init(350, 400, 25.f);
-
+    {
+        if (p2)
+        {
+            player_spawn(p1, 250, 400);
+            player_spawn(p2, 450, 400);
+        }
+        else
+            player_spawn(p1, 350, 400);
+    }
     create_minefield(en, MAX_ENEMY, 700, 800);
     asign_role(en, level);
 }
@@ -105,9 +117,9 @@ void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
         if (player_collision_enemy(p1, &en[i]))
             p_col_en(p1, &en[i]);
 
-        for (int i = 0; i < MAX_BULLETS; i++)
-            if (p1->bullets[i].lifespan > 0 && bullet_collision_enemy(&p1->bullets[i], &en[i]))
-                b_col_en(&p1->bullets[i], &en[i], score);
+        for (int j = 0; j < MAX_BULLETS; j++)
+            if (p1->bullets[j].lifespan > 0 && bullet_collision_enemy(&p1->bullets[j], &en[i]))
+                b_col_en(&p1->bullets[j], &en[i], score);
     }
     if (p2)
     {
@@ -116,9 +128,9 @@ void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
             if (p2 && player_collision_enemy(p1, &en[i]))
                 p_col_en(p2, &en[i]);
 
-            for (int i = 0; i < MAX_BULLETS; i++)
-                if (p2 && p2->bullets[i].lifespan > 0 && bullet_collision_enemy(&p2->bullets[i], &en[i]))
-                    b_col_en(&p2->bullets[i], &en[i], score);
+            for (int j = 0; j < MAX_BULLETS; j++)
+                if (p2 && p2->bullets[j].lifespan > 0 && bullet_collision_enemy(&p2->bullets[j], &en[i]))
+                    b_col_en(&p2->bullets[j], &en[i], score);
         }
         if (/*bullet collision player*/ 0)
         {
@@ -144,10 +156,10 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
     }
 
     if (p1->lives > 0)
-        update_player(p1, deltaTime, (Point2){700, 800}, 0,en);
+        update_player(p1, deltaTime, (Point2){700, 800}, 0, en);
     if (p2 && (p2->lives > 0))
     {
-        update_player(p2, deltaTime, (Point2){700, 800}, 1,en);
+        update_player(p2, deltaTime, (Point2){700, 800}, 1, en);
         Enemy split[50], split2[50];
         for (int i = 0, j = 0; i < (MAX_ENEMY - 1); j++, i += 2)
         {
