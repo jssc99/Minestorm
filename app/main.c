@@ -47,7 +47,7 @@ int main()
         cvNewFrame();
 
         appUpdate(&app);
-        if (app.closeGame) glfwSetWindowShouldClose(window, 1);
+        if (app.closeApp) glfwSetWindowShouldClose(window, 1);
 
         // End
         cvEndFrame();

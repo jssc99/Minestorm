@@ -12,4 +12,4 @@ typedef enum Menu
     GAMEOVER
 } Menu;
 
-void draw_menu(Menu menu, ImFont *font, int score, bool p2, int p1_lives, int p2_lives);
+void draw_menu(Menu menu, ImFont *font, int score, int level, bool p2, int p1_lives, int p2_lives);
