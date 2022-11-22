@@ -14,7 +14,7 @@ void asign_role(Enemy e[], int level)
             type++;
         if ((level + i) > 45)
             type++;
-        e[i + 0] = init_enemy(e[i + 0].location.origin, type, BIG);
+        e[i + 0] = init_enemy(e[i + 0].location.origin, MINELAYER, BIG);
         e[i + 1] = init_enemy(e[i + 1].location.origin, type, MEDIUM);
         e[i + 2] = init_enemy(e[i + 2].location.origin, type, SMALL);
         e[i + 3] = init_enemy(e[i + 3].location.origin, type, SMALL);
@@ -129,7 +129,7 @@ void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float cptDe
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
         Enemy split[(nbEnemy / 2)], split2[(nbEnemy / 2)];
         for (int i = 0, j = 0; i < nbEnemy; j++, i += 2)
-        {
+        { // pas super efficace mais bon.
             split[j] = e[i];
             split2[j] = e[i + 1];
         }

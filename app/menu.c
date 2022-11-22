@@ -85,7 +85,7 @@ void draw_lives(ImFont *font, int lives, float x, float y)
 void draw_in_game_menu(ImFont *font, bool p2, int lives_p1, int lives_p2, int score, int level)
 {
     draw_player_box(p2);
-    draw_lives(font, lives_p1, 40.f, 125.f);
+    draw_lives(font, lives_p1, 45.f, 125.f);
     if (p2)
         draw_lives(font, lives_p2, 565.f, 125.f);
     draw_score(font, score, 250.f, 760.f, WHITE);

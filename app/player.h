@@ -71,7 +71,16 @@ void fire_bullet(Player *p, float deltaTime, Point2 maxScreen);
 
 // Test collisions
 void test_collision(Player player1, Player player2, ImVec2 mousePos, Enemy e);
-bool collision_floating(Player *p, Enemy *e);
-bool collision_square_mine(Player *p, Enemy *e);
-void player_collision_enemy(Player *p, Enemy *e);
+bool player_collision_floating(Player *p, Enemy *e);
+bool player_collision_mf_mine(Player *p, Enemy *e);
+bool player_collision_square_mine(Player *p, Enemy *e);
+bool player_collision_minelayer(Player *p, Enemy *e);
+bool player_collision_enemy(Player *p, Enemy *e);
+
+bool bullet_collision_floating(Bullet *b, Enemy *e);
+bool bullet_collision_minelayer(Bullet *b, Enemy *e);
+bool bullet_collision_square_mine(Bullet *b, Enemy *e);
+bool bullet_collision_mf_mine(Bullet *b, Enemy *e);
+bool bullet_collision_enemy(Bullet *b, Enemy *e);
+
 
