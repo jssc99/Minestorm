@@ -30,8 +30,12 @@ void appUpdate(App *app)
         igText("Press 'x' to circle life status");
         igText("Press 'z' to circle menus");
 
-        ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[app->id].location.origin.x, en[app->id].location.origin.y}, (ImVec2){en[app->id].location.origin.x + 20 * en[app->id].location.x.x, en[app->id].location.origin.y + 20 * en[app->id].location.x.y}, CV_COL32(255, 0, 0, 200), 2.0f);
-        ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[app->id].location.origin.x, en[app->id].location.origin.y}, (ImVec2){en[app->id].location.origin.x + 20 * en[app->id].location.y.x, en[app->id].location.origin.y + 20 * en[app->id].location.y.y}, CV_COL32(0, 255, 0, 200), 2.0f);
+        for (int i = 0; i < MAX_ENEMY; i++)
+            if (en[i].status == ADULT)
+            {
+                ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, (ImVec2){en[i].location.origin.x + 20 * en[i].location.x.x, en[i].location.origin.y + 20 * en[i].location.x.y}, CV_COL32(255, 0, 0, 200), 2.0f);
+                ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, (ImVec2){en[i].location.origin.x + 20 * en[i].location.y.x, en[i].location.origin.y + 20 * en[i].location.y.y}, CV_COL32(0, 255, 0, 200), 2.0f);
+            }
 
         if (app->movePointE)
         {
@@ -51,6 +55,8 @@ void appUpdate(App *app)
             g.enemy[app->id].status = (g.enemy[app->id].status + 1) % 3;
         if (igIsKeyPressed(ImGuiKey_Z, 0))
             g.menu = (g.menu + 1) % 5;
+        if (igIsKeyPressed(ImGuiKey_P, 0))
+            start_minelayer(&en[MAX_ENEMY - 1]);
     }
 
     //////////////////// LE GAME ITSELF /////////////////////////
@@ -83,24 +89,30 @@ void appUpdate(App *app)
         break;
 
     case IN_GAME:
-        if (is_any_enemy_alive(en, MAX_ENEMY - 1))
+        if (is_any_enemy_alive(en, MAX_ENEMY - 1) || en[MAX_ENEMY - 1].status != DEAD)
         {
             g.cptDelta += igGetIO()->DeltaTime;
             update_game(en, &p1, &p2, igGetIO()->DeltaTime, g.cptDelta, MAX_ENEMY - 1);
-            draw_all_enemy(en, MAX_ENEMY - 1);
+            draw_all_enemy(en, MAX_ENEMY);
             if (p1.lives > 0)
                 draw_player(p1, 1);
             if (g.is_p2 && (p2.lives > 0))
                 draw_player(p2, 2);
+
+            if (how_many_e_child(en, MAX_ENEMY - 1) == 0 && en[MAX_ENEMY - 1].status == CHILD)
+                start_minelayer(&en[MAX_ENEMY - 1]);
+            if (en[MAX_ENEMY - 1].status == ADULT)
+                update_pos_any_enemy(&en[MAX_ENEMY - 1], p1.axis.origin);
+        }
+        else
+        {
+            g.level++;
+            g.menu = SUCCESS;
         }
 
         if (p1.lives < 0 && (!g.is_p2 || p2.lives < 0))
             g.menu = GAMEOVER;
-        if (!is_any_enemy_alive(en, MAX_ENEMY - 1))
-        {
-            g.menu = SUCCESS;
-            g.level++;
-        }
+
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = PAUSE;
         break;
@@ -120,6 +132,11 @@ void appUpdate(App *app)
         break;
 
     case PAUSE:
+        draw_all_enemy(en, MAX_ENEMY - 1);
+        if (p1.lives > 0)
+            draw_player(p1, 1);
+        if (g.is_p2 && (p2.lives > 0))
+            draw_player(p2, 2);
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = IN_GAME;
         if (igIsKeyPressed(ImGuiKey_Escape, 0))
