@@ -78,6 +78,16 @@ bool is_any_enemy_alive(Enemy e[], int nbEnemies)
     return 0;
 }
 
+// checks in array of enemy if one is not dead
+int how_many_e_adult(Enemy e[], int nbEnemies)
+{
+    int cpt = 0;
+    for (int i = 0; i < nbEnemies; i++)
+        if (e[i].status == ADULT)
+            cpt++;
+    return cpt;
+}
+
 // ages an enemy, loops around (DEAD -> BABY)
 void age_enemy(Enemy *e)
 {
@@ -105,7 +115,7 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
     e.type = type;
     if (type == FLOATING || type == FIREBALL_MINE)
     {
-        e.angle = (rand() % 180) * M_PI;
+        e.angle = (rand() % 180) / M_PI;
         e.location.origin = origin;
         e.location.x = normalizedVector2(rotatePoint2((Point2){1.f, 0.f}, e.location.origin, e.angle));
         e.location.y = rotatePoint2((Point2){0, 0}, e.location.x, M_PI / 2.f);
@@ -188,9 +198,6 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 
 void update_pos_basic_mine(Enemy *e, bool alignPoints, Vector2 pPos)
 {
-    // ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){e->location.origin.x, e->location.origin.y}, (ImVec2){e->location.origin.x + 20 * e->location.x.x, e->location.origin.y + 20 * e->location.x.y},CV_COL32(255, 0, 0, 200), 2.0f);
-    // ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){e->location.origin.x, e->location.origin.y}, (ImVec2){e->location.origin.x + 20 * e->location.y.x, e->location.origin.y + 20 * e->location.y.y},CV_COL32(0, 255, 0, 200), 2.0f);
-
     if (e->type == MAGNETIC || e->type == MAGNET_FIRE)
     { // normalise vector ( enemy to player )
         e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
@@ -254,15 +261,15 @@ void update_pos_minelayer(Enemy *e)
     float y = e->location.origin.y;
 
     Point2 point[9] = {
-        {x - 26.f, y + 10.f},
-        {x - 38.f, y + 20.f},
-        {x - 32.f, y},
-        {x - 14.f, y},
         {x /*  */, y - 12.f},
-        {x + 14.f, y},
-        {x + 32.f, y},
+        {x - 14.f, y},
+        {x - 32.f, y},
+        {x - 38.f, y + 20.f},
+        {x - 26.f, y + 10.f},
+        {x + 26.f, y + 10.f},
         {x + 38.f, y + 20.f},
-        {x + 26.f, y + 10.f}};
+        {x + 32.f, y},
+        {x + 14.f, y}};
 
     for (int i = 0; i < 9; i++)
         e->points[i] = rotatePoint2(e->location.origin, point[i], e->angle);
@@ -307,14 +314,22 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height)
     srand(time(NULL));
     for (int i = 0; i < nbEnemy; i++)
     {
-        e[i].location.origin.x = 100 + rand() % (width - 120);
-        e[i].location.origin.y = 160 + rand() % (height - 200);
+        do
+        {
+            e[i].location.origin.x = 100 + rand() % (width - 120);
+            e[i].location.origin.y = 160 + rand() % (height - 200);
+        } while (((e[i].location.origin.x > 230 && e[i].location.origin.x < 270) ||
+                  (e[i].location.origin.x > 330 && e[i].location.origin.x < 370) ||
+                  (e[i].location.origin.x > 430 && e[i].location.origin.x < 470)) &&
+                 (e[i].location.origin.y > 370 && e[i].location.origin.y < 425));
         e[i].status = BABY;
     }
 }
 
+/*
 #include "app.h"
 #include "game.h"
+// broken
 
 // debug options for enemy struct (and other stuff)
 void debug_enemy(App *app, Game *g)
@@ -356,4 +371,4 @@ void debug_enemy(App *app, Game *g)
         g->enemy[app->id].status = (g->enemy[app->id].status + 1) % 3;
     if (igIsKeyPressed(ImGuiKey_Z, 0))
         g->menu = (g->menu + 1) % 4;
-}
+}*/
