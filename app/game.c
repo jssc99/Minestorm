@@ -3,28 +3,6 @@
 #include "player.h"
 #include "enemy.h"
 
-// begin
-// display menu
-// chose game 1p / 2p
-// // if 1p
-// init player pos central
-// enemy array size x
-// minefield enemies
-// // if 2p
-// init player1 pos central left
-// init player2 pos central right
-// enemy array size x
-// minefield enemies
-
-// run
-// display menu
-// update player(s)
-// update mines
-// // if magnet follows p1 if placement array (i) even, else p2 (if p2 && i % 2)
-// until lives p1 p2 == 0 || every mine == DEAD
-// display game over
-// exit / restart
-
 // enemies
 // if floating / magnetic dead / minelayer / fireball == dead
 // if fireball_mine / magnet_fire dead = dies and create fireball (in same array pos)
@@ -36,11 +14,11 @@ void asign_role(Enemy e[], int level)
     {
         float type = 0;
         if ((level + i) > 35)
-        type++;
+            type++;
         if ((level + i) > 40)
-        type++;
+            type++;
         if ((level + i) > 45)
-        type++;
+            type++;
         e[i + 0] = init_enemy(e[i + 0].location.origin, type, BIG);
         e[i + 1] = init_enemy(e[i + 1].location.origin, type, MEDIUM);
         e[i + 2] = init_enemy(e[i + 2].location.origin, type, MEDIUM);
@@ -65,13 +43,14 @@ void init_game(Player *p1, Player *p2, Enemy *e, int level)
     asign_role(e, level);
 }
 
-void game_update(Enemy e[], Player *p1, Player *p2, float deltaTime, int nbEnemy)
+void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float cptDeltaTime, int nbEnemy)
 {
     if (p1->lives)
         update_player(p1, deltaTime, (Point2){700, 800}, 0);
     for (int i = 0; i < MAX_ENEMY; i++)
         player_collision_enemy(p1, e + i);
-    if (p2 && p2->lives)
+
+    if (p2 && (p2->lives > 0))
     {
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
         Enemy split[(nbEnemy / 2)], split2[(nbEnemy / 2)];
@@ -85,4 +64,16 @@ void game_update(Enemy e[], Player *p1, Player *p2, float deltaTime, int nbEnemy
     }
     else
         update_pos_all_enemy(e, nbEnemy, p1->axis.origin);
+
+    int nbEnAdult = 0;
+    if (cptDeltaTime > 5.f && (nbEnAdult = how_many_e_adult(e, MAX_ENEMY - 1)) < MAX_ON_SCREEN)
+    {
+        nbEnAdult = MAX_ON_SCREEN - nbEnAdult;
+        for (int i = 0; i < MAX_ENEMY - 1; i += 5)
+            if (nbEnAdult && e[i].size == BIG && e[i].status == CHILD)
+            {
+                e[i].status = ADULT;
+                nbEnAdult--;
+            }
+    }
 }
