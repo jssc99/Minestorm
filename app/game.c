@@ -43,6 +43,14 @@ void init_game(Player *p1, Player *p2, Enemy *e, int level)
     asign_role(e, level);
 }
 
+void start_minelayer(Enemy *e)
+{
+    e->location.origin = (Point2){350, 50};
+    e->location.x = (Vector2){0.f, 1.f};
+    e->location.y = (Vector2){-1.f, 0.f};
+    e->status = ADULT;
+}
+
 void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float cptDeltaTime, int nbEnemy)
 {
     if (p1->lives)
@@ -55,7 +63,7 @@ void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float cptDe
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
         Enemy split[(nbEnemy / 2)], split2[(nbEnemy / 2)];
         for (int i = 0, j = 0; i < nbEnemy; j++, i += 2)
-        { // pas super efficace mais bon.
+        {
             split[j] = e[i];
             split2[j] = e[i + 1];
         }
