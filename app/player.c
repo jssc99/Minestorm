@@ -424,8 +424,7 @@ bool bullet_collision_enemy(Bullet *b, Enemy *e)
         switch (e->type)
         {
         case (FIREBALL):
-            if (sphere_collision_sphere(e->location.origin, get_max_size(e->size, e->type), b->location, b->size))
-                return true;
+            return sphere_collision_sphere(e->location.origin, get_max_size(e->size, e->type), b->location, b->size);
         case (FLOATING):
             return bullet_collision_floating(b, e);
         case (MAGNET_FIRE):

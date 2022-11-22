@@ -85,6 +85,6 @@ bool bullet_collision_square_mine(Bullet *b, Enemy *e);
 bool bullet_collision_mf_mine(Bullet *b, Enemy *e);
 bool bullet_collision_enemy(Bullet *b, Enemy *e);
 
-bool bullet_collision_player(Player *p1, Player *p2)
+bool bullet_collision_player(Player *p1, Player *p2);
 
 
