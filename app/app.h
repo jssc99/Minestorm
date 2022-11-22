@@ -8,7 +8,7 @@
 
 typedef struct App
 {
-    bool closeGame;
+    bool closeApp;
     bool debugMenu;
     int width;
     int height;
@@ -19,8 +19,6 @@ typedef struct App
     unsigned int id;
     bool movePointE;
     bool movePointP;
-    bool rotate;
-    float angle;
 } App;
 
 void appInit(App *app);
