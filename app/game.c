@@ -3,6 +3,7 @@
 #include "player.h"
 #include "enemy.h"
 
+// gives out roles to enemies (type depends on level)
 void asign_role(Enemy en[], int level)
 {
     for (int i = 0; i < MAX_ENEMY - 1; i += 7)
@@ -25,7 +26,8 @@ void asign_role(Enemy en[], int level)
     en[MAX_ENEMY - 1] = init_enemy(en[MAX_ENEMY - 1].location.origin, MINELAYER, FIXED);
 }
 
-// p2 = NULL if 1 player
+// initialises player(s) and enemies
+// p2 = NULL if 1 player game
 void init_game(Player *p1, Player *p2, Enemy *en, int level)
 {
     if (p2)
@@ -40,117 +42,91 @@ void init_game(Player *p1, Player *p2, Enemy *en, int level)
     asign_role(en, level);
 }
 
+// if a player collisions an enemy
+void p_col_en(Player *p, Enemy *en)
+{
+    player_spawn(p, p->spawnPoint.x, p->spawnPoint.y);
+    p->lives--;
+    en->status = DEAD;
+    if (en->size == BIG)
+    {
+        (en + 1)->status = ADULT;
+        (en + 4)->status = ADULT;
+    }
+    else if (en->size == MEDIUM)
+    {
+        (en + 1)->status = ADULT;
+        (en + 2)->status = ADULT;
+    } /*
+     else if (en->size == SMALL)
+     {
+     }
+     else if (en->size == FIXED)
+     {
+     }*/
+}
+
+// if a bullet collisions an enemy
+void b_col_en(Bullet *b, Enemy *en, int *score)
+{
+    score += en->deathScore;
+    if (en->size == BIG)
+    {
+        (en + 1)->status = ADULT;
+        (en + 4)->status = ADULT;
+    }
+    else if (en->size == MEDIUM)
+    {
+        (en + 1)->status = ADULT;
+        (en + 2)->status = ADULT;
+    } /*
+     else if (en->size == SMALL)
+     {
+     }
+     else if (en->size == FIXED)
+     {
+     }*/
+    if (en->type == FIREBALL_MINE || en->type == MAGNET_FIRE)
+    {
+        en->type = FIREBALL;
+        en->size = FIXED;
+        en->status = ADULT;
+        en->nbPoints = 0;
+    }
+    else
+        en->status = DEAD;
+}
+
+// tries all the collision possible in the game
 void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
 {
     for (int i = 0; i < MAX_ENEMY; i++)
     {
         if (player_collision_enemy(p1, &en[i]))
-        {
-            player_spawn(p1, p1->spawnPoint.x, p1->spawnPoint.y);
-            p1->lives--;
-            en[i].status = DEAD;
-            if (en[i].size == BIG)
-            {
-                en[i + 1].status = ADULT;
-                en[i + 4].status = ADULT;
-            }
-            else if (en[i].size == MEDIUM)
-            {
-                en[i + 1].status = ADULT;
-                en[i + 2].status = ADULT;
-            }
-            else if (en[i].size == SMALL)
-            {
-            }
-            else if (en[i].size == FIXED)
-            {
-            }
-        }
-        if (p2 && player_collision_enemy(p1, &en[i]))
-        {
-            player_spawn(p2, p2->spawnPoint.x, p2->spawnPoint.y);
-            p2->lives--;
-            en[i].status = DEAD;
-            if (en[i].size == BIG)
-            {
-                en[i + 1].status = ADULT;
-                en[i + 4].status = ADULT;
-            }
-            else if (en[i].size == MEDIUM)
-            {
-                en[i + 1].status = ADULT;
-                en[i + 2].status = ADULT;
-            }
-            else if (en[i].size == SMALL)
-            {
-            }
-            else if (en[i].size == FIXED)
-            {
-            }
-        }
+            p_col_en(p1, &en[i]);
+
         for (int i = 0; i < MAX_BULLETS; i++)
-        {
             if (p1->bullets[i].lifespan > 0 && bullet_collision_enemy(&p1->bullets[i], &en[i]))
-            {
-                score += en[i].deathScore;
-                if (en[i].size == BIG)
-                {
-                    en[i + 1].status = ADULT;
-                    en[i + 4].status = ADULT;
-                }
-                else if (en[i].size == MEDIUM)
-                {
-                    en[i + 1].status = ADULT;
-                    en[i + 2].status = ADULT;
-                }
-                else if (en[i].size == SMALL)
-                {
-                }
-                else if (en[i].size == FIXED)
-                {
-                }
-                if (en[i].type == FIREBALL_MINE || en[i].type == MAGNET_FIRE)
-                {
-                    en[i].type = FIREBALL;
-                    en[i].size = FIXED;
-                    en[i].status = ADULT;
-                    en[i].nbPoints = 0;
-                }
-            }
-            if (p2 && p2->bullets[i].lifespan > 0 && bullet_collision_enemy(&p2->bullets[i], &en[i]))
-            {
-                score += en[i].deathScore;
-                if (en[i].size == BIG)
-                {
-                    en[i + 1].status = ADULT;
-                    en[i + 4].status = ADULT;
-                }
-                else if (en[i].size == MEDIUM)
-                {
-                    en[i + 1].status = ADULT;
-                    en[i + 2].status = ADULT;
-                }
-                else if (en[i].size == SMALL)
-                {
-                }
-                else if (en[i].size == FIXED)
-                {
-                }
-                if (en[i].type == FIREBALL_MINE || en[i].type == MAGNET_FIRE)
-                {
-                    en[i].type = FIREBALL;
-                    en[i].size = FIXED;
-                    en[i].status = ADULT;
-                    en[i].nbPoints = 0;
-                }
-            }
-            if (/*bullet collision player*/ 0)
-            {
-            }
+                b_col_en(&p1->bullets[i], &en[i], score);
+    }
+    if (p2)
+    {
+        for (int i = 0; i < MAX_ENEMY; i++)
+        {
+            if (p2 && player_collision_enemy(p1, &en[i]))
+                p_col_en(p2, &en[i]);
+
+            for (int i = 0; i < MAX_BULLETS; i++)
+                if (p2 && p2->bullets[i].lifespan > 0 && bullet_collision_enemy(&p2->bullets[i], &en[i]))
+                    b_col_en(&p2->bullets[i], &en[i], score);
+        }
+        if (/*bullet collision player*/ 0)
+        {
         }
     }
 }
 
+// all update functions needed for the game
 void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptDeltaTime, int *score)
 {
     test_all_collision(en, p1, p2, score);
@@ -183,4 +159,20 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
     }
     else
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
+}
+
+// all usefull draw function for the game
+void draw_loop(Enemy en[], Player *p1, Player *p2)
+{
+    draw_all_enemy(en, MAX_ENEMY);
+    if (p1->lives > 0)
+    {
+        draw_player(*p1, 1);
+        draw_players_bullets(p1);
+    }
+    if (p2 && (p2->lives > 0))
+    {
+        draw_player(*p2, 2);
+        draw_players_bullets(p2);
+    }
 }

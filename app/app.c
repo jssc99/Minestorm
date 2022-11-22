@@ -61,7 +61,7 @@ void appUpdate(App *app)
         if (igIsKeyPressed(ImGuiKey_P, 0))
             en[MAX_ENEMY - 1].status = ADULT;
 
-        // PLAYER STUFF // 
+        // PLAYER STUFF //
     }
 
     //////////////////// LE GAME ITSELF /////////////////////////
@@ -108,11 +108,10 @@ void appUpdate(App *app)
             else
                 update_game(en, &p1, NULL, igGetIO()->DeltaTime, g.cptDelta, &g.score);
 
-            draw_all_enemy(en, MAX_ENEMY);
-            if (p1.lives > 0)
-                draw_player(p1, 1);
-            if (g.is_p2 && (p2.lives > 0))
-                draw_player(p2, 2);
+            if (g.is_p2)
+                draw_loop(en, &p1, &p2);
+            else
+                draw_loop(en, &p1, NULL);
 
             if (how_many_e_child(en, MAX_ENEMY - 1) == 0 && en[MAX_ENEMY - 1].status == CHILD)
                 en[MAX_ENEMY - 1].status = ADULT;
@@ -146,11 +145,10 @@ void appUpdate(App *app)
         break;
 
     case PAUSE:
-        draw_all_enemy(en, MAX_ENEMY - 1);
-        if (p1.lives > 0)
-            draw_player(p1, 1);
-        if (g.is_p2 && (p2.lives > 0))
-            draw_player(p2, 2);
+        if (g.is_p2)
+            draw_loop(en, &p1, &p2);
+        else
+            draw_loop(en, &p1, NULL);
 
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = IN_GAME;
