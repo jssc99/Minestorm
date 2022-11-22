@@ -4,7 +4,6 @@
 bool DEBUG_PLAYER = 1;
 
 #define drawList igGetBackgroundDrawList_Nil()
-// static ImU32 color;
 
 void debug_menu_player(Player *p, bool debugMenu)
 {
@@ -140,7 +139,7 @@ bool player_collision_enemy(Player *p, Enemy *e)
 {
     // Player player = *p;
     if (e->status != ADULT)
-        return;
+        return false ;
     // bool outside;
     Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
     Point2 largeMine[5];
@@ -243,6 +242,7 @@ bool player_collision_enemy(Player *p, Enemy *e)
          p->lives--;
          e->status = DEAD;
      }*/
+     return false;
 }
 
 // Collision player & floating mine
@@ -287,12 +287,13 @@ bool player_collision_minelayer(Player *p, Enemy *e)
     // Point2 internalRectangle[4] = {e->points[2], e->points[4], e->points[5], e->points[7]};
     if (SAT_collision_SAT(largeMine, 5, largeBody, 3))
     {
-        for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
         {
-            mineParts[0][i] = e->points[(i ? 4 : 0) + i];
+            mineParts[0][i] = e->points[3 + i];
             mineParts[1][i] = e->points[i + 1];
             mineParts[2][i] = e->points[i + 6];
         }
+        mineParts[0][0] = e->points[0];
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -387,18 +388,14 @@ Bullet init_bullet(Player p)
     return b;
 }
 
-// Draw ALL the bullets of a player
+// Update ALL the bullets of a player
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
-    {
         if (p->bullets[i].lifespan)
-        {
             update_one_bullet(&p->bullets[i], deltaTime, maxScreen);
-            draw_bullet(p->bullets[i].location, p->bullets[i].size, CV_COL32(255, 255 / MAX_BULLETS * i, 0, 255));
-        }
-    }
 }
+
 // Bullet evolution
 void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen)
 // TODO: void update_bullet(Bullet* b, float deltaTime)
@@ -417,7 +414,7 @@ bool bullet_collision_enemy(Bullet *b, Enemy *e)
 {
 
     if (e->status != ADULT)
-        return;
+        return false;
     Point2 largeMine[5];
     Point2 mineParts[5][3];
 
@@ -426,7 +423,6 @@ bool bullet_collision_enemy(Bullet *b, Enemy *e)
         switch (e->type)
         {
         case (FIREBALL):
-            for (int i = 0; i < 4; i++)
                 if (sphere_collision_sphere(e->location.origin, get_max_size(e->size, e->type), b->location, b->size))
                     return true;
         case (FLOATING):
@@ -439,6 +435,7 @@ bool bullet_collision_enemy(Bullet *b, Enemy *e)
             return bullet_collision_square_mine(b, e);
         }
     }
+    return false;
 }
 
 // Collision bullet & floating mine
@@ -474,10 +471,11 @@ bool bullet_collision_minelayer(Bullet *b, Enemy *e)
     {
         for (int i = 0; i < 3; i++)
         {
-            mineParts[0][i] = e->points[(i ? 4 : 0) + i];
+            mineParts[0][i] = e->points[3 + i];
             mineParts[1][i] = e->points[i + 1];
             mineParts[2][i] = e->points[i + 6];
         }
+        mineParts[0][0] = e->points[0];
         for (int i = 0; i < 3; i++)
         {
             if (sphere_collision_SAT(b->location, b->size, mineParts[i], 3))

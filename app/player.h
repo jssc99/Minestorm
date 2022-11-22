@@ -50,6 +50,7 @@ void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, 
 void draw_player(Player p, int playerNb);
 void draw_debug_player(Player *p);
 void draw_bullet(Point2 center, float radius, unsigned int color);
+void draw_players_bullets(Player *p);
 
 // Player
 Player player_init(float x, float y, float size);
