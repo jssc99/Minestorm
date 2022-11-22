@@ -56,12 +56,13 @@ void draw_players_bullets(Player *p);
 Player player_init(float x, float y, float size);
 void init_points_player(Player *p);
 void player_spawn(Player *p, float x, float y);
+void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *e);
 void rotate_player(Player *p, float angle);
-void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2);
+void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy* e);
 void turnleft_player(Player *p, float deltaTime);
 void turnright_player(Player *p, float deltaTime);
 void accelerate_player(Player *p, float deltaTime);
-void teleport_player(Player *p, Point2 maxScreen);
+void teleport_player(Player *p, Point2 maxScreen, Enemy* e);
 void debug_menu_player(Player *p, bool debugMenu);
 
 // Bullet

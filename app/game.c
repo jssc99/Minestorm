@@ -144,10 +144,10 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
     }
 
     if (p1->lives > 0)
-        update_player(p1, deltaTime, (Point2){700, 800}, 0);
+        update_player(p1, deltaTime, (Point2){700, 800}, 0,en);
     if (p2 && (p2->lives > 0))
     {
-        update_player(p2, deltaTime, (Point2){700, 800}, 1);
+        update_player(p2, deltaTime, (Point2){700, 800}, 1,en);
         Enemy split[50], split2[50];
         for (int i = 0, j = 0; i < (MAX_ENEMY - 1); j++, i += 2)
         {

@@ -95,7 +95,7 @@ void fire_bullet(Player *p, float deltaTime, Point2 maxScreen)
     }
 }
 // Update the player each frame
-void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2)
+void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy *e)
 {
     if (deltaTime && p->lives >= 0)
     {
@@ -109,7 +109,7 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2)
         if ((igIsKeyDown(ImGuiKey_F) && !p2) || (igIsKeyDown(ImGuiKey_K) && p2))
             fire_bullet(p, deltaTime, maxScreen);
         if (((igIsKeyPressed(ImGuiKey_E, 0) || (igIsKeyPressed(ImGuiKey_T, 0))) && !p2) || ((igIsKeyPressed(ImGuiKey_U, 0) || igIsKeyPressed(ImGuiKey_O, 0)) && p2))
-            teleport_player(p, maxScreen);
+            teleport_player(p, maxScreen, e);
 
         // Collisions
         poly_collision_border_replace(p->shape, &p->axis.origin, 10, p->size, maxScreen);
@@ -139,7 +139,7 @@ bool player_collision_enemy(Player *p, Enemy *e)
 {
     // Player player = *p;
     if (e->status != ADULT)
-        return false ;
+        return false;
     // bool outside;
     Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
     Point2 largeMine[5];
@@ -242,7 +242,7 @@ bool player_collision_enemy(Player *p, Enemy *e)
          p->lives--;
          e->status = DEAD;
      }*/
-     return false;
+    return false;
 }
 
 // Collision player & floating mine
@@ -287,7 +287,7 @@ bool player_collision_minelayer(Player *p, Enemy *e)
     // Point2 internalRectangle[4] = {e->points[2], e->points[4], e->points[5], e->points[7]};
     if (SAT_collision_SAT(largeMine, 5, largeBody, 3))
     {
-            for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
             mineParts[0][i] = e->points[3 + i];
             mineParts[1][i] = e->points[i + 1];
@@ -423,8 +423,8 @@ bool bullet_collision_enemy(Bullet *b, Enemy *e)
         switch (e->type)
         {
         case (FIREBALL):
-                if (sphere_collision_sphere(e->location.origin, get_max_size(e->size, e->type), b->location, b->size))
-                    return true;
+            if (sphere_collision_sphere(e->location.origin, get_max_size(e->size, e->type), b->location, b->size))
+                return true;
         case (FLOATING):
             return bullet_collision_floating(b, e);
         case (MAGNET_FIRE):
@@ -444,7 +444,7 @@ bool bullet_collision_floating(Bullet *b, Enemy *e)
 
     Point2 largeMine[3] = {e->points[0], e->points[2], e->points[4]};
     Point2 mineParts[4][3];
-    if (sphere_collision_SAT(b->location, b->size, largeMine, 3 ))
+    if (sphere_collision_SAT(b->location, b->size, largeMine, 3))
     {
         for (int i = 0; i < 3; i++)
         {
@@ -568,16 +568,51 @@ void accelerate_player(Player *p, float deltaTime)
     p->moveLine = p->targetLine;
 }
 // Teleport player at a random position, should check the collisions first
-void teleport_player(Player *p, Point2 maxScreen)
+void teleport_player(Player *p, Point2 maxScreen, Enemy *e)
 {
-    if (p->tpcd >= 3)
+    if (p->tpcd >= 0/*3*/)
     {
-        // while collision
-        srand(time(NULL)); // i++ ?
-        int newPosx = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size);
-        int newPosY = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size);
-        player_spawn(p, p->size + newPosx, p->size + newPosY);
+        //bool collision = false;
+        Point2 newPos;
+        //do
+        //{
+            srand(time(NULL)); // i++ ?
+            newPos.x = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size);
+            newPos.y = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size);
+        /*    for (int i = 0; i < MAX_ENEMY; i++)
+                if (e->status == ADULT)
+                {
+                    collision = sphere_collision_sphere(newPos, 2 * p->size, e[i].location.origin, get_max_size(e[i].size, e[i].type));
+                    break;
+                }
+        } while (collision);
+
+       // player_spawn(p, p->size + newPos.x, p->size + newPos.y);*/
+        player_spawn_check(p,newPos,maxScreen,e);
         p->tpcd = 0;
+    }
+}
+// Check collisions before spawn
+void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *e)
+{
+    srand(time(NULL));
+    bool collision = false;
+    for (int i = 0; i < MAX_ENEMY; i++)
+        if (e[i].status == ADULT)
+        {
+            collision = sphere_collision_sphere(newLocation, 2 * p->size, e[i].location.origin, get_max_size(e[i].size, e[i].type));
+            break;
+        }
+    if (!collision)
+    {
+        player_spawn(p, newLocation.x, newLocation.y);
+        return;
+    }
+    else
+    {
+        newLocation.x = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size) +p->size;
+        newLocation.y = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size) +p->size;
+        player_spawn_check(p, newLocation, maxScreen, e);
     }
 }
 
