@@ -145,7 +145,7 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 
     if (size == FIXED && type != MINELAYER && type != FIREBALL)
         size = SMALL;
-    if (size != FIXED && (type == MINELAYER | type == FIREBALL))
+    if (size != FIXED && (type == MINELAYER || type == FIREBALL))
         size = FIXED;
 
     switch (type)
