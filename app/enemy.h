@@ -31,15 +31,15 @@ typedef enum enemySize
     SMALL,
     MEDIUM,
     BIG,
-    FIXED   // used for minelayer and fireball enemy
+    FIXED // used for minelayer and fireball enemy
 } enemySize;
 
 typedef enum Status
 {
-    BABY,   // created but not placed
-    CHILD,  // placed but not moving
-    ADULT,  // moving around
-    DEAD    // killed or died
+    BABY,  // created but not placed
+    CHILD, // placed but not moving
+    ADULT, // moving around
+    DEAD   // killed or died
 } Status;
 
 typedef struct Enemy
@@ -58,6 +58,7 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height);
 Enemy init_enemy(Point2 origin, enemyType type, enemySize size);
 bool is_any_enemy_alive(Enemy e[], int nbEnemies);
 int how_many_e_adult(Enemy e[], int nbEnemies);
+int how_many_e_child(Enemy e[], int nbEnemies);
 
 void age_enemy(Enemy *e);
 void size_enemy(Enemy *e);
@@ -76,4 +77,4 @@ void draw_any_enemy(Enemy *e);
 void draw_minefield(Enemy *e, int size);
 void draw_all_enemy(Enemy e[], int size);
 
-//void debug_enemy(App *app, Game *g);
+// void debug_enemy(App *app, Game *g);

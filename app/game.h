@@ -20,5 +20,5 @@ typedef struct Game
 } Game;
 
 void init_game(Player *p1, Player *p2, Enemy *e, int level);
-void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float ctpDeltaTime, int nbEnemy, int *score);
+void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float ctpDeltaTime, int *score);
 void start_minelayer(Enemy *e);
