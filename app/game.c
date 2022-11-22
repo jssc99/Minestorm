@@ -19,7 +19,7 @@ void asign_role(Enemy e[], int level)
             type++;
         if ((level + i) > 45)
             type++;
-        e[i + 0] = init_enemy(e[i + 0].location.origin, type, BIG);
+        e[i + 0] = init_enemy(e[i + 0].location.origin, MINELAYER, BIG);
         e[i + 1] = init_enemy(e[i + 1].location.origin, type, MEDIUM);
         e[i + 2] = init_enemy(e[i + 2].location.origin, type, MEDIUM);
         e[i + 3] = init_enemy(e[i + 3].location.origin, type, SMALL);

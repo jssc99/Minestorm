@@ -5,7 +5,6 @@
 #define p2 g.player2
 
 Game g;
-
 void appInit(App *app)
 {
     *app = (App){0};
@@ -22,6 +21,22 @@ void appUpdate(App *app)
     {
         ImGuiIO *io = igGetIO();
         Point2 mouse;
+        // TEST
+        Bullet b = {0};
+        b.size = 2;
+        b.lifespan = 10000000;
+        bool collision;
+        b.location.x = io->MousePos.x;
+        b.location.y = io->MousePos.y;
+        for (int i = 0; i < MAX_ENEMY; i++)
+        {
+            collision = bullet_collision_enemy(&b, en);
+            break;
+        }
+        draw_circle(NULL, (Point2){400, 500}, 50, 20, 0, CV_COL32((255 * collision), (255 * !collision), 0, 255));
+        // test_collision(p1, p2, io->MousePos, en[0]);
+        // END TEST
+
         igCheckbox("Move center with mouse e (right click)", &app->movePointE);
         // igCheckbox("Move center with mouse p (middle click)", &app->movePointP);
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
@@ -63,12 +78,19 @@ void appUpdate(App *app)
         g.cptDelta = 0.f;
         g.score = 0;
         g.level = 1;
+
         if (igIsKeyPressed(ImGuiKey_F, 0))
         {
             init_game(&p1, NULL, en, g.level);
             g.is_p2 = false;
             p1.lives = 3;
             g.menu = IN_GAME;
+            // TEST
+            // for (int i = 0; i < MAX_ENEMY; i++)
+            en[0].status = ADULT;
+            update_pos_all_enemy(en, MAX_ENEMY - 1, (Point2){350, 400});
+
+            // END TEST
         }
         if (igIsKeyPressed(ImGuiKey_K, 0))
         {
@@ -92,6 +114,9 @@ void appUpdate(App *app)
                 draw_player(p1, 1);
             if (g.is_p2 && (p2.lives > 0))
                 draw_player(p2, 2);
+            // TEST COLLISION
+
+            //  end TEST
         }
 
         if (p1.lives < 0 && (!g.is_p2 || p2.lives < 0))

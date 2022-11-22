@@ -4,3 +4,6 @@ imgui.ini
 minestorm
 minestorm.exe
 appBU.c
+app/appBUTest.c
+app/app.c
+app/game.c
