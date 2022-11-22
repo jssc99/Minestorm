@@ -32,7 +32,7 @@ void player_spawn(Player *p, float x, float y)
                       {1, 0}};
     p->inertia = (Vector2){0, 0};
     p->speed = 0;
-    //p->moveLine = multVector2(p->axis.x, p->size);
+    // p->moveLine = multVector2(p->axis.x, p->size);
     p->axis.x = multVector2(p->axis.x, p->size / 25.f); // 25 px is the base size of the ship
     p->axis.y = multVector2(p->axis.y, p->size / 25.f);
     p->moveLine = p->axis.x;
@@ -46,8 +46,8 @@ Player player_init(float x, float y, float size)
     p.size = size;
     p.spawnPoint = (Point2){x, y};
     player_spawn(&p, x, y);
-    //p.axis.x = multVector2(p.axis.x, p.size / 25.f); // 25 px is the base size of the ship
-    //p.axis.y = multVector2(p.axis.y, p.size / 25.f);
+    // p.axis.x = multVector2(p.axis.x, p.size / 25.f); // 25 px is the base size of the ship
+    // p.axis.y = multVector2(p.axis.y, p.size / 25.f);
     return p;
 }
 
@@ -545,32 +545,29 @@ bool bullet_collision_mf_mine(Bullet *b, Enemy *e)
     return false;
 }
 
-/*
 // Collision bullet with player
 // test collision (p1 = shooter, p2 = target)
 bool bullet_collision_player(Player *p1, Player *p2)
 {
-    Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
-    Point2 smallParts[4][3] = {{p->shape[0], p->shape[1], p->shape[9]},    // ARROW
-                               {p->axis.origin, p->shape[2], p->shape[3]}, // LEFTWING
-                               {p->axis.origin, p->shape[7], p->shape[8]}, // RIGHTWING
-                               {p->shape[1], p->shape[5], p->shape[9]}};   // TAIL
-
-    if (sphere_collision_sphere(p1->bullets[i],  p2->axis.origin, p2->size))
+    Point2 largeBody[3] = {p2->shape[0], p2->shape[3], p2->shape[7]};
+    Point2 smallParts[4][3] = {{p2->shape[0], p2->shape[1], p2->shape[9]},    // ARROW
+                               {p2->axis.origin, p2->shape[2], p2->shape[3]}, // LEFTWING
+                               {p2->axis.origin, p2->shape[7], p2->shape[8]}, // RIGHTWING
+                               {p2->shape[1], p2->shape[5], p2->shape[9]}};   // TAIL
+    for (int i = 0; i < MAX_BULLETS; i++)
     {
-        switch (e->type)
+        if (p1->bullets[i].lifespan > 0 && sphere_collision_sphere(p1->bullets[i].location, p1->bullets[i].size, p2->axis.origin, p2->size))
         {
-        case (FIREBALL):
-            for (int i = 0; i < 4; i++)
-                if (sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), smallParts[i], 3))
+            for (int j = 0; j < 4; j++)
+                if (sphere_collision_SAT(p1->bullets[i].location, p1->bullets[i].size, smallParts[j], 3))
                 {
                     return true;
                 }
-            break;
         }
     }
+    return false;
 }
-*/
+
 // Turn the player to the left igIsKeyDown(ImGuiKey_D)
 void turnleft_player(Player *p, float deltaTime)
 {
