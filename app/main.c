@@ -33,6 +33,8 @@ int main()
 
     // Init canvas library
     CanvasConfig config = cvGetDefaultConfig();
+    config.hideInternalWindow = true;
+    config.backgroundColor = CV_COL32(0, 0, 0, 255);
     cvInit(window, config);
 
     // Init our app
@@ -47,7 +49,8 @@ int main()
         cvNewFrame();
 
         appUpdate(&app);
-        if (app.closeApp) glfwSetWindowShouldClose(window, 1);
+        if (app.closeApp)
+            glfwSetWindowShouldClose(window, 1);
 
         // End
         cvEndFrame();

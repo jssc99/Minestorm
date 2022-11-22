@@ -23,6 +23,8 @@ void appUpdate(App *app)
         ImGuiIO *io = igGetIO();
         Point2 mouse;
 
+        // ENEMY STUFF //
+
         igCheckbox("Move center with mouse e (right click)", &app->movePointE);
         // igCheckbox("Move center with mouse p (middle click)", &app->movePointP);
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
@@ -58,6 +60,8 @@ void appUpdate(App *app)
             g.menu = (g.menu + 1) % 5;
         if (igIsKeyPressed(ImGuiKey_P, 0))
             en[MAX_ENEMY - 1].status = ADULT;
+
+        // PLAYER STUFF // 
     }
 
     //////////////////// LE GAME ITSELF /////////////////////////
@@ -121,7 +125,7 @@ void appUpdate(App *app)
             g.menu = SUCCESS;
         }
 
-        if (p1.lives < 0 && (!g.is_p2 || p2.lives < 0))
+        if (p1.lives <= 0 && (!g.is_p2 || p2.lives <= 0))
             g.menu = GAMEOVER;
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = PAUSE;

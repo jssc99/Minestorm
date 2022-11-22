@@ -42,7 +42,6 @@ void init_game(Player *p1, Player *p2, Enemy *en, int level)
 
 void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
 {
-
     for (int i = 0; i < MAX_ENEMY; i++)
     {
         if (player_collision_enemy(p1, &en[i]))
@@ -120,6 +119,30 @@ void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
             }
             if (p2 && p2->bullets[i].lifespan > 0 && bullet_collision_enemy(&p2->bullets[i], &en[i]))
             {
+                score += en[i].deathScore;
+                if (en[i].size == BIG)
+                {
+                    en[i + 1].status = ADULT;
+                    en[i + 4].status = ADULT;
+                }
+                else if (en[i].size == MEDIUM)
+                {
+                    en[i + 1].status = ADULT;
+                    en[i + 2].status = ADULT;
+                }
+                else if (en[i].size == SMALL)
+                {
+                }
+                else if (en[i].size == FIXED)
+                {
+                }
+                if (en[i].type == FIREBALL_MINE || en[i].type == MAGNET_FIRE)
+                {
+                    en[i].type = FIREBALL;
+                    en[i].size = FIXED;
+                    en[i].status = ADULT;
+                    en[i].nbPoints = 0;
+                }
             }
             if (/*bullet collision player*/ 0)
             {
@@ -135,6 +158,18 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
 
     test_all_collision(en, p1, p2, score);
 
+    int nbEnAdult = 0;
+    if (cptDeltaTime > 5.f && (nbEnAdult = how_many_e_adult(en, MAX_ENEMY - 1)) < MIN_ON_SCREEN)
+    {
+        nbEnAdult = MIN_ON_SCREEN - nbEnAdult;
+        for (int i = 0; i < MAX_ENEMY - 1; i += 7)
+            if (nbEnAdult && en[i].size == BIG && en[i].status == CHILD)
+            {
+                en[i].status = ADULT;
+                nbEnAdult--;
+            }
+    }
+    
     if (p2 && (p2->lives > 0))
     {
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
@@ -150,15 +185,4 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
     else
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
 
-    int nbEnAdult = 0;
-    if (cptDeltaTime > 5.f && (nbEnAdult = how_many_e_adult(en, MAX_ENEMY - 1)) < MIN_ON_SCREEN)
-    {
-        nbEnAdult = MIN_ON_SCREEN - nbEnAdult;
-        for (int i = 0; i < MAX_ENEMY - 1; i += 7)
-            if (nbEnAdult && en[i].size == BIG && en[i].status == CHILD)
-            {
-                en[i].status = ADULT;
-                nbEnAdult--;
-            }
-    }
 }
