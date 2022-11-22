@@ -58,6 +58,7 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height);
 Enemy init_enemy(Point2 origin, enemyType type, enemySize size);
 bool is_any_enemy_alive(Enemy e[], int nbEnemies);
 int how_many_e_adult(Enemy e[], int nbEnemies);
+int how_many_e_child(Enemy e[], int nbEnemies);
 
 void age_enemy(Enemy *e);
 void size_enemy(Enemy *e);

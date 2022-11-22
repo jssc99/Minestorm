@@ -78,12 +78,22 @@ bool is_any_enemy_alive(Enemy e[], int nbEnemies)
     return 0;
 }
 
-// checks in array of enemy if one is not dead
+// checks in array how any are adults
 int how_many_e_adult(Enemy e[], int nbEnemies)
 {
     int cpt = 0;
     for (int i = 0; i < nbEnemies; i++)
         if (e[i].status == ADULT)
+            cpt++;
+    return cpt;
+}
+
+// checks in array of enemy if one is not dead
+int how_many_e_child(Enemy e[], int nbEnemies)
+{
+    int cpt = 0;
+    for (int i = 0; i < nbEnemies; i++)
+        if (e[i].status == CHILD)
             cpt++;
     return cpt;
 }
