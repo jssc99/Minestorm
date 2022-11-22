@@ -561,6 +561,7 @@ bool bullet_collision_player(Player *p1, Player *p2)
             for (int j = 0; j < 4; j++)
                 if (sphere_collision_SAT(p1->bullets[i].location, p1->bullets[i].size, smallParts[j], 3))
                 {
+                    p1->bullets[i].lifespan = 0;
                     return true;
                 }
         }
@@ -595,7 +596,7 @@ void accelerate_player(Player *p, float deltaTime)
 // Teleport player at a random position, should check the collisions first
 void teleport_player(Player *p, Point2 maxScreen, Enemy *e)
 {
-    if (p->tpcd >= 0 /*3*/)
+    if (p->tpcd >= 3)
     {
         // bool collision = false;
         Point2 newPos;
