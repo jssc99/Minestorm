@@ -1,8 +1,9 @@
 #include "physics.h"
 
-#define DEBUG true
+
 #define DRAW_LIST igGetBackgroundDrawList_Nil()
 
+static bool DEBUG_PLAYER;
 // Detect a collision between a sphere and a SAT
 bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegments)
 {
@@ -12,7 +13,7 @@ bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegm
         float proj = dotProductVector2(center, range.normal);
         if (proj < range.min - radius || proj > range.max + radius)
         {
-            if (DEBUG)
+            if (DEBUG_PLAYER)
             {
                 ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly[i].x, poly[i].y}, (ImVec2){poly[(i + 1) % nbSegments].x, poly[(i + 1) % nbSegments].y}, CV_COL32(255, 200 + 55 * (!i), 0, 200), 2.0f);
             }
@@ -47,7 +48,7 @@ bool SAT_collision_SAT(Point2 poly1[], int sidesP1, Point2 poly2[], int sidesP2)
         }
         if (max2 < range.min || min2 > range.max)
         {
-            if (DEBUG)
+            if (DEBUG_PLAYER)
             {
                 ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly1[i].x, poly1[i].y}, (ImVec2){poly1[(i + 1) % sidesP1].x, poly1[(i + 1) % sidesP1].y}, CV_COL32(255, 200 + 55 * (!i), 0, 200), 2.0f);
                 ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly2[jSep].x, poly2[jSep].y}, (ImVec2){poly2[(jSep + 1) % sidesP2].x, poly2[(jSep + 1) % sidesP2].y}, CV_COL32(255, 200 + 55 * (!jSep), 0, 200), 2.0f);
@@ -105,7 +106,7 @@ bool SAT_collision_Rectangle(Point2 poly1[], int sidesP1, Point2 rectangle[])
         }
         if (max2 < range.min || min2 > range.max)
         {
-            if (DEBUG)
+            if (DEBUG_PLAYER)
             {
                 ImDrawList_AddLine(DRAW_LIST, (ImVec2){poly1[i].x, poly1[i].y}, (ImVec2){poly1[(i + 1) % sidesP1].x, poly1[(i + 1) % sidesP1].y}, CV_COL32(255, 200 + 55 * (!i), 0, 200), 2.0f);
                 ImDrawList_AddLine(DRAW_LIST, (ImVec2){rectangle[jSep].x, rectangle[jSep].y}, (ImVec2){rectangle[(jSep + 1) % 4].x, rectangle[(jSep + 1) % 4].y}, CV_COL32(255, 200 + 55 * (!jSep), 0, 200), 2.0f);
