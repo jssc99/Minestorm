@@ -87,7 +87,7 @@ void appUpdate(App *app)
             p1.lives = 3;
             g.menu = IN_GAME;
         }
-        if (igIsKeyPressed(ImGuiKey_K, 0))
+        else if (igIsKeyPressed(ImGuiKey_K, 0))
         {
             init_game(&p1, &p2, en, g.level);
             g.is_p2 = true;
@@ -95,12 +95,12 @@ void appUpdate(App *app)
             p2.lives = 3;
             g.menu = IN_GAME;
         }
-        if (igIsKeyPressed(ImGuiKey_Escape, 0))
+        else if (igIsKeyPressed(ImGuiKey_Escape, 0))
             app->closeApp = true;
         break;
 
     case IN_GAME:
-        if (is_any_enemy_alive(en, MAX_ENEMY - 1) || en[MAX_ENEMY - 1].status != DEAD)
+        if (is_any_enemy_alive(en, MAX_ENEMY))
         {
             g.cptDelta += igGetIO()->DeltaTime;
             if (g.is_p2)
@@ -140,7 +140,7 @@ void appUpdate(App *app)
                 init_game(&p1, NULL, en, g.level);
             g.menu = IN_GAME;
         }
-        if (igIsKeyPressed(ImGuiKey_Escape, 0))
+        else if (igIsKeyPressed(ImGuiKey_Escape, 0))
             g.menu = MAIN;
         break;
 
@@ -152,7 +152,7 @@ void appUpdate(App *app)
 
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = IN_GAME;
-        if (igIsKeyPressed(ImGuiKey_Escape, 0))
+        else if (igIsKeyPressed(ImGuiKey_Escape, 0))
             g.menu = MAIN;
         break;
 
@@ -160,7 +160,7 @@ void appUpdate(App *app)
         g.cptDelta = 0.f;
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = MAIN;
-        if (igIsKeyPressed(ImGuiKey_Escape, 0))
+        else if (igIsKeyPressed(ImGuiKey_Escape, 0))
             app->closeApp = true;
         break;
 
