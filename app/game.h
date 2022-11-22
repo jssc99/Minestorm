@@ -4,8 +4,8 @@
 #include "enemy.h"
 #include "menu.h"
 
-#define MAX_ENEMY 31
-#define MAX_ON_SCREEN 4
+#define MAX_ENEMY 36
+#define MIN_ON_SCREEN 3
 
 typedef struct Game
 {
@@ -20,4 +20,5 @@ typedef struct Game
 } Game;
 
 void init_game(Player *p1, Player *p2, Enemy *e, int level);
-void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float ctpDeltaTime, int nbEnemy);
+void update_game(Enemy e[], Player *p1, Player *p2, float deltaTime, float ctpDeltaTime, int *score);
+void start_minelayer(Enemy *e);

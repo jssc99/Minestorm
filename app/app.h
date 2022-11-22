@@ -14,6 +14,7 @@ typedef struct App
     int height;
     Point2 maxScreen;
     ImFont *font;
+    CvTexture backg;
 
     // enemy debug
     unsigned int id;

@@ -88,6 +88,16 @@ int how_many_e_adult(Enemy e[], int nbEnemies)
     return cpt;
 }
 
+// checks in array of enemy if one is not dead
+int how_many_e_child(Enemy e[], int nbEnemies)
+{
+    int cpt = 0;
+    for (int i = 0; i < nbEnemies; i++)
+        if (e[i].status == CHILD)
+            cpt++;
+    return cpt;
+}
+
 // ages an enemy, loops around (DEAD -> BABY)
 void age_enemy(Enemy *e)
 {
@@ -120,6 +130,13 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
         e.location.x = normalizedVector2(rotatePoint2((Point2){1.f, 0.f}, e.location.origin, e.angle));
         e.location.y = rotatePoint2((Point2){0, 0}, e.location.x, M_PI / 2.f);
     }
+    else if (type == MINELAYER)
+    {
+        e.location.origin = (Point2){350, 50};
+        e.location.x = (Vector2){0.f, 1.f};
+        e.location.y = (Vector2){-1.f, 0.f};
+        e.angle = 0.f;
+    }
     else
     {
         e.angle = 0.f;
@@ -128,6 +145,8 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 
     if (size == FIXED && type != MINELAYER && type != FIREBALL)
         size = SMALL;
+    if (size != FIXED && (type == MINELAYER | type == FIREBALL))
+        size = FIXED;
 
     switch (type)
     {

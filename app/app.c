@@ -9,6 +9,7 @@ void appInit(App *app)
 {
     *app = (App){0};
     app->font = ImFontAtlas_AddFontFromFileTTF(igGetIO()->Fonts, "assets/Roboto-Regular.ttf", 100, NULL, NULL);
+    app->backg = cvLoadTexture("assets/space.jpg");
     g = (Game){0};
 }
 
@@ -21,21 +22,6 @@ void appUpdate(App *app)
     {
         ImGuiIO *io = igGetIO();
         Point2 mouse;
-        // TEST
-        Bullet b = {0};
-        b.size = 2;
-        b.lifespan = 10000000;
-        bool collision;
-        b.location.x = io->MousePos.x;
-        b.location.y = io->MousePos.y;
-        for (int i = 0; i < MAX_ENEMY; i++)
-        {
-            collision = bullet_collision_enemy(&b, en);
-            break;
-        }
-        draw_circle(NULL, (Point2){400, 500}, 50, 20, 0, CV_COL32((255 * collision), (255 * !collision), 0, 255));
-        // test_collision(p1, p2, io->MousePos, en[0]);
-        // END TEST
 
         igCheckbox("Move center with mouse e (right click)", &app->movePointE);
         // igCheckbox("Move center with mouse p (middle click)", &app->movePointP);
@@ -45,8 +31,12 @@ void appUpdate(App *app)
         igText("Press 'x' to circle life status");
         igText("Press 'z' to circle menus");
 
-        ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[app->id].location.origin.x, en[app->id].location.origin.y}, (ImVec2){en[app->id].location.origin.x + 20 * en[app->id].location.x.x, en[app->id].location.origin.y + 20 * en[app->id].location.x.y}, CV_COL32(255, 0, 0, 200), 2.0f);
-        ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[app->id].location.origin.x, en[app->id].location.origin.y}, (ImVec2){en[app->id].location.origin.x + 20 * en[app->id].location.y.x, en[app->id].location.origin.y + 20 * en[app->id].location.y.y}, CV_COL32(0, 255, 0, 200), 2.0f);
+        for (int i = 0; i < MAX_ENEMY; i++)
+            if (en[i].status == ADULT)
+            {
+                ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, (ImVec2){en[i].location.origin.x + 20 * en[i].location.x.x, en[i].location.origin.y + 20 * en[i].location.x.y}, CV_COL32(255, 0, 0, 200), 2.0f);
+                ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, (ImVec2){en[i].location.origin.x + 20 * en[i].location.y.x, en[i].location.origin.y + 20 * en[i].location.y.y}, CV_COL32(0, 255, 0, 200), 2.0f);
+            }
 
         if (app->movePointE)
         {
@@ -66,9 +56,16 @@ void appUpdate(App *app)
             g.enemy[app->id].status = (g.enemy[app->id].status + 1) % 3;
         if (igIsKeyPressed(ImGuiKey_Z, 0))
             g.menu = (g.menu + 1) % 5;
+        if (igIsKeyPressed(ImGuiKey_P, 0))
+            en[MAX_ENEMY - 1].status = ADULT;
     }
 
     //////////////////// LE GAME ITSELF /////////////////////////
+
+    ImDrawList_AddImage(igGetBackgroundDrawList_Nil(), app->backg.id,
+                        (ImVec2){0.f, 0.f}, (ImVec2){700.f, 800.f},
+                        (ImVec2){0.f, 0.f}, (ImVec2){1.f, 1.f},
+                        igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}));
 
     draw_menu(g.menu, app->font, g.score, g.level, g.is_p2, p1.lives, p2.lives);
 
@@ -85,12 +82,6 @@ void appUpdate(App *app)
             g.is_p2 = false;
             p1.lives = 3;
             g.menu = IN_GAME;
-            // TEST
-            // for (int i = 0; i < MAX_ENEMY; i++)
-            en[0].status = ADULT;
-            update_pos_all_enemy(en, MAX_ENEMY - 1, (Point2){350, 400});
-
-            // END TEST
         }
         if (igIsKeyPressed(ImGuiKey_K, 0))
         {
@@ -105,27 +96,33 @@ void appUpdate(App *app)
         break;
 
     case IN_GAME:
-        if (is_any_enemy_alive(en, MAX_ENEMY - 1))
+        if (is_any_enemy_alive(en, MAX_ENEMY - 1) || en[MAX_ENEMY - 1].status != DEAD)
         {
             g.cptDelta += igGetIO()->DeltaTime;
-            update_game(en, &p1, &p2, igGetIO()->DeltaTime, g.cptDelta, MAX_ENEMY - 1);
-            draw_all_enemy(en, MAX_ENEMY - 1);
+            if (g.is_p2)
+                update_game(en, &p1, &p2, igGetIO()->DeltaTime, g.cptDelta, &g.score);
+            else
+                update_game(en, &p1, NULL, igGetIO()->DeltaTime, g.cptDelta, &g.score);
+
+            draw_all_enemy(en, MAX_ENEMY);
             if (p1.lives > 0)
                 draw_player(p1, 1);
             if (g.is_p2 && (p2.lives > 0))
                 draw_player(p2, 2);
-            // TEST COLLISION
 
-            //  end TEST
+            if (how_many_e_child(en, MAX_ENEMY - 1) == 0 && en[MAX_ENEMY - 1].status == CHILD)
+                en[MAX_ENEMY - 1].status = ADULT;
+            if (en[MAX_ENEMY - 1].status == ADULT)
+                update_pos_any_enemy(&en[MAX_ENEMY - 1], p1.axis.origin);
+        }
+        else
+        {
+            g.level++;
+            g.menu = SUCCESS;
         }
 
         if (p1.lives < 0 && (!g.is_p2 || p2.lives < 0))
             g.menu = GAMEOVER;
-        if (!is_any_enemy_alive(en, MAX_ENEMY - 1))
-        {
-            g.menu = SUCCESS;
-            g.level++;
-        }
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = PAUSE;
         break;
@@ -145,6 +142,12 @@ void appUpdate(App *app)
         break;
 
     case PAUSE:
+        draw_all_enemy(en, MAX_ENEMY - 1);
+        if (p1.lives > 0)
+            draw_player(p1, 1);
+        if (g.is_p2 && (p2.lives > 0))
+            draw_player(p2, 2);
+
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = IN_GAME;
         if (igIsKeyPressed(ImGuiKey_Escape, 0))
@@ -167,5 +170,6 @@ void appUpdate(App *app)
 
 void appShutdown(App *app)
 {
+    cvUnloadTexture(app->backg);
     (void)app; // TOREMOVE: Silence unused parameter ‘app’ warning
 }

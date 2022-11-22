@@ -7,14 +7,14 @@
 
 #define DRAW_LIST igGetForegroundDrawList_Nil()
 
-#define GREY igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 0.5}))
-#define WHITE igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}))
-#define RED igGetColorU32_Vec4(((ImVec4){1.0f, 0.0f, 0.0f, 1.0f}))
-#define DEEP_BLUE igGetColorU32_Vec4(((ImVec4){0.0f, 0.0f, 1.0f, 1.0f}))
-#define BLUE igGetColorU32_Vec4(((ImVec4){0.2f, 0.2f, 1.0f, 1.0f}))
-#define GREEN igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.0f, 1.0f}))
-#define PLAYER1 igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
-#define PLAYER2 igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.5f, 1.0f}))
+#define GREY igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 0.5})
+#define WHITE igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 1.0f})
+#define RED igGetColorU32_Vec4((ImVec4){1.0f, 0.0f, 0.0f, 1.0f})
+#define DEEP_BLUE igGetColorU32_Vec4((ImVec4){0.0f, 0.0f, 1.0f, 1.0f})
+#define BLUE igGetColorU32_Vec4((ImVec4){0.2f, 0.2f, 1.0f, 1.0f})
+#define GREEN igGetColorU32_Vec4((ImVec4){0.0f, 1.0f, 0.0f, 1.0f})
+#define PLAYER1 igGetColorU32_Vec4((ImVec4){0.0f, 0.8f, 1.0f, 1.0f})
+#define PLAYER2 igGetColorU32_Vec4((ImVec4){0.0f, 1.0f, 0.5f, 1.0f})
 
 // debug for alignment
 void x_middle_line(void)
@@ -85,7 +85,7 @@ void draw_lives(ImFont *font, int lives, float x, float y)
 void draw_in_game_menu(ImFont *font, bool p2, int lives_p1, int lives_p2, int score, int level)
 {
     draw_player_box(p2);
-    draw_lives(font, lives_p1, 45.f, 125.f);
+    draw_lives(font, lives_p1, 40.f, 125.f);
     if (p2)
         draw_lives(font, lives_p2, 565.f, 125.f);
     draw_score(font, score, 250.f, 760.f, WHITE);

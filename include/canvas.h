@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+typedef void* CvTextureID;
+
 #define CV_COL32_R_SHIFT    0
 #define CV_COL32_G_SHIFT    8
 #define CV_COL32_B_SHIFT    16
@@ -22,6 +24,13 @@ typedef struct CanvasConfig
     float pointRadius;
     float lineThickness;
 } CanvasConfig;
+
+typedef struct CvTexture
+{
+    CvTextureID id;
+    int width;
+    int height;
+} CvTexture;
 
 CanvasConfig cvGetDefaultConfig(void);
 
@@ -45,10 +54,15 @@ void cvAddNamedPoint(float x, float y, unsigned int color, const char* name);
 void cvAddLine(float x0, float y0, float x1, float y1, unsigned int color);
 void cvAddText(float x0, float y0, unsigned int color, const char* text);
 void cvAddFormattedText(float x0, float y0, unsigned int color, const char* format, ...);
+void cvAddTexture(float x, float y, CvTexture texture);
 
 void cvPathLineTo(float x, float y);
 void cvPathStroke(unsigned int color, int closed);
 void cvPathFill(unsigned int color);
+
+// Texture functions
+CvTexture cvLoadTexture(const char* path);
+void cvUnloadTexture(CvTexture texture);
 
 #ifdef __cplusplus
 }
