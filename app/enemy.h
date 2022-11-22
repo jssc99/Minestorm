@@ -16,6 +16,9 @@
 #define MINELAYER_LENGTH_X 36.f
 #define MINELAYER_LENGTH_Y 14.f
 
+#define MAX_ENEMY 36
+#define MIN_ON_SCREEN 3
+
 typedef enum enemyType
 {
     FLOATING,
