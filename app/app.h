@@ -17,7 +17,7 @@ typedef struct App
     CvTexture backg;
 
     // enemy debug
-    unsigned int id;
+    int id;
     bool movePointE;
     bool movePointP;
 } App;

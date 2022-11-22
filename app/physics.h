@@ -8,6 +8,8 @@
 
 #include "Tools/axis.h"
 
+static bool DEBUG_PHYSIC;
+
 // Sat
 typedef struct Sat
 {

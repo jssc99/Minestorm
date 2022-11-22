@@ -218,7 +218,7 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 void update_pos_basic_mine(Enemy *e, bool alignPoints, Vector2 pPos)
 {
     if (e->type == MAGNETIC || e->type == MAGNET_FIRE)
-    { // normalise vector ( enemy to player )
+    { // normalise vector (enemy to player)
         e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
         if (700 - fabsf(e->location.origin.x - pPos.x) <= fabsf(e->location.origin.x - pPos.x))
             e->location.x.x *= -1;
@@ -227,8 +227,8 @@ void update_pos_basic_mine(Enemy *e, bool alignPoints, Vector2 pPos)
         e->location.y = rotatePoint2((Point2){0, 0}, e->location.x, M_PI / 2.f);
         e->angle = getAngleVector2((Float2){-1, 0}, e->location.x);
     }
-    e->location.origin.x += ((7 - get_size_multiplier(e->size)) / 2.f) * e->location.x.x;
-    e->location.origin.y += ((7 - get_size_multiplier(e->size)) / 2.f) * e->location.x.y;
+    e->location.origin.x += ((6.5f - get_size_multiplier(e->size)) / 2.f) * e->location.x.x;
+    e->location.origin.y += ((6.5f - get_size_multiplier(e->size)) / 2.f) * e->location.x.y;
 
     float radiusBig = get_max_size(e->size, e->type);
     float radiusSmall = get_small_size(e->size, e->type);

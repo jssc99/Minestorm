@@ -9,11 +9,11 @@ void asign_role(Enemy en[], int level)
     for (int i = 0; i < MAX_ENEMY - 1; i += 7)
     {
         float type = 0;
-        if ((level + i) > 35)
+        if ((level + i) >= 30)
             type++;
-        if ((level + i) > 40)
+        if ((level + i) >= 40)
             type++;
-        if ((level + i) > 45)
+        if ((level + i) >= 50)
             type++;
         en[i + 0] = init_enemy(en[i + 0].location.origin, type, BIG);
         en[i + 1] = init_enemy(en[i + 1].location.origin, type, MEDIUM);
@@ -34,11 +34,11 @@ void init_game(Player *p1, Player *p2, Enemy *en, int level)
     {
         if (p2)
         {
-            *p1 = player_init(250, 400, 25.f);
-            *p2 = player_init(450, 400, 25.f);
+            *p1 = player_init(250, 400, 20.f);
+            *p2 = player_init(450, 400, 20.f);
         }
         else
-            *p1 = player_init(350, 400, 25.f);
+            *p1 = player_init(350, 400, 20.f);
     }
     else
     {
@@ -132,8 +132,15 @@ void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
                 if (p2 && p2->bullets[j].lifespan > 0 && bullet_collision_enemy(&p2->bullets[j], &en[i]))
                     b_col_en(&p2->bullets[j], &en[i], score);
         }
-        if (/*bullet collision player*/ 0)
+        if (bullet_collision_player(p1, p2))
         {
+            p2->lives--;
+            player_spawn_check(p2, p2->spawnPoint, (Point2){700,800}, en);
+        }
+        if (bullet_collision_player(p2, p1))
+        {
+            p1->lives--;
+            player_spawn_check(p1, p1->spawnPoint, (Point2){700,800}, en);
         }
     }
 }

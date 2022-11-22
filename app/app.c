@@ -16,7 +16,10 @@ void appInit(App *app)
 void appUpdate(App *app)
 {
     if (igIsKeyPressed(ImGuiKey_C, 0))
+    {
         app->debugMenu = !app->debugMenu;
+        DEBUG_PHYSIC = !DEBUG_PHYSIC;
+    }
 
     if (app->debugMenu)
     {
@@ -60,6 +63,13 @@ void appUpdate(App *app)
             g.menu = (g.menu + 1) % 5;
         if (igIsKeyPressed(ImGuiKey_P, 0))
             en[MAX_ENEMY - 1].status = ADULT;
+
+        {
+            printf("[ ");
+            for (int i = 0; i < MAX_ENEMY; ++i)
+                printf("%d%s", en[i].status, (i < MAX_ENEMY - 1) ? ", " : " ");
+            printf("]\n");
+        }
 
         // PLAYER STUFF //
     }
@@ -158,6 +168,8 @@ void appUpdate(App *app)
 
     case GAMEOVER:
         g.cptDelta = 0.f;
+        update_pos_all_enemy(en, MAX_ENEMY, p1.axis.origin);
+        draw_all_enemy(en, MAX_ENEMY);
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = MAIN;
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))

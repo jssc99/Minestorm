@@ -1,8 +1,6 @@
 #include "player.h"
 #include "enemy.h"
 
-bool DEBUG_PLAYER = 1;
-
 #define drawList igGetBackgroundDrawList_Nil()
 
 void debug_menu_player(Player *p, bool debugMenu)
@@ -11,15 +9,15 @@ void debug_menu_player(Player *p, bool debugMenu)
     igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
     igText("Lives = %d", p->lives);
     igText("Speed = %f", p->speed);
-    if (DEBUG_PLAYER && igButton("Display axis", (ImVec2){0, 0}))
+    if (DEBUG_PHYSIC && igButton("Display axis", (ImVec2){0, 0}))
         p->displayAxis = !p->displayAxis;
-    if (DEBUG_PLAYER && igButton("Display speed", (ImVec2){0, 0}))
+    if (DEBUG_PHYSIC && igButton("Display speed", (ImVec2){0, 0}))
         p->displaySpeed = !p->displaySpeed;
-    if (DEBUG_PLAYER && igButton("Display inertia", (ImVec2){0, 0}))
+    if (DEBUG_PHYSIC && igButton("Display inertia", (ImVec2){0, 0}))
         p->displayInertia = !p->displayInertia;
-    if (DEBUG_PLAYER && igButton("Display sphere", (ImVec2){0, 0}))
+    if (DEBUG_PHYSIC && igButton("Display sphere", (ImVec2){0, 0}))
         p->displaySSphere = !p->displaySSphere;
-    if (DEBUG_PLAYER && igButton("Collision Tests", (ImVec2){0, 0}))
+    if (DEBUG_PHYSIC && igButton("Collision Tests", (ImVec2){0, 0}))
         p->collisionTests = !p->collisionTests;
 
     igEnd();
