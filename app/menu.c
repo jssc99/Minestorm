@@ -7,14 +7,14 @@
 
 #define DRAW_LIST igGetForegroundDrawList_Nil()
 
-#define GREY igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 0.5}))
-#define WHITE igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}))
-#define RED igGetColorU32_Vec4(((ImVec4){1.0f, 0.0f, 0.0f, 1.0f}))
-#define DEEP_BLUE igGetColorU32_Vec4(((ImVec4){0.0f, 0.0f, 1.0f, 1.0f}))
-#define BLUE igGetColorU32_Vec4(((ImVec4){0.2f, 0.2f, 1.0f, 1.0f}))
-#define GREEN igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.0f, 1.0f}))
-#define PLAYER1 igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
-#define PLAYER2 igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.5f, 1.0f}))
+#define GREY igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 0.5})
+#define WHITE igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 1.0f})
+#define RED igGetColorU32_Vec4((ImVec4){1.0f, 0.0f, 0.0f, 1.0f})
+#define DEEP_BLUE igGetColorU32_Vec4((ImVec4){0.0f, 0.0f, 1.0f, 1.0f})
+#define BLUE igGetColorU32_Vec4((ImVec4){0.2f, 0.2f, 1.0f, 1.0f})
+#define GREEN igGetColorU32_Vec4((ImVec4){0.0f, 1.0f, 0.0f, 1.0f})
+#define PLAYER1 igGetColorU32_Vec4((ImVec4){0.0f, 0.8f, 1.0f, 1.0f})
+#define PLAYER2 igGetColorU32_Vec4((ImVec4){0.0f, 1.0f, 0.5f, 1.0f})
 
 // debug for alignment
 void x_middle_line(void)

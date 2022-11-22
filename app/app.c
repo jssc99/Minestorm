@@ -61,6 +61,7 @@ void appUpdate(App *app)
 
     //////////////////// LE GAME ITSELF /////////////////////////
 
+    ImDrawList_AddImage(igGetBackgroundDrawList_Nil(), cvLoadTexture("assets/mario.png"), (ImVec2){0, 0}, (ImVec2){700, 800}, (ImVec2){0, 0}, (ImVec2){1, 1}, igGetColorU32_Vec4((ImVec4){0.5f, 0.5f, 0.5f, 1.f}));
     draw_menu(g.menu, app->font, g.score, g.level, g.is_p2, p1.lives, p2.lives);
 
     switch (g.menu)
@@ -92,7 +93,7 @@ void appUpdate(App *app)
         if (is_any_enemy_alive(en, MAX_ENEMY - 1) || en[MAX_ENEMY - 1].status != DEAD)
         {
             g.cptDelta += igGetIO()->DeltaTime;
-            update_game(en, &p1, &p2, igGetIO()->DeltaTime, g.cptDelta, MAX_ENEMY - 1);
+            update_game(en, &p1, &p2, igGetIO()->DeltaTime, g.cptDelta, MAX_ENEMY - 1, &g.score);
             draw_all_enemy(en, MAX_ENEMY);
             if (p1.lives > 0)
                 draw_player(p1, 1);
