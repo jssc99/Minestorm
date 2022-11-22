@@ -153,7 +153,7 @@ void draw_menu(Menu menu, ImFont *font, int score, bool p2, int p1_lives, int p2
         break;
 
     case SUCCESS:
-        draw_success_menu(font, score);
+        draw_success_menu(font, score, p2, p1_lives, p2_lives);
         break;
 
     default:
