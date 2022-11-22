@@ -34,11 +34,18 @@ void asign_role(Enemy e[], int level)
 {
     for (int i = 0; i < MAX_ENEMY - 1; i += 5)
     {
-        e[i + 0] = init_enemy(e[i + 0].location.origin, FLOATING, BIG);
-        e[i + 1] = init_enemy(e[i + 1].location.origin, MINELAYER, BIG);
-        e[i + 2] = init_enemy(e[i + 2].location.origin, FLOATING, BIG);
-        e[i + 3] = init_enemy(e[i + 3].location.origin, MAGNETIC, BIG);
-        e[i + 4] = init_enemy(e[i + 4].location.origin, MAGNET_FIRE, BIG);
+        float type = 0;
+        if ((level + i) > 35)
+        type++;
+        if ((level + i) > 40)
+        type++;
+        if ((level + i) > 45)
+        type++;
+        e[i + 0] = init_enemy(e[i + 0].location.origin, type, BIG);
+        e[i + 1] = init_enemy(e[i + 1].location.origin, type, MEDIUM);
+        e[i + 2] = init_enemy(e[i + 2].location.origin, type, MEDIUM);
+        e[i + 3] = init_enemy(e[i + 3].location.origin, type, SMALL);
+        e[i + 4] = init_enemy(e[i + 4].location.origin, type, SMALL);
     }
     e[MAX_ENEMY - 1] = init_enemy(e[MAX_ENEMY - 1].location.origin, MINELAYER, FIXED);
 }
@@ -69,13 +76,13 @@ void game_update(Enemy e[], Player *p1, Player *p2, float deltaTime, int nbEnemy
         update_player(p2, deltaTime, (Point2){700, 800}, 1);
         Enemy split[(nbEnemy / 2)], split2[(nbEnemy / 2)];
         for (int i = 0, j = 0; i < nbEnemy; j++, i += 2)
-        { // pas super efficace mais bon..
+        { // pas super efficace mais bon.
             split[j] = e[i];
             split2[j] = e[i + 1];
         }
         update_pos_all_enemy(split, nbEnemy / 2, p1->axis.origin);
         update_pos_all_enemy(split2, nbEnemy / 2, p2->axis.origin);
     }
-    //else
-        //update_pos_all_enemy(e, nbEnemy, p1->axis.origin);
+    else
+        update_pos_all_enemy(e, nbEnemy, p1->axis.origin);
 }

@@ -8,6 +8,7 @@ typedef enum Menu
     MAIN,
     IN_GAME,
     PAUSE,
+    SUCCESS,
     GAMEOVER
 } Menu;
 

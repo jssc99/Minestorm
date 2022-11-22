@@ -12,7 +12,7 @@ void appInit(App *app)
     app->font = ImFontAtlas_AddFontFromFileTTF(igGetIO()->Fonts, "assets/Roboto-Regular.ttf", 100, NULL, NULL);
     g = (Game){0};
     g.level = 1;
-    p1.lives = 50;//TODO change to 3
+    p1.lives = 3;
     p2.lives = 0;
     g.is_p2 = true;
 }
@@ -70,9 +70,9 @@ void appUpdate(App *app)
             g.is_p2 = false;
             g.menu = IN_GAME;
             //TEST
-            for (int i = 0; i < MAX_ENEMY; i++)
-                en[i].status = ADULT;
-            update_pos_all_enemy(en, MAX_ENEMY - 1, (Point2){350,400});
+            //for (int i = 0; i < MAX_ENEMY; i++)
+            //    en[i].status = ADULT;
+            //update_pos_all_enemy(en, MAX_ENEMY - 1, (Point2){350,400});
                 //END TEST
         }
         if (igIsKeyPressed(ImGuiKey_K, 0))
@@ -95,13 +95,15 @@ void appUpdate(App *app)
             if (g.is_p2 && p2.lives)
                 draw_player(p2, 2);
                 //TEST COLLISION
-            for (int i = 0; i < MAX_ENEMY; i++)
-            test_collision(p1, p2, io->MousePos, en[0]);
+           // for (int i = 0; i < MAX_ENEMY; i++)
+           // test_collision(p1, p2, io->MousePos, en[0]);
                 //end TEST
         }
 
-        if ((!p1.lives && (!g.is_p2 || !p2.lives)) || !is_any_enemy_alive(en, MAX_ENEMY - 1))
+        if (!p1.lives && (!g.is_p2 || !p2.lives))
             g.menu = GAMEOVER;
+        if (!is_any_enemy_alive(en, MAX_ENEMY - 1))
+            // GREAT SUCCES !
 
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = PAUSE;

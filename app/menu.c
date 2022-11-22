@@ -89,6 +89,7 @@ void draw_in_game_menu(ImFont *font, bool p2, int lives_p1, int lives_p2, int sc
     if (p2)
         draw_lives(font, lives_p2, 565.f, 125.f);
     draw_score(font, score, 250.f, 760.f, WHITE);
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 20.f, (ImVec2){580.f, 780.f}, WHITE, "'Space' : PAUSE", NULL, 0.f, NULL);
 }
 
 void draw_pause_menu(ImFont *font, int score, bool p2)
@@ -115,6 +116,21 @@ void draw_gameover_menu(ImFont *font, int score)
     }
 }
 
+void draw_success_menu(ImFont *font, int score, bool p2, int lives_p1, int lives_p2)
+{
+    draw_player_box(p2);
+    draw_lives(font, lives_p1, 45.f, 125.f);
+    if (p2)
+        draw_lives(font, lives_p2, 565.f, 125.f);
+    ImDrawList_AddText_FontPtr(DRAW_LIST, font, 40.f, (ImVec2){252.f, 360.f}, WHITE, "GREAT SUCCESS", NULL, 0.f, NULL);
+    {
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 410.f}, BLUE, "Press 'SPACE' :    Continue Game", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 425.f}, RED, "Press 'Esc'   :    Main Menu", NULL);
+    }
+    draw_score(font, score, 250.f, 760.f, WHITE);
+}
+
+// draws any menu inputed, respect the input demanded
 void draw_menu(Menu menu, ImFont *font, int score, bool p2, int p1_lives, int p2_lives)
 {
     //middle_lines();
@@ -134,6 +150,10 @@ void draw_menu(Menu menu, ImFont *font, int score, bool p2, int p1_lives, int p2
 
     case GAMEOVER:
         draw_gameover_menu(font, score);
+        break;
+
+    case SUCCESS:
+        draw_success_menu(font, score);
         break;
 
     default:
