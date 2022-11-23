@@ -47,7 +47,8 @@ void appUpdate(App *app)
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
         igSliderInt("level", &g.level, 0, 30, "%d", 0);
         igSliderInt("lives p1", &p1->lives, 0, 30, "%d", 0);
-        igSliderInt("lives p2", &p2->lives, 0, 30, "%d", 0);
+        if (p2)
+            igSliderInt("lives p2", &p2->lives, 0, 30, "%d", 0);
         igText("Press 'x' to circle life status");
         igText("Press 'z' to circle menus");
         igText("Press 'p' to spawn minelayer");
