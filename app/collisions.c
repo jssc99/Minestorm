@@ -17,9 +17,9 @@ bool player_collision_enemy(Player *p, Enemy *e)
         switch (e->type)
         {
         case (FIREBALL):
-            if (sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), largeBody, 3,p->hideCollisionBox))
+            if (sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), largeBody, 3,p->displayCollisionBox))
                 for (int i = 0; i < 4; i++)
-                    return sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), smallParts[i], 3,p->hideCollisionBox);
+                    return sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), smallParts[i], 3,p->displayCollisionBox);
         return false;
         case (FLOATING):
             return player_collision_floating(p, e);
@@ -44,7 +44,7 @@ bool player_collision_floating(Player *p, Enemy *e)
                                {p->shape[1], p->shape[5], p->shape[9]}};   // TAIL
     Point2 largeMine[3] = {e->points[0], e->points[2], e->points[4]};
     Point2 mineParts[4][3];
-    if (SAT_collision_SAT(largeMine, 3, largeBody, 3,p->hideCollisionBox))
+    if (SAT_collision_SAT(largeMine, 3, largeBody, 3,p->displayCollisionBox))
     {
         for (int i = 0; i < 3; i++)
         {
@@ -56,7 +56,7 @@ bool player_collision_floating(Player *p, Enemy *e)
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 4; j++)
-                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 3,p->hideCollisionBox))
+                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 3,p->displayCollisionBox))
                     return true;
         }
     }
@@ -73,7 +73,7 @@ bool player_collision_minelayer(Player *p, Enemy *e)
                                {p->shape[1], p->shape[5], p->shape[9]}};   // TAIL
     Point2 largeMine[5] = {e->points[0], e->points[2], e->points[3], e->points[6], e->points[7]};
     Point2 mineParts[3][3];
-    if (SAT_collision_SAT(largeMine, 5, largeBody, 3,p->hideCollisionBox))
+    if (SAT_collision_SAT(largeMine, 5, largeBody, 3,p->displayCollisionBox))
     {
         for (int i = 0; i < 3; i++)
         {
@@ -85,7 +85,7 @@ bool player_collision_minelayer(Player *p, Enemy *e)
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
-                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 3,p->hideCollisionBox))
+                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 3,p->displayCollisionBox))
                     return true;
         }
     }
@@ -105,7 +105,7 @@ bool player_collision_square_mine(Player *p, Enemy *e)
     Point2 interior_square[4];
     for (int i = 0; i < 4; i++)
         largeMine[i] = e->points[2 * i];
-    if (SAT_collision_SAT(largeMine, 4, largeBody, 3,p->hideCollisionBox))
+    if (SAT_collision_SAT(largeMine, 4, largeBody, 3,p->displayCollisionBox))
     {
         for (int i = 0; i < 4; i++)
         {
@@ -118,10 +118,10 @@ bool player_collision_square_mine(Player *p, Enemy *e)
         {
             for (int j = 0; j < 4; j++)
             {
-                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 4,p->hideCollisionBox))
+                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 4,p->displayCollisionBox))
                     return true;
             }
-            if (SAT_collision_SAT(smallParts[i], 3, interior_square, 4,p->hideCollisionBox))
+            if (SAT_collision_SAT(smallParts[i], 3, interior_square, 4,p->displayCollisionBox))
                 return true;
         }
     }
@@ -140,7 +140,7 @@ bool player_collision_mf_mine(Player *p, Enemy *e)
     Point2 mineParts[4][3];
     for (int i = 0; i < 4; i++)
         largeMine[i] = e->points[2 * i];
-    if (SAT_collision_SAT(largeMine, 4, largeBody, 3,p->hideCollisionBox))
+    if (SAT_collision_SAT(largeMine, 4, largeBody, 3,p->displayCollisionBox))
     {
         for (int i = 0; i < 4; i++)
         {
@@ -152,7 +152,7 @@ bool player_collision_mf_mine(Player *p, Enemy *e)
         {
             for (int j = 0; j < 4; j++)
             {
-                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 4,p->hideCollisionBox))
+                if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 4,p->displayCollisionBox))
                     return true;
             }
         }
@@ -315,7 +315,7 @@ bool bullet_collision_player(Player *p1, Player *p2)
         if (p1->bullets[i].lifespan > 0 && sphere_collision_sphere(p1->bullets[i].location, p1->bullets[i].size, p2->axis.origin, p2->size))
         {
             for (int j = 0; j < 4; j++)
-                if (sphere_collision_SAT(p1->bullets[i].location, p1->bullets[i].size, smallParts[j], 3,p2->hideCollisionBox))
+                if (sphere_collision_SAT(p1->bullets[i].location, p1->bullets[i].size, smallParts[j], 3,p2->displayCollisionBox))
                 {
                     p1->bullets[i].lifespan = 0;
                     return true;

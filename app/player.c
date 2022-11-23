@@ -116,6 +116,7 @@ void rotate_player(Player *p, float angle)
 void turnleft_player(Player *p, float deltaTime)
 {
     rotate_player(p, -M_PI * deltaTime);
+    void anim_left_thruster(Player *p);
 }
 
 // Turn the player to the right
@@ -159,16 +160,16 @@ void debug_menu_player(Player *p, int playerNumber)
     igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
     igText("Lives = %d", p->lives);
     igText("Speed = %f", p->speed);
-    if (igButton("Display axis", (ImVec2){0, 0}))
+    if (igButton("hide axis", (ImVec2){0, 0}))
         p->hideAxis = !p->hideAxis;
-    if (igButton("Display speed", (ImVec2){0, 0}))
+    if (igButton("hide speed", (ImVec2){0, 0}))
         p->hideSpeed = !p->hideSpeed;
-    if (igButton("Display inertia", (ImVec2){0, 0}))
+    if (igButton("hide inertia", (ImVec2){0, 0}))
         p->hideInertia = !p->hideInertia;
-    if (igButton("Display sphere", (ImVec2){0, 0}))
+    if (igButton("hide sphere", (ImVec2){0, 0}))
         p->hideSSphere = !p->hideSSphere;
     if (igButton("Collision Tests", (ImVec2){0, 0}))
-        p->hideCollisionBox = !p->hideCollisionBox;
+        p->displayCollisionBox = !p->displayCollisionBox;
     igEnd();
 }
 

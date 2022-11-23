@@ -21,9 +21,9 @@ void appUpdate(App *app)
     if (igIsKeyPressed(ImGuiKey_C, 0))
     {
         app->debugMenu = !app->debugMenu;
-        p1->hideCollisionBox = !p1->hideCollisionBox;
+        p1->displayCollisionBox = !p1->displayCollisionBox;
         if (p2)
-            p2->hideCollisionBox = !p2->hideCollisionBox;
+            p2->displayCollisionBox = !p2->displayCollisionBox;
     }
 
     // GAME BACKGROUND //

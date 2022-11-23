@@ -36,7 +36,7 @@ typedef struct Player
     bool hideSpeed;
     bool hideInertia;
     bool hideSSphere;
-    bool hideCollisionBox;
+    bool displayCollisionBox;
     bool hideSAT;
     
 } Player;
@@ -68,6 +68,9 @@ Bullet init_bullet(Player p, Point2 maxScreen);
 void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen);
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen);
 void bullets_terminate(Player *p1, Player *p2);
+// Animations
+void PathLineTo_point2(Point2 p);
+void anim_left_thruster(Player *p);
 
 // Test collisions
 void test_collision(Player player1, Player player2, ImVec2 mousePos, Enemy e);
