@@ -18,23 +18,29 @@ void appUpdate(App *app)
     if (igIsKeyPressed(ImGuiKey_C, 0))
     {
         app->debugMenu = !app->debugMenu;
-        DEBUG_PHYSIC = !DEBUG_PHYSIC;
+        DEBUG_PHYSIC = app->debugMenu;
     }
+
+    // GAME BACKGROUND //
+    ImDrawList_AddImage(igGetBackgroundDrawList_Nil(), app->backg.id,
+                        (ImVec2){0.f, 0.f}, (ImVec2){700.f, 800.f},
+                        (ImVec2){0.f, 0.f}, (ImVec2){1.f, 1.f},
+                        igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}));
 
     if (app->debugMenu)
     {
         ImGuiIO *io = igGetIO();
         Point2 mouse;
 
-        // ENEMY STUFF //
-
-        igCheckbox("Move center with mouse e (right click)", &app->movePointE);
-        // igCheckbox("Move center with mouse p (middle click)", &app->movePointP);
+        igCheckbox("Move center of en with mouse (right click)", &app->movePointE);
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
         igSliderInt("level", &g.level, 0, 30, "%d", 0);
         igSliderInt("lives p1", &p1.lives, 0, 30, "%d", 0);
+        igSliderInt("lives p2", &p2.lives, 0, 30, "%d", 0);
         igText("Press 'x' to circle life status");
         igText("Press 'z' to circle menus");
+        igText("Press 'p' to spawn minelayer");
+        igText("Use mousewheel to change size");
 
         for (int i = 0; i < MAX_ENEMY; i++)
             if (en[i].status == ADULT)
@@ -43,6 +49,8 @@ void appUpdate(App *app)
                 ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, (ImVec2){en[i].location.origin.x + 20 * en[i].location.y.x, en[i].location.origin.y + 20 * en[i].location.y.y}, CV_COL32(0, 255, 0, 200), 2.0f);
             }
 
+        if (igIsMouseClicked(ImGuiMouseButton_Right, 0))
+            app->movePointE = !app->movePointE;
         if (app->movePointE)
         {
             cvCoordsFromScreenSpace(io->MousePos.x, io->MousePos.y, &mouse.x, &mouse.y);
@@ -50,10 +58,6 @@ void appUpdate(App *app)
             g.enemy[app->id].location.origin.x = mouse.x;
             g.enemy[app->id].location.origin.y = mouse.y;
         }
-        if (igIsMouseClicked(ImGuiMouseButton_Right, 0))
-            app->movePointE = !app->movePointE;
-        // if (igIsMouseClicked(ImGuiMouseButton_Middle, 0))
-        //     app->movePointP = !app->movePointP;
         if (io->MouseWheel && g.enemy[app->id].size != FIXED)
             g.enemy[app->id].size = (g.enemy[app->id].size + 1) % 3;
 
@@ -65,21 +69,14 @@ void appUpdate(App *app)
             en[MAX_ENEMY - 1].status = ADULT;
 
         {
-            printf("[ ");
+            printf("[ en status: ");
             for (int i = 0; i < MAX_ENEMY; ++i)
                 printf("%d%s", en[i].status, (i < MAX_ENEMY - 1) ? ", " : " ");
             printf("]\n");
         }
-
-        // PLAYER STUFF //
     }
 
-    //////////////////// LE GAME ITSELF /////////////////////////
-
-    ImDrawList_AddImage(igGetBackgroundDrawList_Nil(), app->backg.id,
-                        (ImVec2){0.f, 0.f}, (ImVec2){700.f, 800.f},
-                        (ImVec2){0.f, 0.f}, (ImVec2){1.f, 1.f},
-                        igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}));
+    ///////////////////////////// LE GAME ITSELF ////////////////////////////////////
 
     draw_menu(g.menu, app->font, g.score, g.level, g.is_p2, p1.lives, p2.lives);
 
@@ -126,7 +123,24 @@ void appUpdate(App *app)
             if (how_many_e_child(en, MAX_ENEMY - 1) == 0 && en[MAX_ENEMY - 1].status == CHILD)
                 en[MAX_ENEMY - 1].status = ADULT;
             if (en[MAX_ENEMY - 1].status == ADULT)
+            {
                 update_pos_any_enemy(&en[MAX_ENEMY - 1], p1.axis.origin);
+                bool found = 0;
+                if ((int)en[MAX_ENEMY - 1].location.origin.y == 200 ||
+                    (int)en[MAX_ENEMY - 1].location.origin.y == 400 ||
+                    (int)en[MAX_ENEMY - 1].location.origin.y == 600)
+                {
+                    for (int i = 0; i < MAX_ENEMY - 1; i++)
+                    {
+                        if (!found && en[i].status == DEAD)
+                        {
+                            en[i] = init_enemy(en[MAX_ENEMY - 1].location.origin, FLOATING, SMALL);
+                            en[i].status = ADULT;
+                            found = true;
+                        }
+                    }
+                }
+            }
         }
         else
         {

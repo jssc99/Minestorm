@@ -36,7 +36,7 @@ float get_max_size(enemySize size, enemyType type)
         return multiplier;
 
     case MINELAYER:
-        return 11.7 * multiplier; // 11.7 = distance origin to furthest point from origin of figure
+        return 11.7 * multiplier;
     }
     return 0.f;
 }
@@ -98,13 +98,15 @@ int how_many_e_child(Enemy e[], int nbEnemies)
     return cpt;
 }
 
-// ages an enemy, loops around (DEAD -> BABY)
+// ages an enemy, loops around 
+// (DEAD -> BABY -> CHILD -> ADULT -> ...)
 void age_enemy(Enemy *e)
 {
     e->status = (e->status + 1) % 4;
 }
 
-// changes an enemy 'size', unless size is FIXED, loops around (BIG -> SMALL)
+// changes an enemy 'size', unless size is FIXED, loops around 
+//(BIG -> SMALL -> MEDIUM -> ...)
 void size_enemy(Enemy *e)
 {
     if (e->size != FIXED)
@@ -117,7 +119,8 @@ void set_pos_enemy(Enemy *e, float x, float y)
     e->location.origin = (Point2){x, y};
 }
 
-// init enemy type and size, requires pos of player
+// init enemy type and size, point of origin (just use e.location.origin for most cases)
+// gives them 'CHILD' status
 Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 {
     Enemy e;
@@ -215,6 +218,7 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
     return e;
 }
 
+// updates non-minelayer/fireball mines (pos, points of shape, rotation, magnetics track ppos, colision with border)
 void update_pos_basic_mine(Enemy *e, bool alignPoints, Vector2 pPos)
 {
     if (e->type == MAGNETIC || e->type == MAGNET_FIRE)
@@ -252,6 +256,7 @@ void update_pos_basic_mine(Enemy *e, bool alignPoints, Vector2 pPos)
     }
 }
 
+// updates the fireball (pos, targets ppos first use, collision with border (dies))
 void update_pos_fireball(Enemy *e, Vector2 pPos)
 {
     if (!e->nbPoints) // === bool, fireball nbPoints updated ('nbPoints' for fireball is unused)
@@ -269,10 +274,11 @@ void update_pos_fireball(Enemy *e, Vector2 pPos)
         e->status = DEAD;
 }
 
+// updates the minelayer (pos, points of shape, rotation is possible, collision with border)
 void update_pos_minelayer(Enemy *e)
 {
-    e->location.origin.x += 2.f * e->location.x.x;
-    e->location.origin.y += 2.f * e->location.x.y;
+    e->location.origin.x += e->location.x.x;
+    e->location.origin.y += e->location.x.y;
 
     poly_collision_border_replace(e->points, &e->location.origin, e->nbPoints, MINELAYER_LENGTH_X, (Point2){700, 800});
 
@@ -294,7 +300,7 @@ void update_pos_minelayer(Enemy *e)
         e->points[i] = rotatePoint2(e->location.origin, point[i], e->angle);
 }
 
-// updates the pos of any mine inputed
+// updates the pos of any SINGLE mine inputed
 void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
 {
     switch (e->type)
@@ -319,7 +325,8 @@ void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
     }
 }
 
-// updates the pos of all mine inputed
+// updates the pos of ALL (array) mines inputed
+// calls update_pos_any_enemy()
 void update_pos_all_enemy(Enemy e[], int size, Vector2 posPlayer)
 {
     for (int i = 0; i < size; i++)
@@ -327,7 +334,8 @@ void update_pos_all_enemy(Enemy e[], int size, Vector2 posPlayer)
             update_pos_any_enemy(&(e[i]), posPlayer);
 }
 
-// creates the minefield by giving every enemy a pos
+// creates the minefield by giving every enemy a random pos 
+// gives them 'BABY' status
 void create_minefield(Enemy e[], int nbEnemy, int width, int height)
 {
     srand(time(NULL));
@@ -340,54 +348,7 @@ void create_minefield(Enemy e[], int nbEnemy, int width, int height)
         } while (((e[i].location.origin.x > 230 && e[i].location.origin.x < 270) ||
                   (e[i].location.origin.x > 330 && e[i].location.origin.x < 370) ||
                   (e[i].location.origin.x > 430 && e[i].location.origin.x < 470)) &&
-                 (e[i].location.origin.y > 370 && e[i].location.origin.y < 425));
+                 (e[i].location.origin.y > 370 && e[i].location.origin.y < 425)); // mines can't spwan near player possible pos
         e[i].status = BABY;
     }
 }
-
-/*
-#include "app.h"
-#include "game.h"
-// broken
-
-// debug options for enemy struct (and other stuff)
-void debug_enemy(App *app, Game *g)
-{
-    ImGuiIO *io = igGetIO();
-    Point2 mouse;
-    if (app->debugMenu)
-    {
-        igCheckbox("Move center with mouse e", &app->movePointE);
-        igCheckbox("Move center with mouse p", &app->movePointP);
-        igCheckbox("Rotate the figure(s)", &app->rotate);
-        igSliderAngle("Angle", &app->angle, 0.f, 360.f, "%.2f", 0);
-        igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
-    }
-    if (app->movePointE)
-    {
-        cvCoordsFromScreenSpace(io->MousePos.x, io->MousePos.y, &mouse.x, &mouse.y);
-        if (app->debugMenu)
-            igText("Mouse = { %.2f, %.2f }", mouse.x, mouse.y);
-        g->enemy[app->id].location.origin.x = mouse.x;
-        g->enemy[app->id].location.origin.y = mouse.y;
-    }
-    if (igIsMouseClicked(ImGuiMouseButton_Right, 0))
-        app->movePointE = !app->movePointE;
-    if (igIsMouseClicked(ImGuiMouseButton_Middle, 0))
-        app->movePointP = !app->movePointP;
-    if (io->MouseWheel && g->enemy[app->id].size != FIXED)
-        g->enemy[app->id].size = (g->enemy[app->id].size + 1) % 3;
-
-    if (app->rotate)
-        app->angle += 0.01;
-    if (app->angle > 2.f * M_PI + 0.0001)
-        app->angle = 0.f;
-    g->enemy[app->id].angle = app->angle;
-
-    if (igIsKeyPressed(ImGuiKey_C, 0))
-        app->debugMenu = !app->debugMenu;
-    if (igIsKeyPressed(ImGuiKey_X, 0))
-        g->enemy[app->id].status = (g->enemy[app->id].status + 1) % 3;
-    if (igIsKeyPressed(ImGuiKey_Z, 0))
-        g->menu = (g->menu + 1) % 4;
-}*/

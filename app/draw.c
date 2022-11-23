@@ -112,7 +112,7 @@ void draw_players_bullets(Player *p)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
         if (p->bullets[i].lifespan)
-        draw_bullet(p->bullets[i].location, p->bullets[i].size, CV_COL32(255, 255 / MAX_BULLETS * i, 0, 255));
+            draw_bullet(p->bullets[i].location, p->bullets[i].size, CV_COL32(255, 255 / MAX_BULLETS * i, 0, 255));
 }
 // Draw debug menu (player)
 void draw_debug_player(Player *p)

@@ -81,7 +81,7 @@ void p_col_en(Player *p, Enemy *en)
 // if a bullet collisions an enemy
 void b_col_en(Bullet *b, Enemy *en, int *score)
 {
-    score += en->deathScore;
+    *score += en->deathScore;
     if (en->size == BIG)
     {
         (en + 1)->status = ADULT;
@@ -112,35 +112,39 @@ void b_col_en(Bullet *b, Enemy *en, int *score)
 // tries all the collision possible in the game
 void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
 {
-    for (int i = 0; i < MAX_ENEMY; i++)
-    {
-        if (player_collision_enemy(p1, &en[i]))
-            p_col_en(p1, &en[i]);
+    if (p1->lives > 0)
+        for (int i = 0; i < MAX_ENEMY; i++)
+        {
+            if (player_collision_enemy(p1, &en[i]))
+                p_col_en(p1, &en[i]);
 
-        for (int j = 0; j < MAX_BULLETS; j++)
-            if (p1->bullets[j].lifespan > 0 && bullet_collision_enemy(&p1->bullets[j], &en[i]))
-                b_col_en(&p1->bullets[j], &en[i], score);
-    }
-    if (p2)
+            for (int j = 0; j < MAX_BULLETS; j++)
+                if (p1->bullets[j].lifespan > 0 && bullet_collision_enemy(&p1->bullets[j], &en[i]))
+                    b_col_en(&p1->bullets[j], &en[i], score);
+        }
+    if (p2 && (p2->lives > 0))
     {
         for (int i = 0; i < MAX_ENEMY; i++)
         {
-            if (p2 && player_collision_enemy(p1, &en[i]))
+            if (p2 && player_collision_enemy(p2, &en[i]))
                 p_col_en(p2, &en[i]);
 
             for (int j = 0; j < MAX_BULLETS; j++)
                 if (p2 && p2->bullets[j].lifespan > 0 && bullet_collision_enemy(&p2->bullets[j], &en[i]))
                     b_col_en(&p2->bullets[j], &en[i], score);
         }
-        if (bullet_collision_player(p1, p2))
+        if (p1->lives > 0)
         {
-            p2->lives--;
-            player_spawn_check(p2, p2->spawnPoint, (Point2){700,800}, en);
-        }
-        if (bullet_collision_player(p2, p1))
-        {
-            p1->lives--;
-            player_spawn_check(p1, p1->spawnPoint, (Point2){700,800}, en);
+            if (bullet_collision_player(p1, p2))
+            {
+                p2->lives--;
+                player_spawn_check(p2, p2->spawnPoint, (Point2){700, 800}, en);
+            }
+            if (bullet_collision_player(p2, p1))
+            {
+                p1->lives--;
+                player_spawn_check(p1, p1->spawnPoint, (Point2){700, 800}, en);
+            }
         }
     }
 }
@@ -166,15 +170,31 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
         update_player(p1, deltaTime, (Point2){700, 800}, 0, en);
     if (p2 && (p2->lives > 0))
     {
-        update_player(p2, deltaTime, (Point2){700, 800}, 1, en);
-        Enemy split[50], split2[50];
-        for (int i = 0, j = 0; i < (MAX_ENEMY - 1); j++, i += 2)
-        {
-            split[j] = en[i];
-            split2[j] = en[i + 1];
-        }
-        update_pos_all_enemy(split, (MAX_ENEMY - 1) / 2, p1->axis.origin);
-        update_pos_all_enemy(split2, (MAX_ENEMY - 1) / 2, p2->axis.origin);
+        update_player(p2, deltaTime, (Point2){700, 800}, 1, en); /*
+         Enemy *split[50] = {0}, *split2[50] = {0};
+         for (int i = 0, j = 0; i < MAX_ENEMY; j++, i += 2)
+         {
+             split[j] = &en[i];
+             if (i + 1 != MAX_ENEMY + 1)
+                 split2[j] = &en[i + 1];
+         }
+                     // MARCHE MAL
+         printf("[ ");
+         for (int i = 0; i < MAX_ENEMY / 2; ++i)
+             printf("%.1f%s", split[i]->points[i].x, (i < MAX_ENEMY / 2 - 1) ? ", " : " ");
+         printf("]\n");
+         printf("[ ");
+         for (int i = 0; i < MAX_ENEMY / 2; ++i)
+             printf("%.1f%s", split2[i]->points[i].x, (i < MAX_ENEMY / 2 - 1) ? ", " : " ");
+         printf("]\n");
+
+         update_pos_all_enemy(*split, (MAX_ENEMY - 1) / 2 + 1, p1->axis.origin); // +1 minelayer
+         update_pos_all_enemy(*split2, (MAX_ENEMY - 1) / 2, p2->axis.origin);
+         printf("[ ");
+         for (int i = 0; i < MAX_ENEMY; ++i)
+             printf("%.1f%s", en[i].points[i].x, (i < MAX_ENEMY - 1) ? ", " : " ");
+         printf("]\n");*/
+        update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
     }
     else
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
