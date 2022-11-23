@@ -9,6 +9,7 @@
 typedef struct App
 {
     CvTexture backg;
+    CvTexture logo;
     Point2 maxScreen;
     ImFont *font;
     int width;

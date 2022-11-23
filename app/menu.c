@@ -31,6 +31,14 @@ void middle_lines(void)
     y_middle_line();
 }
 
+void draw_logo(ImTextureID logoId)
+{
+    ImDrawList_AddImage(igGetBackgroundDrawList_Nil(), logoId,
+                        (ImVec2){200.f, 720.f}, (ImVec2){500.f, 800.f},
+                        (ImVec2){0.f, 0.f}, (ImVec2){1.f, 1.f},
+                        igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}));
+}
+
 void draw_player_box(bool p2)
 {
     ImDrawList_AddRectFilled(DRAW_LIST, (ImVec2){20.f, 20.f}, (ImVec2){160.f, 60.f}, PLAYER1, 10.f, ImDrawFlags_RoundCornersAll);
@@ -63,16 +71,17 @@ void draw_score(ImFont *font, int score, float x, float y, ImU32 color)
     ImDrawList_AddText_FontPtr(DRAW_LIST, font, 35.f, (ImVec2){x, y}, color, textTemp, NULL, 0.f, NULL);
 }
 
-void draw_play_menu(ImFont *font)
+void draw_main_menu(ImFont *font, ImTextureID logoId)
 {
     draw_player_box(1);
     draw_instruction(font, 1);
     ImDrawList_AddText_FontPtr(DRAW_LIST, font, 35.f, (ImVec2){220.f, 360.f}, WHITE, "Do you want to play ?", NULL, 0.f, NULL);
     {
-        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 410.f}, BLUE,  "Press 'F'    :   Solo mode", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 410.f}, BLUE, "Press 'F'    :   Solo mode", NULL);
         ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 425.f}, GREEN, "Press 'K'    :   Two player mode", NULL);
-        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 440.f}, RED,   "Press 'Esc'  :   Exit Game", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){255.f, 440.f}, RED, "Press 'Esc'  :   Exit Game", NULL);
     }
+    draw_logo(logoId);
 }
 
 void draw_lives(ImFont *font, int lives, float x, float y)
@@ -102,12 +111,12 @@ void draw_pause_menu(ImFont *font, int score, bool p2)
     ImDrawList_AddText_FontPtr(DRAW_LIST, font, 35.f, (ImVec2){302.f, 360.f}, WHITE, "PAUSE", NULL, 0.f, NULL);
     {
         ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 410.f}, BLUE, "Press 'SPACE' :   Resume Game", NULL);
-        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 425.f}, RED,  "Press 'Esc'   :   Main Menu", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 425.f}, RED, "Press 'Esc'   :   Main Menu", NULL);
     }
     draw_score(font, score, 250.f, 760.f, WHITE);
 }
 
-void draw_gameover_menu(ImFont *font, int score)
+void draw_gameover_menu(ImFont *font, ImTextureID logoId, int score)
 {
     draw_player_box(1);
     draw_instruction(font, 1);
@@ -115,8 +124,9 @@ void draw_gameover_menu(ImFont *font, int score)
     {
         draw_score(font, score, 265.f, 400.f, GREEN);
         ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 450.f}, BLUE, "Press 'SPACE' :   New Game", NULL);
-        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 465.f}, RED,  "Press 'Esc'   :   Exit Game", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 465.f}, RED, "Press 'Esc'   :   Exit Game", NULL);
     }
+    draw_logo(logoId);
 }
 
 void draw_success_menu(ImFont *font, int score, bool p2, int lives_p1, int lives_p2)
@@ -128,19 +138,19 @@ void draw_success_menu(ImFont *font, int score, bool p2, int lives_p1, int lives
     ImDrawList_AddText_FontPtr(DRAW_LIST, font, 40.f, (ImVec2){218.f, 360.f}, WHITE, "GREAT SUCCESS", NULL, 0.f, NULL);
     {
         ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 410.f}, BLUE, "Press 'SPACE' :   Next Level", NULL);
-        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 425.f}, RED,  "Press 'Esc'   :   Main Menu", NULL);
+        ImDrawList_AddText_Vec2(DRAW_LIST, (ImVec2){250.f, 425.f}, RED, "Press 'Esc'   :   Main Menu", NULL);
     }
     draw_score(font, score, 250.f, 760.f, WHITE);
 }
 
 // draws any menu inputed, respect the input demanded
-void draw_menu(Menu menu, ImFont *font, int score, int level, bool p2, int p1_lives, int p2_lives)
+void draw_menu(Menu menu, ImFont *font, ImTextureID logoId, int score, int level, bool p2, int p1_lives, int p2_lives)
 {
-    //middle_lines();
+    // middle_lines();
     switch (menu)
     {
     case MAIN:
-        draw_play_menu(font);
+        draw_main_menu(font, logoId);
         break;
 
     case IN_GAME:
@@ -152,7 +162,7 @@ void draw_menu(Menu menu, ImFont *font, int score, int level, bool p2, int p1_li
         break;
 
     case GAMEOVER:
-        draw_gameover_menu(font, score);
+        draw_gameover_menu(font, logoId, score);
         break;
 
     case SUCCESS:

@@ -10,6 +10,7 @@ void appInit(App *app)
     *app = (App){0};
     app->font = ImFontAtlas_AddFontFromFileTTF(igGetIO()->Fonts, "assets/Roboto-Regular.ttf", 100, NULL, NULL);
     app->backg = cvLoadTexture("assets/space.jpg");
+    app->logo = cvLoadTexture("assets/minestorm.png");
     g = (Game){0};
 }
 
@@ -82,7 +83,7 @@ void appUpdate(App *app)
 
     ///////////////////////////// LE GAME ITSELF ////////////////////////////////////
 
-    draw_menu(g.menu, app->font, g.score, g.level, g.is_p2, p1.lives, p2.lives);
+    draw_menu(g.menu, app->font, app->logo.id, g.score, g.level, g.is_p2, p1.lives, p2.lives);
 
     switch (g.menu)
     {
@@ -201,5 +202,6 @@ void appUpdate(App *app)
 void appShutdown(App *app)
 {
     cvUnloadTexture(app->backg);
+    cvUnloadTexture(app->logo);
     (void)app; // TOREMOVE: Silence unused parameter ‘app’ warning
 }
