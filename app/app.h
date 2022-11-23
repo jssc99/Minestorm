@@ -1,34 +1,26 @@
 #pragma once
 
-#include "player.h"
-#include "enemy.h"
-#include "menu.h"
+#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
+#include <cimgui.h>
+#include <canvas.h>
 
-
-
-typedef struct Game
-{
-    Menu menu;
-    Enemy enemies[6];
-    Player player1;
-    Player player2;
-    int score;
-} Game;
+#include "game.h"
 
 typedef struct App
 {
-    bool closeGame;
-    bool debugMenu;
+    CvTexture backg;
+    CvTexture logo;
+    Point2 maxScreen;
+    ImFont *font;
     int width;
     int height;
-    Point2 maxScreen;
+    bool closeApp;
+    bool debugMenu;
 
-    // enemy debug
-    unsigned int id;
+    // enemy debug    
     bool movePointE;
     bool movePointP;
-    bool rotate;
-    float angle;
+    int id;
 } App;
 
 void appInit(App *app);

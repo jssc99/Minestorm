@@ -8,15 +8,18 @@
 
 #include "Tools/axis.h"
 
-// Sat
+static bool DEBUG_PHYSIC;
+
+// SQT
 typedef struct Sat
 {
     Vector2 normal;
     float min;
     float max;
 } Sat;
-bool SAT_collision_SAT(Point2 poly1[], int sidesP1, Point2 poly2[], int sidesP2);
-bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegments);
+
+bool SAT_collision_SAT(Point2 poly1[], int sidesP1, Point2 poly2[], int sidesP2, bool displaySAT);
+bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegments, bool displaySAT);
 Sat generate_SAT(Point2 p[], int nbSummit, int nbSegments);
 
 // Collisions without SAT

@@ -36,7 +36,7 @@ float get_max_size(enemySize size, enemyType type)
         return multiplier;
 
     case MINELAYER:
-        return 11.7 * multiplier; // 11.7 = distance origin to furthest point from origin of figure
+        return 11.7 * multiplier;
     }
     return 0.f;
 }
@@ -69,13 +69,44 @@ float get_small_size(enemySize size, enemyType type)
     return 0.f;
 }
 
-// ages an enemy, loops around (DEAD -> BABY)
+// checks in array of enemy if one is not dead
+bool is_any_enemy_alive(Enemy e[], int nbEnemies)
+{
+    for (int i = 0; i < nbEnemies; i++)
+        if (e[i].status != DEAD)
+            return 1;
+    return 0;
+}
+
+// checks in array of enemy if one is not dead
+int how_many_e_adult(Enemy e[], int nbEnemies)
+{
+    int cpt = 0;
+    for (int i = 0; i < nbEnemies; i++)
+        if (e[i].status == ADULT)
+            cpt++;
+    return cpt;
+}
+
+// checks in array of enemy if one is not dead
+int how_many_e_child(Enemy e[], int nbEnemies)
+{
+    int cpt = 0;
+    for (int i = 0; i < nbEnemies; i++)
+        if (e[i].status == CHILD)
+            cpt++;
+    return cpt;
+}
+
+// ages an enemy, loops around
+// (DEAD -> BABY -> CHILD -> ADULT -> ...)
 void age_enemy(Enemy *e)
 {
     e->status = (e->status + 1) % 4;
 }
 
-// changes an enemy 'size', unless size is FIXED, loops around (BIG -> SMALL)
+// changes an enemy 'size', unless size is FIXED, loops around
+//(BIG -> SMALL -> MEDIUM -> ...)
 void size_enemy(Enemy *e)
 {
     if (e->size != FIXED)
@@ -88,95 +119,110 @@ void set_pos_enemy(Enemy *e, float x, float y)
     e->location.origin = (Point2){x, y};
 }
 
-// init enemy type and size, requires pos of player
-Enemy init_enemy(Vector2 pPos, enemyType type, enemySize size)
+// init enemy type and size, point of origin (just use e.location.origin for most cases)
+// gives them 'CHILD' status
+Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 {
-    Enemy enemy;
-    enemy.status = BABY;
-    enemy.type = type;
+    Enemy e;
+    e.status = CHILD;
+    e.type = type;
     if (type == FLOATING || type == FIREBALL_MINE)
     {
-        enemy.angle = (rand() % 360) * M_PI / 180.f;
-        enemy.location.origin = (Point2){100, 100};
-        enemy.location.x = normalizedVector2(rotatePoint2((Point2){1.f, 0.f}, enemy.location.origin, enemy.angle));
-        enemy.location.y = rotatePoint2((Point2){0, 0}, enemy.location.x, M_PI / 2.f);
+        e.angle = (rand() % 180) / M_PI;
+        e.location.origin = origin;
+        e.location.x = normalizedVector2(rotatePoint2((Point2){1.f, 0.f}, e.location.origin, e.angle));
+        e.location.y = rotatePoint2((Point2){0, 0}, e.location.x, M_PI / 2.f);
+    }
+    else if (type == MINELAYER)
+    {
+        e.location.origin = (Point2){350, 50};
+        e.location.x = (Vector2){0.f, 1.f};
+        e.location.y = (Vector2){-1.f, 0.f};
+        e.angle = 0.f;
     }
     else
     {
-        enemy.angle = 0.f;
-        enemy.location = (Axis2){{100, 100}, {1.f, 0.f}, {0.f, 1.f}};
+        e.angle = 0.f;
+        e.location = (Axis2){origin, {1.f, 0.f}, {0.f, 1.f}};
     }
 
     if (size == FIXED && type != MINELAYER && type != FIREBALL)
-        size = SMALL; // J'ai retire un = en trop, Warning
+        size = SMALL;
+    if (size != FIXED && (type == MINELAYER || type == FIREBALL))
+        size = FIXED;
 
     switch (type)
     {
     case FLOATING:
-        enemy.nbPoints = 6;
+        e.nbPoints = 6;
+        e.size = size;
         if (size == BIG)
-            enemy.deathScore = 100;
+            e.deathScore = 100;
         if (size == MEDIUM)
-            enemy.deathScore = 135;
+            e.deathScore = 135;
         if (size == SMALL)
-            enemy.deathScore = 200;
+            e.deathScore = 200;
         break;
 
     case FIREBALL_MINE:
-        enemy.nbPoints = 8;
+        e.nbPoints = 8;
+        e.size = size;
         if (size == BIG)
-            enemy.deathScore = 325;
+            e.deathScore = 325;
         if (size == MEDIUM)
-            enemy.deathScore = 360;
+            e.deathScore = 360;
         if (size == SMALL)
-            enemy.deathScore = 425;
+            e.deathScore = 425;
         break;
 
     case MAGNETIC:
-        enemy.nbPoints = 8;
+        e.nbPoints = 8;
+        e.size = size;
         if (size == BIG)
-            enemy.deathScore = 500;
+            e.deathScore = 500;
         if (size == MEDIUM)
-            enemy.deathScore = 535;
+            e.deathScore = 535;
         if (size == SMALL)
-            enemy.deathScore = 600;
+            e.deathScore = 600;
         break;
 
     case MAGNET_FIRE:
-        enemy.nbPoints = 8;
+        e.nbPoints = 8;
+        e.size = size;
         if (size == BIG)
-            enemy.deathScore = 750;
+            e.deathScore = 750;
         if (size == MEDIUM)
-            enemy.deathScore = 785;
+            e.deathScore = 785;
         if (size == SMALL)
-            enemy.deathScore = 850;
+            e.deathScore = 850;
         break;
 
     case FIREBALL:
-        enemy.nbPoints = 0;
-        enemy.deathScore = 110;
-        enemy.size = FIXED;
+        e.nbPoints = 0;
+        e.deathScore = 110;
+        e.size = FIXED;
         break;
 
     case MINELAYER:
-        enemy.nbPoints = 9;
-        enemy.deathScore = 1000;
-        enemy.size = FIXED;
+        e.nbPoints = 9;
+        e.deathScore = 1000;
+        e.size = FIXED;
         break;
 
     default:
-        enemy.nbPoints = 0;
-        enemy.deathScore = 0;
-        enemy.size = size;
+        e.nbPoints = 0;
+        e.deathScore = 0;
+        e.size = size;
         break;
     }
-    return enemy;
+    return e;
 }
 
-void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
+// updates non-minelayer/fireball mines (pos, points of shape, rotation, magnetics track ppos, colision with border)
+void update_pos_basic_mine(Enemy *e, bool alignPoints, Vector2 pPos)
 {
     if (e->type == MAGNETIC || e->type == MAGNET_FIRE)
-    { // normalise vector ( enemy to player )
+    { // normalise vector (enemy to player)
         e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
         if (700 - fabsf(e->location.origin.x - pPos.x) <= fabsf(e->location.origin.x - pPos.x))
             e->location.x.x *= -1;
@@ -185,8 +231,8 @@ void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
         e->location.y = rotatePoint2((Point2){0, 0}, e->location.x, M_PI / 2.f);
         e->angle = getAngleVector2((Float2){-1, 0}, e->location.x);
     }
-    e->location.origin.x += e->location.x.x;
-    e->location.origin.y += e->location.x.y;
+    e->location.origin.x += ((6.5f - get_size_multiplier(e->size)) / 2.f) * e->location.x.x;
+    e->location.origin.y += ((6.5f - get_size_multiplier(e->size)) / 2.f) * e->location.x.y;
 
     float radiusBig = get_max_size(e->size, e->type);
     float radiusSmall = get_small_size(e->size, e->type);
@@ -210,16 +256,17 @@ void update_pos_basic_mine(Enemy *e, Vector2 pPos, bool alignPoints)
     }
 }
 
+// updates the fireball (pos, targets ppos first use, collision with border (dies))
 void update_pos_fireball(Enemy *e, Vector2 pPos)
 {
-    if (!e->nbPoints) // === bool fireball nbPoints updated ('points' for fireball is unused)
+    if (!e->nbPoints) // === bool, fireball nbPoints updated ('nbPoints' for fireball is unused)
     {
         e->location.x = normalizedVector2((Vector2){pPos.x - e->location.origin.x, pPos.y - e->location.origin.y});
         e->location.y = rotatePoint2((Point2){0, 0}, e->location.x, M_PI / 2.f);
         e->nbPoints++;
     }
-    e->location.origin.x += e->location.x.x;
-    e->location.origin.y += e->location.x.y;
+    e->location.origin.x += 2.f * e->location.x.x;
+    e->location.origin.y += 2.f * e->location.x.y;
 
     float radiusBig = get_max_size(e->size, e->type);
 
@@ -227,6 +274,7 @@ void update_pos_fireball(Enemy *e, Vector2 pPos)
         e->status = DEAD;
 }
 
+// updates the minelayer (pos, points of shape, rotation is possible, collision with border)
 void update_pos_minelayer(Enemy *e)
 {
     e->location.origin.x += e->location.x.x;
@@ -238,21 +286,21 @@ void update_pos_minelayer(Enemy *e)
     float y = e->location.origin.y;
 
     Point2 point[9] = {
-        {x - 26.f, y + 10.f},
-        {x - 38.f, y + 20.f},
-        {x - 32.f, y},
-        {x - 14.f, y},
         {x /*  */, y - 12.f},
-        {x + 14.f, y},
-        {x + 32.f, y},
+        {x - 14.f, y},
+        {x - 32.f, y},
+        {x - 38.f, y + 20.f},
+        {x - 26.f, y + 10.f},
+        {x + 26.f, y + 10.f},
         {x + 38.f, y + 20.f},
-        {x + 26.f, y + 10.f}};
+        {x + 32.f, y},
+        {x + 14.f, y}};
 
     for (int i = 0; i < 9; i++)
         e->points[i] = rotatePoint2(e->location.origin, point[i], e->angle);
 }
 
-// updates the pos of any mine inputed
+// updates the pos of any SINGLE mine inputed
 void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
 {
     switch (e->type)
@@ -260,11 +308,11 @@ void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
     case FLOATING:
     case FIREBALL_MINE:
     case MAGNETIC:
-        update_pos_basic_mine(e, posPlayer, 0);
+        update_pos_basic_mine(e, 0, posPlayer);
         break;
 
     case MAGNET_FIRE:
-        update_pos_basic_mine(e, posPlayer, 1);
+        update_pos_basic_mine(e, 1, posPlayer);
         break;
 
     case FIREBALL:
@@ -277,14 +325,47 @@ void update_pos_any_enemy(Enemy *e, Vector2 posPlayer)
     }
 }
 
-// creates the minefield by giving every enemy a pos
+// updates the pos of ALL (array) mines inputed
+// calls update_pos_any_enemy()
+void update_pos_all_enemy(Enemy e[], int size, Vector2 posPlayer)
+{
+    for (int i = 0; i < size; i++)
+        if (e[i].status == ADULT)
+            update_pos_any_enemy(&(e[i]), posPlayer);
+}
+
+// creates mines when minelayer activated
+void minelayer_spawner(Enemy *e, Enemy en[], Point2 pPos)
+{
+    update_pos_any_enemy(e, pPos);
+    bool found = 0;
+    if ((int)e->location.origin.y == 200 ||
+        (int)e->location.origin.y == 400 ||
+        (int)e->location.origin.y == 600)
+        for (int i = 0; i < MAX_ENEMY - 1; i++)
+            if (!found && en[i].status == DEAD)
+            {
+                en[i] = init_enemy(e->location.origin, FLOATING, SMALL);
+                en[i].status = ADULT;
+                found = true;
+            }
+}
+
+// creates the minefield by giving every enemy a random pos
+// gives them 'BABY' status
 void create_minefield(Enemy e[], int nbEnemy, int width, int height)
 {
     srand(time(NULL));
     for (int i = 0; i < nbEnemy; i++)
     {
-        e[i].location.origin.x = 100 + rand() % (width - 120);
-        e[i].location.origin.y = 160 + rand() % (height - 180);
-        e[i].status = CHILD;
+        do
+        {
+            e[i].location.origin.x = 100 + rand() % (width - 120);
+            e[i].location.origin.y = 160 + rand() % (height - 200);
+        } while (((e[i].location.origin.x > 230 && e[i].location.origin.x < 270) ||
+                  (e[i].location.origin.x > 330 && e[i].location.origin.x < 370) ||
+                  (e[i].location.origin.x > 430 && e[i].location.origin.x < 470)) &&
+                 (e[i].location.origin.y > 370 && e[i].location.origin.y < 425)); // mines can't spwan near player possible pos
+        e[i].status = BABY;
     }
 }

@@ -12,7 +12,8 @@
         "menu.h": "c",
         "points.h": "c",
         "glfw3.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "game.h": "c",
     },
     "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
         "clang-analyzer-optin.performance.Padding"
