@@ -57,7 +57,7 @@ void init_game(Player *p1, Player *p2, Enemy *en, int level)
 // if a player collisions an enemy
 void p_col_en(Player *p, Enemy *en)
 {
-    player_spawn(p, p->spawnPoint.x, p->spawnPoint.y);
+    player_spawn_check(p, p->spawnPoint, (Point2){700, 800}, en);
     p->lives--;
     en->status = DEAD;
     if (en->size == BIG)
@@ -194,7 +194,9 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
          for (int i = 0; i < MAX_ENEMY; ++i)
              printf("%.1f%s", en[i].points[i].x, (i < MAX_ENEMY - 1) ? ", " : " ");
          printf("]\n");*/
-        update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
+                                                                 // temp solution not great
+        update_pos_all_enemy(en, (MAX_ENEMY - 1) / 2, p1->axis.origin);
+        update_pos_all_enemy(en + ((MAX_ENEMY - 1) / 2), (MAX_ENEMY - 1) / 2 + 1, p2->axis.origin);
     }
     else
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);

@@ -98,14 +98,14 @@ int how_many_e_child(Enemy e[], int nbEnemies)
     return cpt;
 }
 
-// ages an enemy, loops around 
+// ages an enemy, loops around
 // (DEAD -> BABY -> CHILD -> ADULT -> ...)
 void age_enemy(Enemy *e)
 {
     e->status = (e->status + 1) % 4;
 }
 
-// changes an enemy 'size', unless size is FIXED, loops around 
+// changes an enemy 'size', unless size is FIXED, loops around
 //(BIG -> SMALL -> MEDIUM -> ...)
 void size_enemy(Enemy *e)
 {
@@ -334,7 +334,24 @@ void update_pos_all_enemy(Enemy e[], int size, Vector2 posPlayer)
             update_pos_any_enemy(&(e[i]), posPlayer);
 }
 
-// creates the minefield by giving every enemy a random pos 
+// creates mines when minelayer activated
+void minelayer_spawner(Enemy *e, Enemy en[], Point2 pPos)
+{
+    update_pos_any_enemy(e, pPos);
+    bool found = 0;
+    if ((int)e->location.origin.y == 200 ||
+        (int)e->location.origin.y == 400 ||
+        (int)e->location.origin.y == 600)
+        for (int i = 0; i < MAX_ENEMY - 1; i++)
+            if (!found && en[i].status == DEAD)
+            {
+                en[i] = init_enemy(e->location.origin, FLOATING, SMALL);
+                en[i].status = ADULT;
+                found = true;
+            }
+}
+
+// creates the minefield by giving every enemy a random pos
 // gives them 'BABY' status
 void create_minefield(Enemy e[], int nbEnemy, int width, int height)
 {

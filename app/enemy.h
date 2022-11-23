@@ -67,6 +67,7 @@ Enemy init_enemy(Point2 origin, enemyType type, enemySize size);
 bool is_any_enemy_alive(Enemy e[], int nbEnemies);
 int how_many_e_adult(Enemy e[], int nbEnemies);
 int how_many_e_child(Enemy e[], int nbEnemies);
+void minelayer_spawner(Enemy *e, Enemy en[], Point2 pPos);
 
 // debug (primarely) functions
 

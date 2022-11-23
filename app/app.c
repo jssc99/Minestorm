@@ -12,6 +12,10 @@ void appInit(App *app)
     app->backg = cvLoadTexture("assets/space.jpg");
     app->logo = cvLoadTexture("assets/minestorm.png");
     g = (Game){0};
+    p1 = malloc(sizeof(Player));
+    p2 = malloc(sizeof(Player));
+    p1->lives = 0;
+    p2->lives = 0;
 }
 
 void appUpdate(App *app)
@@ -32,22 +36,22 @@ void appUpdate(App *app)
     {
         ImGuiIO *io = igGetIO();
         Point2 mouse;
-        debug_menu_player(&p1, 1);
-        draw_debug_player(&p1);
-        if (g.is_p2 == true)
+        debug_menu_player(p1, 1);
+        draw_debug_player(p1);
+        if (p2)
         {
-            debug_menu_player(&p2, 2);
-            draw_debug_player(&p2);
+            debug_menu_player(p2, 2);
+            draw_debug_player(p2);
         }
         igCheckbox("Move center of en with mouse (right click)", &app->movePointE);
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
         igSliderInt("level", &g.level, 0, 30, "%d", 0);
-        igSliderInt("lives p1", &p1.lives, 0, 30, "%d", 0);
-        igSliderInt("lives p2", &p2.lives, 0, 30, "%d", 0);
+        igSliderInt("lives p1", &p1->lives, 0, 30, "%d", 0);
+        igSliderInt("lives p2", &p2->lives, 0, 30, "%d", 0);
         igText("Press 'x' to circle life status");
         igText("Press 'z' to circle menus");
         igText("Press 'p' to spawn minelayer");
-        igText("Press 'l' to print status of enemies");
+        igText("Press 'l' to print status of all enemies");
         igText("Use mousewheel to change size");
 
         for (int i = 0; i < MAX_ENEMY; i++)
@@ -88,7 +92,10 @@ void appUpdate(App *app)
 
     ///////////////////////////// LE GAME ITSELF ////////////////////////////////////
 
-    draw_menu(g.menu, app->font, app->logo.id, g.score, g.level, g.is_p2, p1.lives, p2.lives);
+    if (p2)
+        draw_menu(g.menu, app->font, app->logo.id, g.score, g.level, 1, p1->lives, p2->lives);
+    else
+        draw_menu(g.menu, app->font, app->logo.id, g.score, g.level, 0, p1->lives, 0);
 
     switch (g.menu)
     {
@@ -99,17 +106,16 @@ void appUpdate(App *app)
 
         if (igIsKeyPressed(ImGuiKey_F, 0))
         {
-            init_game(&p1, NULL, en, g.level);
-            g.is_p2 = false;
-            p1.lives = 3;
+            init_game(p1, NULL, en, g.level);
+            p1->lives = 3;
+            p2 = NULL;
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_K, 0))
         {
-            init_game(&p1, &p2, en, g.level);
-            g.is_p2 = true;
-            p1.lives = 3;
-            p2.lives = 3;
+            init_game(p1, p2, en, g.level);
+            p1->lives = 3;
+            p2->lives = 3;
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
@@ -120,33 +126,13 @@ void appUpdate(App *app)
         if (is_any_enemy_alive(en, MAX_ENEMY))
         {
             g.cptDelta += igGetIO()->DeltaTime;
-            if (g.is_p2)
-                update_game(en, &p1, &p2, igGetIO()->DeltaTime, g.cptDelta, &g.score);
-            else
-                update_game(en, &p1, NULL, igGetIO()->DeltaTime, g.cptDelta, &g.score);
-
-            if (g.is_p2)
-                draw_loop(en, &p1, &p2);
-            else
-                draw_loop(en, &p1, NULL);
+            update_game(en, p1, p2, igGetIO()->DeltaTime, g.cptDelta, &g.score);
+            draw_loop(en, p1, p2);
 
             if (how_many_e_child(en, MAX_ENEMY - 1) == 0 && en[MAX_ENEMY - 1].status == CHILD)
                 en[MAX_ENEMY - 1].status = ADULT;
             if (en[MAX_ENEMY - 1].status == ADULT)
-            {
-                update_pos_any_enemy(&en[MAX_ENEMY - 1], p1.axis.origin);
-                bool found = 0;
-                if ((int)en[MAX_ENEMY - 1].location.origin.y == 200 ||
-                    (int)en[MAX_ENEMY - 1].location.origin.y == 400 ||
-                    (int)en[MAX_ENEMY - 1].location.origin.y == 600)
-                    for (int i = 0; i < MAX_ENEMY - 1; i++)
-                        if (!found && en[i].status == DEAD)
-                        {
-                            en[i] = init_enemy(en[MAX_ENEMY - 1].location.origin, FLOATING, SMALL);
-                            en[i].status = ADULT;
-                            found = true;
-                        }
-            }
+                minelayer_spawner(&en[MAX_ENEMY - 1], en, p1->axis.origin);
         }
         else
         {
@@ -154,7 +140,7 @@ void appUpdate(App *app)
             g.menu = SUCCESS;
         }
 
-        if (p1.lives <= 0 && (!g.is_p2 || p2.lives <= 0))
+        if (p1->lives <= 0 && (!p2 || p2->lives <= 0))
             g.menu = GAMEOVER;
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = PAUSE;
@@ -164,11 +150,8 @@ void appUpdate(App *app)
         if (igIsKeyPressed(ImGuiKey_Space, 0))
         {
             g.cptDelta = 0.f;
-            bullets_terminate(&p1, &p2);
-            if (g.is_p2)
-                init_game(&p1, &p2, en, g.level);
-            else
-                init_game(&p1, NULL, en, g.level);
+            bullets_terminate(p1, p2);
+            init_game(p1, p2, en, g.level);
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
@@ -176,10 +159,7 @@ void appUpdate(App *app)
         break;
 
     case PAUSE:
-        if (g.is_p2)
-            draw_loop(en, &p1, &p2);
-        else
-            draw_loop(en, &p1, NULL);
+        draw_loop(en, p1, p2);
 
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = IN_GAME;
@@ -189,9 +169,9 @@ void appUpdate(App *app)
 
     case GAMEOVER:
         g.cptDelta = 0.f;
-        update_pos_all_enemy(en, MAX_ENEMY, p1.axis.origin);
+        update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
         draw_all_enemy(en, MAX_ENEMY);
-        // save_game();
+        // save_game(); // TODO
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = MAIN;
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))

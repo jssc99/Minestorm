@@ -16,7 +16,7 @@
 #define PLAYER1 igGetColorU32_Vec4((ImVec4){0.0f, 0.8f, 1.0f, 1.0f})
 #define PLAYER2 igGetColorU32_Vec4((ImVec4){0.0f, 1.0f, 0.5f, 1.0f})
 
-// debug for alignment
+// debug lines for alignment
 void x_middle_line(void)
 {
     ImDrawList_AddLine(DRAW_LIST, (ImVec2){WIDTH_2, 0}, (ImVec2){WIDTH_2, HEIGHT}, WHITE, 2.f);
@@ -67,7 +67,7 @@ void draw_instruction(ImFont *font, bool p2)
 void draw_score(ImFont *font, int score, float x, float y, ImU32 color)
 {
     char textTemp[30];
-    sprintf(textTemp, "Score : %8d", score);
+    sprintf(textTemp, "Score : %d", score);
     ImDrawList_AddText_FontPtr(DRAW_LIST, font, 35.f, (ImVec2){x, y}, color, textTemp, NULL, 0.f, NULL);
 }
 
