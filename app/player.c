@@ -2,25 +2,16 @@
 #include "enemy.h"
 
 #define drawList igGetBackgroundDrawList_Nil()
-void debug_menu_player(Player *p, bool debugMenu)
+
+// Initialize Player at position(x,y) First time think about setting lives to 3.
+Player player_init(float x, float y, float size)
 {
-    igBegin("Player", &debugMenu, ImGuiWindowFlags_None);
-    igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
-    igText("Lives = %d", p->lives);
-    igText("Speed = %f", p->speed);
-    if (DEBUG_PHYSIC)
-    { // && igButton("Display axis", (ImVec2){0, 0}))
-        p->displayAxis = !p->displayAxis;
-        // if (igButton("Display speed", (ImVec2){0, 0}))
-        p->displaySpeed = !p->displaySpeed;
-        // if (igButton("Display inertia", (ImVec2){0, 0}))
-        p->displayInertia = !p->displayInertia;
-        // if (igButton("Display sphere", (ImVec2){0, 0}))
-        p->displaySSphere = !p->displaySSphere;
-        // if (igButton("Collision Tests", (ImVec2){0, 0}))
-        p->collisionTests = !p->collisionTests;
-    }
-    igEnd();
+    Player p = {0};
+    p.lives = 3;
+    p.size = size;
+    p.spawnPoint = (Point2){x, y};
+    player_spawn(&p, x, y);
+    return p;
 }
 // Spawn player at Point (x,y)
 void player_spawn(Player *p, float x, float y)
@@ -33,17 +24,29 @@ void player_spawn(Player *p, float x, float y)
     p->moveLine = p->axis.x;
     p->targetLine = p->moveLine;
 }
-// Initialize Player at position(x,y) First time think about setting lives to 3.
-Player player_init(float x, float y, float size)
-{
-    Player p = {0};
-    p.lives = 3;
-    p.size = size;
-    p.spawnPoint = (Point2){x, y};
-    player_spawn(&p, x, y);
-    return p;
-}
 
+// Check collisions before spawn
+void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *e)
+{
+    srand(time(NULL));
+    bool collision = false;
+    do
+    {
+        newLocation.x = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size) + p->size;
+        newLocation.y = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size) + p->size;
+        for (int i = 0; i < MAX_ENEMY; i++)
+            if (e[i].status == ADULT)
+            {
+                collision = sphere_collision_sphere(newLocation, 2 * p->size, e[i].location.origin, get_max_size(e[i].size, e[i].type));
+                break;
+            }
+    } while (collision);
+    if (!collision)
+    {
+        player_spawn(p, newLocation.x, newLocation.y);
+        return;
+    }
+}
 // Set the shape of the player
 void init_points_player(Player *p)
 {
@@ -67,30 +70,6 @@ void init_points_player(Player *p)
     for (int i = 0; i < 10; i++)
         p->shape[i] = point[i];
 }
-
-// Rotate the player
-void rotate_player(Player *p, float angle)
-{
-    p->axis = rotateAxis2(p->axis, angle);
-}
-
-// Fire a bullet
-void fire_bullet(Player *p, float deltaTime, Point2 maxScreen)
-{
-    if (p->firecd > 0.25) // 4 bullets/seconds max
-    {
-        for (int i = 0; i < MAX_BULLETS; i++)
-        {
-            if (p->bullets[i].lifespan == 0)
-            {
-                p->bullets[i] = init_bullet(*p, maxScreen);
-                break;
-            }
-        }
-        p->firecd = 0;
-    }
-}
-
 // Update the player each frame
 void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy *e)
 {
@@ -123,6 +102,84 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy 
     p->firecd += deltaTime;
     p->tpcd += deltaTime;
     init_points_player(p);
+}
+
+// Rotate the player
+void rotate_player(Player *p, float angle)
+{
+    p->axis = rotateAxis2(p->axis, angle);
+}
+// Turn the player to the left
+void turnleft_player(Player *p, float deltaTime)
+{
+    rotate_player(p, -M_PI * deltaTime);
+}
+// Turn the player to the right
+void turnright_player(Player *p, float deltaTime)
+{
+    rotate_player(p, M_PI * deltaTime);
+}
+// Add ACCELERATION to speed
+void accelerate_player(Player *p, float deltaTime)
+{
+    if (p->speed < MAX_SPEED_SHIP) // Never exceed MAX_SPEED
+    {
+        p->speed += ACCELERATION * deltaTime;
+    }
+    else
+        p->inertia = multVector2(p->inertia, MAX_SPEED_SHIP / p->speed);                       // Re-Calculate to keep Max Speed
+    p->inertia = addVector2(p->inertia, multVector2(p->targetLine, ACCELERATION * deltaTime)); // Update inertia
+    p->moveLine = p->targetLine;
+}
+// Teleport player at a random position, should check the collisions first
+void teleport_player(Player *p, Point2 maxScreen, Enemy *e)
+{
+    if (p->tpcd >= 3)
+    {
+        Point2 newPos;
+        srand(time(NULL));
+        newPos.x = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size);
+        newPos.y = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size);
+        player_spawn_check(p, newPos, maxScreen, e); // Make sure we don't spawn on an enemy
+        p->tpcd = 0;
+    }
+}
+// Opens a window to debug Player
+void debug_menu_player(Player *p, int playerNumber)
+{
+    igBegin("Player", 0, ImGuiWindowFlags_None);
+    igText("Player%d", playerNumber);
+    igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
+    igText("Lives = %d", p->lives);
+    igText("Speed = %f", p->speed);
+    if (igButton("Display axis", (ImVec2){0, 0}))
+        p->hideAxis = !p->hideAxis;
+    if (igButton("Display speed", (ImVec2){0, 0}))
+        p->hideSpeed = !p->hideSpeed;
+    if (igButton("Display inertia", (ImVec2){0, 0}))
+        p->hideInertia = !p->hideInertia;
+    if (igButton("Display sphere", (ImVec2){0, 0}))
+        p->hideSSphere = !p->hideSSphere;
+    if (igButton("Collision Tests", (ImVec2){0, 0}))
+        p->collisionTests = !p->collisionTests;
+    igEnd();
+}
+
+// Fire a bullet
+void fire_bullet(Player *p, float deltaTime, Point2 maxScreen)
+{
+    if (p->firecd > 0.25) // 4 bullets/seconds max
+    {
+        for (int i = 0; i < MAX_BULLETS; i++)
+        {
+            if (p->bullets[i].lifespan == 0)
+            {
+                p->bullets[i] = init_bullet(*p, maxScreen);
+                break;
+            }
+        }
+        p->firecd = 0;
+    }
 }
 
 // Collision player with enemy
@@ -476,63 +533,5 @@ void bullets_terminate(Player *p1, Player *p2)
         p1->bullets[i].lifespan = 0;
         if (!p2)
             p2->bullets[i].lifespan = 0;
-    }
-}
-// Turn the player to the left igIsKeyDown(ImGuiKey_D)
-void turnleft_player(Player *p, float deltaTime)
-{
-    rotate_player(p, -M_PI * deltaTime);
-}
-
-// Turn the player to the right igIsKeyDown(ImGuiKey_G)
-void turnright_player(Player *p, float deltaTime)
-{
-    rotate_player(p, M_PI * deltaTime);
-}
-// Add ACCELERATION to speed
-void accelerate_player(Player *p, float deltaTime)
-{
-    if (p->speed < MAX_SPEED_SHIP) // Never exceed MAX_SPEED
-    {
-        p->speed += ACCELERATION * deltaTime;
-    }
-    else
-        p->inertia = multVector2(p->inertia, MAX_SPEED_SHIP / p->speed);                       // Re-Calculate to keep Max Speed
-    p->inertia = addVector2(p->inertia, multVector2(p->targetLine, ACCELERATION * deltaTime)); // Update inertia
-    p->moveLine = p->targetLine;
-}
-// Teleport player at a random position, should check the collisions first
-void teleport_player(Player *p, Point2 maxScreen, Enemy *e)
-{
-    if (p->tpcd >= 3)
-    {
-        Point2 newPos;
-        srand(time(NULL));
-        newPos.x = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size);
-        newPos.y = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size);
-        player_spawn_check(p, newPos, maxScreen, e); // Make sure we don't spawn on an enemy
-        p->tpcd = 0;
-    }
-}
-// Check collisions before spawn
-void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *e)
-{
-    srand(time(NULL));
-    bool collision = false;
-    do
-    {
-        newLocation.x = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size) + p->size;
-        newLocation.y = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size) + p->size;
-        for (int i = 0; i < MAX_ENEMY; i++)
-            if (e[i].status == ADULT)
-            {
-                collision = sphere_collision_sphere(newLocation, 2 * p->size, e[i].location.origin, get_max_size(e[i].size, e[i].type));
-                break;
-            }
-    } while (collision);
-    if (!collision)
-    {
-        player_spawn(p, newLocation.x, newLocation.y);
-        return;
     }
 }
