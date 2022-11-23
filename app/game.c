@@ -80,7 +80,7 @@ void p_col_en(Player *p, Enemy *en)
 
 // if a bullet collisions an enemy
 void b_col_en(Bullet *b, Enemy *en, int *score)
-{
+{             // /!\ USELESS PARAMETER
     *score += en->deathScore;
     if (en->size == BIG)
     {

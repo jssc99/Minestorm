@@ -101,19 +101,6 @@ void draw_player(Player p, int playerId)
     ImDrawList_PathStroke(DRAW_LIST, get_player_color(playerId), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 2.f);
 }
 
-// Draw a bullet
-// // Can also serve as a more flexible fireball (due to color)
-void draw_bullet(Point2 center, float radius, unsigned int color)
-{
-    ImDrawList_AddCircleFilled(DRAW_LIST, (ImVec2){center.x, center.y}, radius, color, 50);
-}
-// Draw ALL the bullets of a player
-void draw_players_bullets(Player *p)
-{
-    for (int i = 0; i < MAX_BULLETS; i++)
-        if (p->bullets[i].lifespan)
-            draw_bullet(p->bullets[i].location, p->bullets[i].size, CV_COL32(255, 255 / MAX_BULLETS * i, 0, 255));
-}
 // Draw debug menu (player)
 void draw_debug_player(Player *p)
 {
@@ -135,7 +122,25 @@ void draw_debug_player(Player *p)
     if (!p->hideSSphere)
         ImDrawList_AddCircle(DRAW_LIST, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 50, 0.5f); // Surrounding sphere
     Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
-    for (int i = 0; i < 3; i++)
-        PathLineTo_point2(largeBody[i]);
-    ImDrawList_PathStroke(DRAW_LIST, CV_COL32(255, 255, 255, 200), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.5f);
+    if (!p->hideCollisionBox)
+    {
+        for (int i = 0; i < 3; i++)
+            PathLineTo_point2(largeBody[i]);
+        ImDrawList_PathStroke(DRAW_LIST, CV_COL32(255, 255, 255, 200), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.5f);
+    }
+}
+
+// Draw a bullet
+// // Can also serve as a more flexible fireball (due to color)
+void draw_bullet(Point2 center, float radius, unsigned int color)
+{
+    ImDrawList_AddCircleFilled(DRAW_LIST, (ImVec2){center.x, center.y}, radius, color, 50);
+}
+
+// Draw ALL the bullets of a player
+void draw_players_bullets(Player *p)
+{
+    for (int i = 0; i < MAX_BULLETS; i++)
+        if (p->bullets[i].lifespan)
+            draw_bullet(p->bullets[i].location, p->bullets[i].size, CV_COL32(255, 255 / MAX_BULLETS * i, 0, 255));
 }

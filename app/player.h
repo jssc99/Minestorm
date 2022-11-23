@@ -4,13 +4,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-//#include "draw.c"
-// Player separation
-#define LARGEBODY(p) {p.shape[0], p.shape[3], p.shape[7]} // Surrounding triangle
-#define ARROW(p) {p.shape[0], p.shape[1], p.shape[9]} 
-#define LEFTWING(p) {p.axis.origin, p.shape[2], p.shape[3]}
-#define RIGHTWING(p) {p.axis.origin, p.shape[7], p.shape[8]}
-#define TAIL(p) {p.shape[1], p.shape[5], p.shape[9]}
 #define MAX_BULLETS 5
 static const float MAX_SPEED_SHIP = 500;
 static const float ACCELERATION = 20;
@@ -23,6 +16,7 @@ typedef struct Bullet
     float size;
     float lifespan;
 } Bullet;
+
 
 typedef struct Player
 {
@@ -42,7 +36,8 @@ typedef struct Player
     bool hideSpeed;
     bool hideInertia;
     bool hideSSphere;
-    bool collisionTests;
+    bool hideCollisionBox;
+    bool hideSAT;
     
 } Player;
 
@@ -59,17 +54,19 @@ void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *
 void init_points_player(Player *p);
 void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy* e);
 void rotate_player(Player *p, float angle);
+
+//Inputs
 void turnleft_player(Player *p, float deltaTime);
 void turnright_player(Player *p, float deltaTime);
 void accelerate_player(Player *p, float deltaTime);
+void fire_bullet(Player *p, Point2 maxScreen);
 void teleport_player(Player *p, Point2 maxScreen, Enemy* e);
 void debug_menu_player(Player *p, int playerNumber);
 
-// Bullet
+//Bullets
 Bullet init_bullet(Player p, Point2 maxScreen);
 void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen);
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen);
-void fire_bullet(Player *p, float deltaTime, Point2 maxScreen);
 void bullets_terminate(Player *p1, Player *p2);
 
 // Test collisions

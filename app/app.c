@@ -13,9 +13,7 @@ void appInit(App *app)
     app->logo = cvLoadTexture("assets/minestorm.png");
     g = (Game){0};
     p1 = malloc(sizeof(Player));
-    p2 = malloc(sizeof(Player));
     p1->lives = 0;
-    p2->lives = 0;
 }
 
 void appUpdate(App *app)
@@ -23,7 +21,9 @@ void appUpdate(App *app)
     if (igIsKeyPressed(ImGuiKey_C, 0))
     {
         app->debugMenu = !app->debugMenu;
-        DEBUG_PHYSIC = app->debugMenu;
+        p1->hideCollisionBox = !p1->hideCollisionBox;
+        if (p2)
+            p2->hideCollisionBox = !p2->hideCollisionBox;
     }
 
     // GAME BACKGROUND //
@@ -114,9 +114,11 @@ void appUpdate(App *app)
         }
         else if (igIsKeyPressed(ImGuiKey_K, 0))
         {
+            p2 = malloc(sizeof(Player));
+            p2->lives = 0;
             init_game(p1, p2, en, g.level);
             p1->lives = 3;
-            p2->lives = 3;
+            p2->lives = 3; //Seg fault
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
@@ -189,5 +191,7 @@ void appShutdown(App *app)
 {
     cvUnloadTexture(app->backg);
     cvUnloadTexture(app->logo);
+    free(p1);
+    free(p2);
     (void)app; // TOREMOVE: Silence unused parameter ‘app’ warning
 }
