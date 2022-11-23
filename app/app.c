@@ -154,7 +154,7 @@ void appUpdate(App *app)
         if (igIsKeyPressed(ImGuiKey_Space, 0))
         {
             g.cptDelta = 0.f;
-            bullet_terminate(&p1, &p2);
+            bullets_terminate(&p1, &p2);
             if (g.is_p2)
                 init_game(&p1, &p2, en, g.level);
             else

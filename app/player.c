@@ -293,7 +293,6 @@ Bullet init_bullet(Player p, Point2 maxScreen)
     b.lifespan = (maxScreen.y / p.size) * 4 / 5;
     return b;
 }
-
 // Update ALL the bullets of a player
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen)
 {
@@ -301,10 +300,8 @@ void update_bullet(Player *p, float deltaTime, Point2 maxScreen)
         if (p->bullets[i].lifespan)
             update_one_bullet(&p->bullets[i], deltaTime, maxScreen);
 }
-
 // Bullet evolution
 void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen)
-// TODO: void update_bullet(Bullet* b, float deltaTime)
 {
     b->location = addVector2(b->location, multVector2(b->direction, 30 * deltaTime));
     sphere_collision_border_replace(&b->location, b->size, maxScreen);
@@ -316,12 +313,8 @@ void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen)
 // Collision bullet with enemy
 bool bullet_collision_enemy(Bullet *b, Enemy *e)
 {
-
     if (e->status != ADULT)
         return false;
-    Point2 largeMine[5];
-    Point2 mineParts[5][3];
-
     if (sphere_collision_sphere(b->location, b->size, e->location.origin, get_max_size(e->size, e->type)))
     {
         switch (e->type)
@@ -344,21 +337,19 @@ bool bullet_collision_enemy(Bullet *b, Enemy *e)
     }
     return false;
 }
-
 // Collision bullet & floating mine
 bool bullet_collision_floating(Bullet *b, Enemy *e)
 {
-
     Point2 largeMine[3] = {e->points[0], e->points[2], e->points[4]};
     Point2 mineParts[4][3];
     if (sphere_collision_SAT(b->location, b->size, largeMine, 3))
     {
         for (int i = 0; i < 3; i++)
         {
-            mineParts[3][i] = e->points[i * 2 + 1]; // Internal triangle
-            mineParts[i][0] = e->points[i * 2 + 1];
-            mineParts[i][1] = e->points[(i * 2 + 2) % 6];
-            mineParts[i][2] = e->points[(i * 2 + 3) % 6];
+            mineParts[3][i] = e->points[i * 2 + 1];       // Internal triangle
+            mineParts[i][0] = e->points[i * 2 + 1];       //
+            mineParts[i][1] = e->points[(i * 2 + 2) % 6]; // External Triangles
+            mineParts[i][2] = e->points[(i * 2 + 3) % 6]; //
         }
         for (int i = 0; i < 4; i++)
             if (sphere_collision_SAT(b->location, b->size, mineParts[i], 3))
@@ -369,21 +360,18 @@ bool bullet_collision_floating(Bullet *b, Enemy *e)
     }
     return false;
 }
-
 // Collision bullet & minelayer
 bool bullet_collision_minelayer(Bullet *b, Enemy *e)
 {
-
     Point2 largeMine[5] = {e->points[0], e->points[2], e->points[3], e->points[6], e->points[7]};
     Point2 mineParts[3][3];
-    // Point2 internalRectangle[4] = {e->points[2], e->points[4], e->points[5], e->points[7]};
     if (sphere_collision_SAT(b->location, b->size, largeMine, 5))
     {
         for (int i = 0; i < 3; i++)
         {
-            mineParts[0][i] = e->points[3 + i];
-            mineParts[1][i] = e->points[i + 1];
-            mineParts[2][i] = e->points[i + 6];
+            mineParts[0][i] = e->points[3 + i]; // Big center Triangle
+            mineParts[1][i] = e->points[i + 1]; // LeftWing
+            mineParts[2][i] = e->points[i + 6]; // RightWing
         }
         mineParts[0][0] = e->points[0];
         for (int i = 0; i < 3; i++)
@@ -392,17 +380,14 @@ bool bullet_collision_minelayer(Bullet *b, Enemy *e)
             {
                 b->lifespan = 0;
                 return true;
-            } // if (SAT_collision_SAT(smallParts[i], 3, internalRectangle, 4))
-            //   return true;
+            }
         }
     }
     return false;
 }
-
 // Collision bullet & square-shaped mine (except from Magnetic-fire)
 bool bullet_collision_square_mine(Bullet *b, Enemy *e)
 {
-
     Point2 largeMine[4] = {e->points[0], e->points[2], e->points[4], e->points[6]};
     Point2 mineParts[4][3];
     Point2 interior_square[4];
@@ -416,9 +401,6 @@ bool bullet_collision_square_mine(Bullet *b, Enemy *e)
             mineParts[i][0] = e->points[(2 * i + 1)];
             mineParts[i][1] = e->points[(2 * i + 2) % 8];
             mineParts[i][2] = e->points[(2 * i + 3) % 8];
-            //            mineParts[i][0] = e->points[i * 2];
-            //          mineParts[i][1] = e->points[i * 2 + 1];
-            //        mineParts[i][2] = e->points[(i * 2 + 2) % 6];
         }
         for (int i = 0; i < 4; i++)
         {
@@ -436,11 +418,9 @@ bool bullet_collision_square_mine(Bullet *b, Enemy *e)
     }
     return false;
 }
-
 // Collision bullet & Magnetic-fire mine
 bool bullet_collision_mf_mine(Bullet *b, Enemy *e)
 {
-
     Point2 largeMine[4] = {e->points[0], e->points[2], e->points[4], e->points[6]};
     Point2 mineParts[4][3];
     for (int i = 0; i < 4; i++)
@@ -449,9 +429,9 @@ bool bullet_collision_mf_mine(Bullet *b, Enemy *e)
     {
         for (int i = 0; i < 4; i++)
         {
-            mineParts[i][0] = e->points[2 * i];
-            mineParts[i][1] = e->points[2 * i + 1];
-            mineParts[i][2] = e->location.origin;
+            mineParts[i][0] = e->points[2 * i];     // Summit big square
+            mineParts[i][1] = e->points[2 * i + 1]; // Summit small square
+            mineParts[i][2] = e->location.origin;   // Center of square
         }
         for (int i = 0; i < 4; i++)
         {
@@ -489,7 +469,7 @@ bool bullet_collision_player(Player *p1, Player *p2)
     return false;
 }
 // Reset the bullets (*p2 = NULL if 1p game)
-void bullet_terminate(Player *p1, Player *p2)
+void bullets_terminate(Player *p1, Player *p2)
 {
     for (int i = 0; i < MAX_BULLETS; i++)
     {
@@ -509,17 +489,16 @@ void turnright_player(Player *p, float deltaTime)
 {
     rotate_player(p, M_PI * deltaTime);
 }
-
 // Add ACCELERATION to speed
 void accelerate_player(Player *p, float deltaTime)
 {
-    if (p->speed < MAX_SPEED_SHIP)
+    if (p->speed < MAX_SPEED_SHIP) // Never exceed MAX_SPEED
     {
         p->speed += ACCELERATION * deltaTime;
     }
     else
-        p->inertia = multVector2(p->inertia, MAX_SPEED_SHIP / p->speed);
-    p->inertia = addVector2(p->inertia, multVector2(p->targetLine, ACCELERATION * deltaTime));
+        p->inertia = multVector2(p->inertia, MAX_SPEED_SHIP / p->speed);                       // Re-Calculate to keep Max Speed
+    p->inertia = addVector2(p->inertia, multVector2(p->targetLine, ACCELERATION * deltaTime)); // Update inertia
     p->moveLine = p->targetLine;
 }
 // Teleport player at a random position, should check the collisions first
@@ -527,23 +506,11 @@ void teleport_player(Player *p, Point2 maxScreen, Enemy *e)
 {
     if (p->tpcd >= 3)
     {
-        // bool collision = false;
         Point2 newPos;
-        // do
-        //{
-        srand(time(NULL)); // i++ ?
+        srand(time(NULL));
         newPos.x = (int)(p->axis.origin.x + rand()) % (int)(maxScreen.x - 2 * p->size);
         newPos.y = (int)(p->axis.origin.y + rand()) % (int)(maxScreen.y - 2 * p->size);
-        /*    for (int i = 0; i < MAX_ENEMY; i++)
-                if (e->status == ADULT)
-                {
-                    collision = sphere_collision_sphere(newPos, 2 * p->size, e[i].location.origin, get_max_size(e[i].size, e[i].type));
-                    break;
-                }
-        } while (collision);
-
-       // player_spawn(p, p->size + newPos.x, p->size + newPos.y);*/
-        player_spawn_check(p, newPos, maxScreen, e);
+        player_spawn_check(p, newPos, maxScreen, e); // Make sure we don't spawn on an enemy
         p->tpcd = 0;
     }
 }
@@ -567,212 +534,5 @@ void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *
     {
         player_spawn(p, newLocation.x, newLocation.y);
         return;
-    }
-}
-
-// Draw a circle or a polygon with Canvas (obsolete)
-void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color)
-{
-    Point2 point[sides];
-    point[0].x = radius * sinf(angleOffset) + center.x;
-    point[0].y = radius * cosf(angleOffset) + center.y;
-    cvPathLineTo(point[0].x, point[0].y);
-
-    float angle = M_PI * 2 / (float)sides;
-    float baseX = point[0].x;
-    float baseY = point[0].y;
-    for (unsigned int i = 1; i < sides; i++)
-    {
-        float c = cosf(angle * i);
-        float s = sinf(angle * i);
-        point[i].x = (baseX - center.x) * c - (baseY - center.y) * s + center.x;
-        point[i].y = (baseX - center.x) * s + (baseY - center.y) * c + center.y;
-        cvPathLineTo(point[i].x, point[i].y);
-    }
-    cvPathStroke(color, 1);
-
-    if (cBox)
-    {
-        for (unsigned int i = 0; i < sides; i++)
-            cBox[i] = point[i];
-    }
-}
-
-void test_collision(Player player1, Player player2, ImVec2 mousePos, Enemy e)
-{
-    // Rectangle collision
-    // bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 2, 460, 360, 540, 440);
-    // draw_circle(NULL, (Point2){500, 400}, 4, 40 * sqrtf(2), M_PI / 4, CV_COL32_WHITE);
-
-    // Sat collision
-    /*
-    Point2 rectangle[4] = {{400.f, 350.f}, {400.f, 450.f}, {550.f, 450.f}, {550.f, 350.f}};
-    for (int i = 0; i < 4; i++)
-    {
-        rectangle[i] = rotatePoint2((Point2){500, 400}, rectangle[i], M_PI / 3);
-    }
-    /
-    Point2 quad[4] = {{390.f, 350.f}, {410.f, 440.f}, {520.f, 440.f}, {540.f, 380.f}};
-    Point2 triangle[3] = {{520.f, 390.f}, {480.f, 390.f}, {500.f, 430.f}};
-    Point2 poly[6] = {{480.f, 320.f}, {410.f, 350.f}, {390.f, 400.f}, {410.f, 440.f}, {520.f, 470.f}, {540.f, 380.f}};
-    for (int i = 0; i < 6; i++)
-    {
-        poly[i] = rotatePoint2((Point2){500, 400}, poly[i], M_PI / 6);
-    }
-
-    Point2 poly_[6];
-    for (int i = 0; i < 6; i++)
-        poly_[i] = poly[6 - 1 - i];
-    Point2 poly_m[6];
-    for (int i = 0; i < 6; i++)
-    {
-        poly_m[i].x = poly[i].x + mousePos.x - 500.f;
-        poly_m[i].y = poly[i].y + mousePos.y - 400.f;
-    }
-    for (int i = 0; i < 6; i++)
-    {
-        cvAddLine(poly_m[i].x, poly_m[i].y, poly_m[(i + 1) % 6].x, poly_m[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
-    }
-    draw_circle(NULL, circumcenterTriangle(triangle[1], triangle[2], triangle[0]), 50, 4 * 3 * sqrtf(3), 0, CV_COL32(0, 0, 255, 255));
-        for (int i = 0; i < 4; i++)
-            {
-                cvAddLine(quad[i].x, quad[i].y, quad[(i + 1) % 4].x, quad[(i + 1) % 4].y, CV_COL32(255, 0, 0, 255));
-            }
-
-       bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, quad, 4);
-
-    for (int i = 0; i < 3; i++)
-    {
-        cvAddLine(triangle[i].x, triangle[i].y, triangle[(i + 1) % 3].x, triangle[(i + 1) % 3].y, CV_COL32(255, 0, 0, 255));
-    }
-    bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, triangle, 3);
-
-    cvAddLine(poly[0].x, poly[0].y, poly[(0 + 1) % 6].x, poly[(0 + 1) % 6].y, CV_COL32(255, 0, 255, 255));
-    for (int i = 1; i < 6; i++)
-    {
-        cvAddLine(poly[i].x, poly[i].y, poly[(i + 1) % 6].x, poly[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
-    }
-    Point2 largeBody[3] = {player1.shape[0], player1.shape[3], player1.shape[7]}; // exclude 2 points :(
-    Point2 arrow[3] = {player1.shape[0], player1.shape[1], player1.shape[9]};
-    Point2 leftWing[3] = {player1.axis.origin, player1.shape[2], player1.shape[3]};
-    Point2 rightWing[3] = {player1.axis.origin, player1.shape[7], player1.shape[8]};
-    Point2 tail[3] = {player1.shape[1], player1.shape[5], player1.shape[8]};
-
-
-    Point2 largeBody[3] = LARGEBODY(player1);
-    Point2 smallParts[4][3] = {ARROW(player1), LEFTWING(player1), RIGHTWING(player1), TAIL(player1)};
-    Point2 largeBody2[3] = LARGEBODY(player2);
-    Point2 arrow2[3] = ARROW(player2);
-    Point2 leftWing2[3] = LEFTWING(player2);
-    Point2 rightWing2[3] = RIGHTWING(player2);
-    Point2 tail2[3] = TAIL(player2);
-    bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, smallParts[3], 3);
-        bool collision = (sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, arrow1, 3)        //
-                          || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, leftWing1, 3)  //
-                          || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, rightWing1, 3) //
-                          || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, tail1, 3));
-        bool collision = SAT_collision_SAT(largeBody1, 3, largeBody2, 3);
-
-    bool collision;
-    for (int i = 0; i < 4; i++)
-    {
-        if (!collision)
-        {
-            collision = (SAT_collision_SAT(arrow2, 3, smallParts[i], 3)        //
-                         || SAT_collision_SAT(leftWing2, 3, smallParts[i], 3)  //
-                         || SAT_collision_SAT(rightWing2, 3, smallParts[i], 3) //
-                         || SAT_collision_SAT(tail2, 3, smallParts[i], 3));
-        }
-        else
-            break;
-    }
-
-    // bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
-    // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, rectangle,4);
-    for (int i = 0; i < 3; i++)
-    {
-        printf("Points [%d], = (%f,%f)\n", i, &player1.shape[i].x, &player1.shape[i].y);
-    }
-    */
-    // printf("min = %f, max = %f, x = %f, y = %f\n", player1.sat->min, player1.sat->max, player1.sat->normal.x, player1.sat->normal.y);
-    bool collision = false;
-    // switch (e.type)
-
-    // case /* constant-expression */:
-    /* code */
-    //    break;
-
-    // default:
-
-    Point2 largeBody[3] = {player1.shape[0], player1.shape[3], player1.shape[7]};
-    Point2 smallParts[4][3] = {{player1.shape[0], player1.shape[1], player1.shape[9]},    // ARROW
-                               {player1.axis.origin, player1.shape[2], player1.shape[3]}, // LEFTWING
-                               {player1.axis.origin, player1.shape[7], player1.shape[8]}, // RIGHTWING
-                               {player1.shape[1], player1.shape[5], player1.shape[9]}};   // TAIL
-    Point2 largeMine[3] = {e.points[0], e.points[2], e.points[4]};
-    Point2 mineParts[4][3];
-    ImVec2 v1;
-    ImVec2 v2;
-    for (int i = 0; i < 3; i++)
-        largeMine[i] = e.points[2 * i];
-    if (sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, largeMine, 3))
-    {
-        collision = true;
-        ImVec2 v1;
-        ImVec2 v2;
-        for (int i = 0; i < 4; i++)
-        {
-            Point2 largeMine[3] = {e.points[0], e.points[2], e.points[4]};
-            Point2 mineParts[3][3];
-            if (SAT_collision_SAT(largeMine, 3, largeBody, 3))
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    mineParts[i][0] = e.points[i * 2];
-                    mineParts[i][1] = e.points[i * 2 + 1];
-                    mineParts[i][2] = e.points[(i * 2 + 2) % 6];
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 3; j++)
-                        if (SAT_collision_SAT(smallParts[i], 3, mineParts[2 - j], 3))
-                            collision = true;
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 4; j++)
-                        if (sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, mineParts[j], 3))
-                        {
-                            collision = false;
-                            break;
-                        }
-                }
-            }
-            /*
-                        mineParts[i][2] = e.points[2 * i];
-                        mineParts[i][1] = e.points[(2 * i + 2) % 8];
-                        mineParts[i][0] = e.points[(2 * i + 1) % 8];
-                        v1.x = e.points[i].x;
-                        v1.y = e.points[i].y;
-                        v2.x = e.points[i + 4].x;
-                        v2.y = e.points[i + 4].y;
-                        ImDrawList_AddCircleFilled(drawList, v1, 2, CV_COL32(i * 80, 255 / (i + 1), 255, 255), 20);
-                        ImDrawList_AddCircleFilled(drawList, v2, 2, CV_COL32(255, 255 / (i + 1), i * 80, 255), 20);
-                    }
-                    for (int i = 0; i < 3; i++)
-                    {
-                        for (int j = 0; j < 4; j++)
-                            if (sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, mineParts[j], 3))
-                            {
-                                collision = false;
-                                break;
-                            }
-                    }
-                }*/
-            // if (sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, largeBody, 3))
-            //     collision = true;
-            draw_circle(NULL, (Point2){mousePos.x, mousePos.y}, 50, 2, 0, CV_COL32((255 * collision), 0, 0, 255));
-            // break;
-        }
     }
 }

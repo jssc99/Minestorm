@@ -26,7 +26,7 @@ typedef struct Bullet
 
 typedef struct Player
 {
-    Bullet bullets[MAX_BULLETS]; // Rename
+    Bullet bullets[MAX_BULLETS];
     Axis2 axis;
     Point2 spawnPoint;
     Vector2 targetLine;
@@ -71,7 +71,7 @@ Bullet init_bullet(Player p, Point2 maxScreen);
 void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen);
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen);
 void fire_bullet(Player *p, float deltaTime, Point2 maxScreen);
-void bullet_terminate(Player *p1, Player *p2);
+void bullets_terminate(Player *p1, Player *p2);
 
 // Test collisions
 void test_collision(Player player1, Player player2, ImVec2 mousePos, Enemy e);
