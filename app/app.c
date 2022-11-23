@@ -46,6 +46,7 @@ void appUpdate(App *app)
         igText("Press 'x' to circle life status");
         igText("Press 'z' to circle menus");
         igText("Press 'p' to spawn minelayer");
+        igText("Press 'l' to print status of enemies");
         igText("Use mousewheel to change size");
 
         for (int i = 0; i < MAX_ENEMY; i++)
@@ -75,6 +76,7 @@ void appUpdate(App *app)
         if (igIsKeyPressed(ImGuiKey_P, 0))
             en[MAX_ENEMY - 1].status = ADULT;
 
+        if (igIsKeyPressed(ImGuiKey_L, 0))
         {
             printf("[ en status: ");
             for (int i = 0; i < MAX_ENEMY; ++i)
