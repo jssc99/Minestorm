@@ -17,6 +17,7 @@ typedef struct Sat
     float min;
     float max;
 } Sat;
+
 bool SAT_collision_SAT(Point2 poly1[], int sidesP1, Point2 poly2[], int sidesP2);
 bool sphere_collision_SAT(Point2 center, float radius, Point2 poly[], int nbSegments);
 Sat generate_SAT(Point2 p[], int nbSummit, int nbSegments);

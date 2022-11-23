@@ -8,18 +8,18 @@
 
 typedef struct App
 {
-    bool closeApp;
-    bool debugMenu;
-    int width;
-    int height;
+    CvTexture backg;
     Point2 maxScreen;
     ImFont *font;
-    CvTexture backg;
+    int width;
+    int height;
+    bool closeApp;
+    bool debugMenu;
 
-    // enemy debug
-    int id;
+    // enemy debug    
     bool movePointE;
     bool movePointP;
+    int id;
 } App;
 
 void appInit(App *app);

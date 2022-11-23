@@ -2,37 +2,34 @@
 #include "enemy.h"
 
 #define drawList igGetBackgroundDrawList_Nil()
-
 void debug_menu_player(Player *p, bool debugMenu)
 {
     igBegin("Player", &debugMenu, ImGuiWindowFlags_None);
     igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
     igText("Lives = %d", p->lives);
     igText("Speed = %f", p->speed);
-    if (DEBUG_PHYSIC && igButton("Display axis", (ImVec2){0, 0}))
+    if (DEBUG_PHYSIC)
+    { // && igButton("Display axis", (ImVec2){0, 0}))
         p->displayAxis = !p->displayAxis;
-    if (DEBUG_PHYSIC && igButton("Display speed", (ImVec2){0, 0}))
+        // if (igButton("Display speed", (ImVec2){0, 0}))
         p->displaySpeed = !p->displaySpeed;
-    if (DEBUG_PHYSIC && igButton("Display inertia", (ImVec2){0, 0}))
+        // if (igButton("Display inertia", (ImVec2){0, 0}))
         p->displayInertia = !p->displayInertia;
-    if (DEBUG_PHYSIC && igButton("Display sphere", (ImVec2){0, 0}))
+        // if (igButton("Display sphere", (ImVec2){0, 0}))
         p->displaySSphere = !p->displaySSphere;
-    if (DEBUG_PHYSIC && igButton("Collision Tests", (ImVec2){0, 0}))
+        // if (igButton("Collision Tests", (ImVec2){0, 0}))
         p->collisionTests = !p->collisionTests;
-
+    }
     igEnd();
 }
 // Spawn player at Point (x,y)
 void player_spawn(Player *p, float x, float y)
 {
     p->axis = (Axis2){{x, y},
-                      {0, -1},
-                      {1, 0}};
+                      {0, -p->size / 25.f}, // 25 px is the base size of the ship
+                      {p->size / 25.f, 0}};
     p->inertia = (Vector2){0, 0};
     p->speed = 0;
-    // p->moveLine = multVector2(p->axis.x, p->size);
-    p->axis.x = multVector2(p->axis.x, p->size / 25.f); // 25 px is the base size of the ship
-    p->axis.y = multVector2(p->axis.y, p->size / 25.f);
     p->moveLine = p->axis.x;
     p->targetLine = p->moveLine;
 }
@@ -44,8 +41,6 @@ Player player_init(float x, float y, float size)
     p.size = size;
     p.spawnPoint = (Point2){x, y};
     player_spawn(&p, x, y);
-    // p.axis.x = multVector2(p.axis.x, p.size / 25.f); // 25 px is the base size of the ship
-    // p.axis.y = multVector2(p.axis.y, p.size / 25.f);
     return p;
 }
 
@@ -66,7 +61,7 @@ void init_points_player(Player *p)
         translatePoint2(origin, multVector2(axeY, -12.f)),                                       // Tail   {0,-12}
         translatePoint2(origin, addVector2(multVector2(axeX, +4.2f), multVector2(axeY, -07.f))), //        {4.2,7}
         translatePoint2(origin, addVector2(multVector2(axeX, +15.f), multVector2(axeY, -20.f))), //        {15,20}
-        translatePoint2(origin, multVector2(axeX, 8.f)),                                         //        {0, 8}
+        translatePoint2(origin, multVector2(axeX, 8.f)),                                         //        {0,8}
         translatePoint2(origin, multVector2(axeX, 5.f))};                                        //        {0, 5}
 
     for (int i = 0; i < 10; i++)
@@ -82,19 +77,20 @@ void rotate_player(Player *p, float angle)
 // Fire a bullet
 void fire_bullet(Player *p, float deltaTime, Point2 maxScreen)
 {
-    if (p->firecd > 0.25)
+    if (p->firecd > 0.25) // 4 bullets/seconds max
     {
         for (int i = 0; i < MAX_BULLETS; i++)
         {
             if (p->bullets[i].lifespan == 0)
             {
-                p->bullets[i] = init_bullet(*p);
+                p->bullets[i] = init_bullet(*p, maxScreen);
                 break;
             }
         }
         p->firecd = 0;
     }
 }
+
 // Update the player each frame
 void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy *e)
 {
@@ -115,134 +111,49 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy 
         // Collisions
         poly_collision_border_replace(p->shape, &p->axis.origin, 10, p->size, maxScreen);
 
-        // else
-        {
-            // p->targetLine = p->axis.x; // multVector2(addVector2(p->axis.x,p->axis.y), 0.5);
-            p->moveLine = multVector2(p->axis.x, p->size);
-            p->targetLine = p->moveLine;
-            // Deceleration
-            p->speed = normVector2(p->inertia);
-            p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
-            // p->speed *= DECELERATION;
-            // Displacement
-            p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
-        }
-        update_bullet(p, deltaTime, maxScreen);
-        p->firecd += deltaTime;
-        p->tpcd += deltaTime;
-        init_points_player(p);
+        p->moveLine = multVector2(p->axis.x, p->size);
+        p->targetLine = p->moveLine;
+        // Deceleration
+        p->speed = normVector2(p->inertia);
+        p->inertia = multVector2(p->inertia, 1 - DECELERATION * deltaTime);
+        // Displacement
+        p->axis = translateAxis2(p->axis, multVector2(p->inertia, deltaTime));
     }
+    update_bullet(p, deltaTime, maxScreen);
+    p->firecd += deltaTime;
+    p->tpcd += deltaTime;
+    init_points_player(p);
 }
 
 // Collision player with enemy
 // test collision mine
 bool player_collision_enemy(Player *p, Enemy *e)
 {
-    // Player player = *p;
     if (e->status != ADULT)
         return false;
-    // bool outside;
     Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
-    Point2 largeMine[5];
     Point2 smallParts[4][3] = {{p->shape[0], p->shape[1], p->shape[9]},    // ARROW
                                {p->axis.origin, p->shape[2], p->shape[3]}, // LEFTWING
                                {p->axis.origin, p->shape[7], p->shape[8]}, // RIGHTWING
                                {p->shape[1], p->shape[5], p->shape[9]}};   // TAIL
-    Point2 mineParts[5][3];
-
     if (sphere_collision_sphere(p->axis.origin, p->size, e->location.origin, get_max_size(e->size, e->type)))
     {
         switch (e->type)
         {
         case (FIREBALL):
-            for (int i = 0; i < 4; i++)
-                if (sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), smallParts[i], 3))
-                {
-                    return true;
-                }
-            break;
+            if (sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), largeBody, 3))
+                for (int i = 0; i < 4; i++)
+                    return sphere_collision_SAT(e->location.origin, get_max_size(e->size, e->type), smallParts[i], 3);
         case (FLOATING):
             return player_collision_floating(p, e);
-            /*    largeMine[0] = e->points[0];
-                largeMine[1] = e->points[2];
-                largeMine[2] = e->points[4];
-                if (SAT_collision_SAT(largeMine, 3, largeBody, 3))
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        mineParts[i][0] = e->points[i * 2];
-                        mineParts[i][1] = e->points[i * 2 + 1];
-                        mineParts[i][2] = e->points[(i * 2 + 2) % 6];
-                    }
-                    for (int i = 0; i < 3 && !outside; i++)
-                    {
-                        for (int j = 0; j < 3 && !outside; j++)
-                            outside = SAT_collision_SAT(smallParts[i], 3, mineParts[j], 3);
-                    }
-                    if (!outside)
-                        collision = true;
-                }*/
-            break;
         case (MAGNET_FIRE):
             return player_collision_mf_mine(p, e);
-            break;
         case (MINELAYER):
             return player_collision_minelayer(p, e);
-            /*
-                for (int i = 0; i < 5; i++)
-                    largeMine[i] = e->points[i];
-                if (SAT_collision_SAT(largeMine, 5, largeBody, 3))
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        mineParts[1][i] = e->points[i + 1];
-                        mineParts[2][i] = e->points[i + 3];
-                        mineParts[3][i] = e->points[i + 4];
-                        mineParts[4][i] = e->points[(i + 7) % 9];
-                    }
-                    for (int i = 0; i < 3; i++)
-                    {
-                        for (int j = 0; j < 3; j++)
-                            if (SAT_collision_SAT(smallParts[i], 3, mineParts[2 - j], 3))
-                            {
-                                return true;
-                                break;
-                            }
-                    }
-                    break;
-                }*/
-            break;
         default:
             return player_collision_square_mine(p, e);
-            /*for (int i = 0; i < 4; i++)
-                largeMine[i] = e->points[2 * i];
-            if (SAT_collision_SAT(largeMine, 4, largeBody, 3))
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    mineParts[i][0] = e->points[i * 2];
-                    mineParts[i][1] = e->points[i * 2 + 1];
-                    mineParts[i][2] = e->points[(i * 2 + 2) % 6];
-                }
-                for (int i = 0; i < 3 && !outside; i++)
-                {
-                    for (int j = 0; j < 4 && !outside; j++)
-                        outside = SAT_collision_SAT(smallParts[i], 3, mineParts[j], 4);
-                    if (outside)
-                        break;
-                }
-                if (!outside)
-                    collision = true;
-            }*/
-            break;
         }
-    } /*
-     if (collision)
-     {
-         player_spawn(p, p->spawnPoint.x, p->spawnPoint.y);
-         p->lives--;
-         e->status = DEAD;
-     }*/
+    }
     return false;
 }
 
@@ -260,10 +171,10 @@ bool player_collision_floating(Player *p, Enemy *e)
     {
         for (int i = 0; i < 3; i++)
         {
-            mineParts[3][i] = e->points[i * 2 + 1]; // Internal triangle
-            mineParts[i][0] = e->points[i * 2 + 1];
-            mineParts[i][1] = e->points[(i * 2 + 2) % 6];
-            mineParts[i][2] = e->points[(i * 2 + 3) % 6];
+            mineParts[3][i] = e->points[i * 2 + 1];       // Internal triangle
+            mineParts[i][0] = e->points[i * 2 + 1];       //
+            mineParts[i][1] = e->points[(i * 2 + 2) % 6]; // External triangles
+            mineParts[i][2] = e->points[(i * 2 + 3) % 6]; //
         }
         for (int i = 0; i < 3; i++)
         {
@@ -285,14 +196,13 @@ bool player_collision_minelayer(Player *p, Enemy *e)
                                {p->shape[1], p->shape[5], p->shape[9]}};   // TAIL
     Point2 largeMine[5] = {e->points[0], e->points[2], e->points[3], e->points[6], e->points[7]};
     Point2 mineParts[3][3];
-    // Point2 internalRectangle[4] = {e->points[2], e->points[4], e->points[5], e->points[7]};
     if (SAT_collision_SAT(largeMine, 5, largeBody, 3))
     {
         for (int i = 0; i < 3; i++)
         {
-            mineParts[0][i] = e->points[3 + i];
-            mineParts[1][i] = e->points[i + 1];
-            mineParts[2][i] = e->points[i + 6];
+            mineParts[0][i] = e->points[3 + i]; // Big triangle centered
+            mineParts[1][i] = e->points[i + 1]; // Left wing
+            mineParts[2][i] = e->points[i + 6]; // Right Wing
         }
         mineParts[0][0] = e->points[0];
         for (int i = 0; i < 3; i++)
@@ -300,8 +210,6 @@ bool player_collision_minelayer(Player *p, Enemy *e)
             for (int j = 0; j < 3; j++)
                 if (SAT_collision_SAT(smallParts[i], 3, mineParts[j], 3))
                     return true;
-            // if (SAT_collision_SAT(smallParts[i], 3, internalRectangle, 4))
-            //   return true;
         }
     }
     return false;
@@ -328,9 +236,6 @@ bool player_collision_square_mine(Player *p, Enemy *e)
             mineParts[i][0] = e->points[(2 * i + 1)];
             mineParts[i][1] = e->points[(2 * i + 2) % 8];
             mineParts[i][2] = e->points[(2 * i + 3) % 8];
-            //            mineParts[i][0] = e->points[i * 2];
-            //          mineParts[i][1] = e->points[i * 2 + 1];
-            //        mineParts[i][2] = e->points[(i * 2 + 2) % 6];
         }
         for (int i = 0; i < 3; i++)
         {
@@ -379,13 +284,13 @@ bool player_collision_mf_mine(Player *p, Enemy *e)
 }
 
 // Create a bullet
-Bullet init_bullet(Player p)
+Bullet init_bullet(Player p, Point2 maxScreen)
 {
     Bullet b;
     b.direction = multVector2(p.targetLine, 1 + (p.speed / MAX_SPEED_SHIP)); // Keeps the ship's speed
     b.location = addVector2(p.axis.origin, p.targetLine);
-    b.size = p.size / 10;
-    b.lifespan = (800 / p.size) * 4 / 5;
+    b.size = p.size / 6;
+    b.lifespan = (maxScreen.y / p.size) * 4 / 5;
     return b;
 }
 
@@ -422,7 +327,11 @@ bool bullet_collision_enemy(Bullet *b, Enemy *e)
         switch (e->type)
         {
         case (FIREBALL):
-            return sphere_collision_sphere(e->location.origin, get_max_size(e->size, e->type), b->location, b->size);
+            if (sphere_collision_sphere(e->location.origin, get_max_size(e->size, e->type), b->location, b->size))
+            {
+                b->lifespan = 0;
+                return true;
+            }
         case (FLOATING):
             return bullet_collision_floating(b, e);
         case (MAGNET_FIRE):
@@ -453,7 +362,10 @@ bool bullet_collision_floating(Bullet *b, Enemy *e)
         }
         for (int i = 0; i < 4; i++)
             if (sphere_collision_SAT(b->location, b->size, mineParts[i], 3))
+            {
+                b->lifespan = 0;
                 return true;
+            }
     }
     return false;
 }
@@ -477,8 +389,10 @@ bool bullet_collision_minelayer(Bullet *b, Enemy *e)
         for (int i = 0; i < 3; i++)
         {
             if (sphere_collision_SAT(b->location, b->size, mineParts[i], 3))
+            {
+                b->lifespan = 0;
                 return true;
-            // if (SAT_collision_SAT(smallParts[i], 3, internalRectangle, 4))
+            } // if (SAT_collision_SAT(smallParts[i], 3, internalRectangle, 4))
             //   return true;
         }
     }
@@ -509,10 +423,16 @@ bool bullet_collision_square_mine(Bullet *b, Enemy *e)
         for (int i = 0; i < 4; i++)
         {
             if (sphere_collision_SAT(b->location, b->size, mineParts[i], 4))
+            {
+                b->lifespan = 0;
                 return true;
+            }
         }
         if (sphere_collision_SAT(b->location, b->size, interior_square, 4))
+        {
+            b->lifespan = 0;
             return true;
+        }
     }
     return false;
 }
@@ -536,7 +456,10 @@ bool bullet_collision_mf_mine(Bullet *b, Enemy *e)
         for (int i = 0; i < 4; i++)
         {
             if (sphere_collision_SAT(b->location, b->size, mineParts[i], 4))
+            {
+                b->lifespan = 0;
                 return true;
+            }
         }
     }
     return false;
@@ -565,7 +488,16 @@ bool bullet_collision_player(Player *p1, Player *p2)
     }
     return false;
 }
-
+// Reset the bullets (*p2 = NULL if 1p game)
+void bullet_terminate(Player *p1, Player *p2)
+{
+    for (int i = 0; i < MAX_BULLETS; i++)
+    {
+        p1->bullets[i].lifespan = 0;
+        if (!p2)
+            p2->bullets[i].lifespan = 0;
+    }
+}
 // Turn the player to the left igIsKeyDown(ImGuiKey_D)
 void turnleft_player(Player *p, float deltaTime)
 {
