@@ -31,6 +31,8 @@ void appUpdate(App *app)
     {
         ImGuiIO *io = igGetIO();
         Point2 mouse;
+        draw_debug_player(&p1);
+        draw_debug_player(&p2);
 
         igCheckbox("Move center of en with mouse (right click)", &app->movePointE);
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
@@ -181,7 +183,7 @@ void appUpdate(App *app)
         g.cptDelta = 0.f;
         update_pos_all_enemy(en, MAX_ENEMY, p1.axis.origin);
         draw_all_enemy(en, MAX_ENEMY);
-        //save_game();
+        // save_game();
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = MAIN;
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
