@@ -252,10 +252,10 @@ void test_collision(Player player1, ImVec2 mousePos)
     /*
     Point2 quad[4] = {{390.f, 350.f}, {410.f, 440.f}, {520.f, 440.f}, {540.f, 380.f}};
     Point2 triangle[3] = {{520.f, 390.f}, {480.f, 390.f}, {500.f, 430.f}};
-    Point2 poly[6] = {{480.f, 320.f}, {410.f, 350.f}, {390.f, 400.f}, {410.f, 440.f}, {520.f, 470.f}, {540.f, 380.f}};
+    */Point2 poly[6] = {{480.f, 320.f}, {410.f, 350.f}, {390.f, 400.f}, {410.f, 440.f}, {520.f, 470.f}, {540.f, 380.f}};
     for (int i = 0; i < 6; i++)
     {
-        poly[i] = rotatePoint2((Point2){500, 400}, poly[i], M_PI / 6);
+        poly[i] = rotatePoint2((Point2){500, 400}, poly[i], M_PI / 3);
     }
 
     Point2 poly_[6];
@@ -271,6 +271,7 @@ void test_collision(Player player1, ImVec2 mousePos)
     {
         cvAddLine(poly_m[i].x, poly_m[i].y, poly_m[(i + 1) % 6].x, poly_m[(i + 1) % 6].y, CV_COL32(255, 0, 0, 255));
     }
+    /*
     draw_circle(NULL, circumcenterTriangle(triangle[1], triangle[2], triangle[0]), 50, 4 * 3 * sqrtf(3), 0, CV_COL32(0, 0, 255, 255));
         for (int i = 0; i < 4; i++)
             {
@@ -307,9 +308,9 @@ void test_collision(Player player1, ImVec2 mousePos)
                       || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, rightWing, 3) //
                       || sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, tail, 3));
                       */
-    // bool collision = SAT_collision_SAT(poly_m, 6, poly, 6);
+    bool collision = SAT_collision_SAT(largeBody, 3, poly_m, 6);
     // bool collision = sphere_collision_rectangle((Point2){mousePos.x, mousePos.y}, 20, 0, 0, 700, 800);
-     bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, carre, 4);
+    // bool collision = sphere_collision_SAT((Point2){mousePos.x, mousePos.y}, 2, largeBody, 3);
     /*for (int i = 0; i < 3; i++)
     {
         printf("Points [%d], = (%f,%f)\n", i, player1.shape[i].x, player1.shape[i].y);
