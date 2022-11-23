@@ -129,17 +129,13 @@ void appUpdate(App *app)
                 if ((int)en[MAX_ENEMY - 1].location.origin.y == 200 ||
                     (int)en[MAX_ENEMY - 1].location.origin.y == 400 ||
                     (int)en[MAX_ENEMY - 1].location.origin.y == 600)
-                {
                     for (int i = 0; i < MAX_ENEMY - 1; i++)
-                    {
                         if (!found && en[i].status == DEAD)
                         {
                             en[i] = init_enemy(en[MAX_ENEMY - 1].location.origin, FLOATING, SMALL);
                             en[i].status = ADULT;
                             found = true;
                         }
-                    }
-                }
             }
         }
         else
@@ -185,6 +181,7 @@ void appUpdate(App *app)
         g.cptDelta = 0.f;
         update_pos_all_enemy(en, MAX_ENEMY, p1.axis.origin);
         draw_all_enemy(en, MAX_ENEMY);
+        //save_game();
         if (igIsKeyPressed(ImGuiKey_Space, 0))
             g.menu = MAIN;
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
