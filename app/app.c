@@ -32,9 +32,13 @@ void appUpdate(App *app)
     {
         ImGuiIO *io = igGetIO();
         Point2 mouse;
+        debug_menu_player(&p1, 1);
         draw_debug_player(&p1);
-        draw_debug_player(&p2);
-
+        if (g.is_p2 == true)
+        {
+            debug_menu_player(&p2, 2);
+            draw_debug_player(&p2);
+        }
         igCheckbox("Move center of en with mouse (right click)", &app->movePointE);
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
         igSliderInt("level", &g.level, 0, 30, "%d", 0);
@@ -51,6 +55,7 @@ void appUpdate(App *app)
             {
                 ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, (ImVec2){en[i].location.origin.x + 20 * en[i].location.x.x, en[i].location.origin.y + 20 * en[i].location.x.y}, CV_COL32(255, 0, 0, 200), 2.0f);
                 ImDrawList_AddLine(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, (ImVec2){en[i].location.origin.x + 20 * en[i].location.y.x, en[i].location.origin.y + 20 * en[i].location.y.y}, CV_COL32(0, 255, 0, 200), 2.0f);
+                ImDrawList_AddCircle(igGetBackgroundDrawList_Nil(), (ImVec2){en[i].location.origin.x, en[i].location.origin.y}, get_max_size(en[i].size, en[i].type), CV_COL32(255, 255, 255, 200), 50, 0.5f);
             }
 
         if (igIsMouseClicked(ImGuiMouseButton_Right, 0))

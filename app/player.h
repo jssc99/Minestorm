@@ -38,16 +38,15 @@ typedef struct Player
     float firecd;
     float tpcd;
     int lives;
-    bool displayAxis;
-    bool displaySpeed;
-    bool displayInertia;
-    bool displaySSphere;
+    bool hideAxis;
+    bool hideSpeed;
+    bool hideInertia;
+    bool hideSSphere;
     bool collisionTests;
     
 } Player;
 
 // Draw
-void draw_circle(Point2 *cBox, Point2 center, unsigned int sides, float radius, float angleOffset, unsigned int color);
 void draw_player(Player p, int playerNb);
 void draw_debug_player(Player *p);
 void draw_bullet(Point2 center, float radius, unsigned int color);
@@ -55,16 +54,16 @@ void draw_players_bullets(Player *p);
 
 // Player
 Player player_init(float x, float y, float size);
-void init_points_player(Player *p);
 void player_spawn(Player *p, float x, float y);
 void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *e);
-void rotate_player(Player *p, float angle);
+void init_points_player(Player *p);
 void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy* e);
+void rotate_player(Player *p, float angle);
 void turnleft_player(Player *p, float deltaTime);
 void turnright_player(Player *p, float deltaTime);
 void accelerate_player(Player *p, float deltaTime);
 void teleport_player(Player *p, Point2 maxScreen, Enemy* e);
-void debug_menu_player(Player *p, bool debugMenu);
+void debug_menu_player(Player *p, int playerNumber);
 
 // Bullet
 Bullet init_bullet(Player p, Point2 maxScreen);
