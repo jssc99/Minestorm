@@ -79,7 +79,7 @@ void p_col_en(Player *p, Enemy *en)
 }
 
 // if a bullet collisions an enemy
-void b_col_en(Bullet *b, Enemy *en, int *score)
+void b_col_en(Enemy *en, int *score)
 { // /!\ USELESS PARAMETER
     *score += en->deathScore;
     if (en->size == BIG)
@@ -120,7 +120,7 @@ void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
 
             for (int j = 0; j < MAX_BULLETS; j++)
                 if (p1->bullets[j].lifespan > 0 && bullet_collision_enemy(&p1->bullets[j], &en[i]))
-                    b_col_en(&p1->bullets[j], &en[i], score);
+                    b_col_en(&en[i], score);
         }
     if (p2 && (p2->lives > 0))
     {
@@ -131,7 +131,7 @@ void test_all_collision(Enemy en[], Player *p1, Player *p2, int *score)
 
             for (int j = 0; j < MAX_BULLETS; j++)
                 if (p2 && p2->bullets[j].lifespan > 0 && bullet_collision_enemy(&p2->bullets[j], &en[i]))
-                    b_col_en(&p2->bullets[j], &en[i], score);
+                    b_col_en(&en[i], score);
         }
         if (p1->lives > 0)
         {
@@ -175,10 +175,12 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
         {
             for (int i = 0; i < MAX_ENEMY; i++)
                 if (en[i].status == ADULT)
+                {
                     if (i % 2)
                         update_pos_any_enemy(&en[i], p1->axis.origin);
                     else
                         update_pos_any_enemy(&en[i], p2->axis.origin);
+                }
         }
         else
             update_pos_all_enemy(en, MAX_ENEMY, p2->axis.origin);
