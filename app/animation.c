@@ -27,19 +27,20 @@ void anim_right_thruster(Player p)
 
 void anim_booster(Player p)
 {
-    Point2 leftBooster  = p.shape[4]; 
+    Point2 leftBooster = p.shape[4];
     Point2 rightBooster = p.shape[6];
-    Point2 extBooster = homothetyPoint2(p.shape[0],p.axis.origin, -1); //(p.shape[5], multVector2(p.axis.x, -p.size));
+    Point2 extBooster = homothetyPoint2(p.shape[0], p.axis.origin, -1); //(p.shape[5], multVector2(p.axis.x, -p.size));
     draw_thruster(leftBooster, rightBooster, extBooster);
 }
 
 void anim_explode(Point2 origin, float maxsize, float deltaTime)
 {
     float ct = 0;
-    ct += deltaTime;
-    draw_bullet(origin, maxsize * deltaTime,CV_COL32(255, (int)(255 * ct), 0, 255));
-    while(ct <=1)
-    anim_explode(origin, maxsize, deltaTime);
+    while (ct <= 1)
+    {
+        draw_bullet(origin, maxsize * deltaTime, CV_COL32(255, (int)(255 * ct), 0, 255));
+        ct += deltaTime;
+    }
 }
 // TODO : lerp for color change with deltaTime (alpha for blinking)
 // Explosions
