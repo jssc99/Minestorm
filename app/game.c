@@ -80,7 +80,7 @@ void p_col_en(Player *p, Enemy *en)
 
 // if a bullet collisions an enemy
 void b_col_en(Bullet *b, Enemy *en, int *score)
-{             // /!\ USELESS PARAMETER
+{ // /!\ USELESS PARAMETER
     *score += en->deathScore;
     if (en->size == BIG)
     {
@@ -170,33 +170,18 @@ void update_game(Enemy en[], Player *p1, Player *p2, float deltaTime, float cptD
         update_player(p1, deltaTime, (Point2){700, 800}, 0, en);
     if (p2 && (p2->lives > 0))
     {
-        update_player(p2, deltaTime, (Point2){700, 800}, 1, en); /*
-         Enemy *split[50] = {0}, *split2[50] = {0};
-         for (int i = 0, j = 0; i < MAX_ENEMY; j++, i += 2)
-         {
-             split[j] = &en[i];
-             if (i + 1 != MAX_ENEMY + 1)
-                 split2[j] = &en[i + 1];
-         }
-                     // MARCHE MAL
-         printf("[ ");
-         for (int i = 0; i < MAX_ENEMY / 2; ++i)
-             printf("%.1f%s", split[i]->points[i].x, (i < MAX_ENEMY / 2 - 1) ? ", " : " ");
-         printf("]\n");
-         printf("[ ");
-         for (int i = 0; i < MAX_ENEMY / 2; ++i)
-             printf("%.1f%s", split2[i]->points[i].x, (i < MAX_ENEMY / 2 - 1) ? ", " : " ");
-         printf("]\n");
-
-         update_pos_all_enemy(*split, (MAX_ENEMY - 1) / 2 + 1, p1->axis.origin); // +1 minelayer
-         update_pos_all_enemy(*split2, (MAX_ENEMY - 1) / 2, p2->axis.origin);
-         printf("[ ");
-         for (int i = 0; i < MAX_ENEMY; ++i)
-             printf("%.1f%s", en[i].points[i].x, (i < MAX_ENEMY - 1) ? ", " : " ");
-         printf("]\n");*/
-                                                                 // temp solution not great
-        update_pos_all_enemy(en, (MAX_ENEMY - 1) / 2, p1->axis.origin);
-        update_pos_all_enemy(en + ((MAX_ENEMY - 1) / 2), (MAX_ENEMY - 1) / 2 + 1, p2->axis.origin);
+        update_player(p2, deltaTime, (Point2){700, 800}, 1, en);
+        if (p1->lives > 0)
+        {
+            for (int i = 0; i < MAX_ENEMY; i++)
+                if (en[i].status == ADULT)
+                    if (i % 2)
+                        update_pos_any_enemy(&en[i], p1->axis.origin);
+                    else
+                        update_pos_any_enemy(&en[i], p2->axis.origin);
+        }
+        else
+            update_pos_all_enemy(en, MAX_ENEMY, p2->axis.origin);
     }
     else
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
@@ -216,4 +201,17 @@ void draw_loop(Enemy en[], Player *p1, Player *p2)
         draw_player(*p2, 2);
         draw_players_bullets(p2);
     }
+}
+
+// saves game score to .txt file
+void save_game(int score)
+{
+    FILE *save = fopen("score.txt", "w");
+    if (save == NULL)
+    {
+        printf("error saving game\n");
+        return;
+    }
+    fprintf(save, "score : %d", score);
+    fclose(save);
 }
