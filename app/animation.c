@@ -42,6 +42,8 @@ void anim_explode(Point2 origin, float maxsize, float deltaTime)
         ct += deltaTime;
     }
 }
+
+//WIP
 // TODO : lerp for color change with deltaTime (alpha for blinking)
 // Explosions
 // Dismemberment ship

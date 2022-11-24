@@ -10,7 +10,7 @@
 
 static bool DEBUG_PHYSIC;
 
-// SQT
+// SAT
 typedef struct Sat
 {
     Vector2 normal;
