@@ -16,10 +16,8 @@ typedef struct App
     int height;
     bool closeApp;
     bool debugMenu;
-
-    // enemy debug    
     bool movePointE;
-    bool movePointP;
+    bool hideSAT;
     int id;
 } App;
 

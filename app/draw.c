@@ -4,7 +4,7 @@
 #define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include <cimgui.h>
 
-#define GREY igGetColorU32_Vec4(((ImVec4){0.5f, 0.5f, 0.5f, 1.0f})) //Real Grey, before was transparent white
+#define GREY igGetColorU32_Vec4(((ImVec4){0.5f, 0.5f, 0.5f, 1.0f}))
 #define WHITE igGetColorU32_Vec4(((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}))
 #define PLAYER1 igGetColorU32_Vec4(((ImVec4){0.0f, 0.8f, 1.0f, 1.0f}))
 #define PLAYER2 igGetColorU32_Vec4(((ImVec4){0.0f, 1.0f, 0.5f, 1.0f}))
@@ -104,17 +104,11 @@ void draw_player(Player p, int playerId)
 // Draw player's axis an collision box
 void draw_debug_player(Player *p)
 {
-    Point2 origin = p->axis.origin;
-    Point2 x = addVector2(origin, multVector2(p->axis.x, p->size * 2.0));
-    Point2 y = addVector2(origin, multVector2(p->axis.y, p->size * 2.0));
-    Point2 z = addVector2(origin, multVector2(p->inertia, p->size * 2 / MAX_SPEED_SHIP));
-    Point2 dz = addVector2(p->shape[0], multVector2(p->moveLine, p->speed * 2 / MAX_SPEED_SHIP));
     if (p->lives > 0)
     {
-        if (!p->hideInertia)
-            ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){z.x, z.y}, CV_COL32(255, 0, 255, 200), 2.0f); //  inertia
-        if (!p->hideSpeed)
-            ImDrawList_AddLine(DRAW_LIST, (ImVec2){p->shape->x, p->shape->y}, (ImVec2){dz.x, dz.y}, CV_COL32(0, 0, 255, 200), 2.0f); // speed * moveline
+        Point2 origin = p->axis.origin;
+        Point2 x = addVector2(origin, multVector2(p->axis.x, p->size * 2.0));
+        Point2 y = addVector2(origin, multVector2(p->axis.y, p->size * 2.0));
         if (!p->hideAxis)
         {
             ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){x.x, x.y}, CV_COL32(255, 0, 0, 200), 2.0f); // X axis aka targetline *2
@@ -122,12 +116,22 @@ void draw_debug_player(Player *p)
         }
         if (!p->hideSSphere)
             ImDrawList_AddCircle(DRAW_LIST, (ImVec2){origin.x, origin.y}, p->size, CV_COL32(255, 255, 255, 200), 50, 0.5f); // Surrounding sphere
-        Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
-        if (p->displayCollisionBox)
+        if (!p->displayCollisionBox)
         {
+            Point2 largeBody[3] = {p->shape[0], p->shape[3], p->shape[7]};
             for (int i = 0; i < 3; i++)
                 PathLineTo_point2(largeBody[i]);
             ImDrawList_PathStroke(DRAW_LIST, CV_COL32(255, 255, 255, 200), ImDrawFlags_Closed | ImDrawFlags_RoundCornersAll, 1.5f);
+        }
+        if (!p->hideInertia)
+        {
+            Point2 z = addVector2(origin, multVector2(p->inertia, p->size * 2 / MAX_SPEED_SHIP));
+            ImDrawList_AddLine(DRAW_LIST, (ImVec2){origin.x, origin.y}, (ImVec2){z.x, z.y}, CV_COL32(255, 0, 255, 200), 2.0f); //  inertia
+        }
+        if (!p->hideSpeed)
+        {
+            Point2 dz = addVector2(p->shape[0], multVector2(p->moveLine, p->speed * 3 / MAX_SPEED_SHIP));
+            ImDrawList_AddLine(DRAW_LIST, (ImVec2){p->shape->x, p->shape->y}, (ImVec2){dz.x, dz.y}, CV_COL32(0, 0, 255, 200), 2.0f); // speed * moveline
         }
     }
 }

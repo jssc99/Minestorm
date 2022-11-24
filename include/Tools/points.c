@@ -62,7 +62,7 @@ Point2 oppPoint2(Point2 p)
 // Create a point in the middle of '[p1,p2]'
 Point2 midPoint2(Point2 p1, Point2 p2)
 {
-    Point2 p3 = {(p2.x + p1.x) / 2, (p2.y + p1.y) / 2};
+    Point2 p3 = {(p2.x + p1.x) / 2.f, (p2.y + p1.y) / 2.f};
     if (DEBUG_POINTS == 1)
     {
         printf("New/Set/Reset Point2 = (%.2f , %.2f)\n", p3.x, p3.y);

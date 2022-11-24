@@ -1,7 +1,6 @@
 #include "player.h"
 #include "enemy.h"
 
-
 // Initialize Player at position(x,y) First time think about setting lives to 3.
 Player player_init(float x, float y, float size)
 {
@@ -104,7 +103,7 @@ void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy 
     init_points_player(p);
 }
 
-//INPUTS
+// INPUTS
 
 // Rotate the player
 void rotate_player(Player *p, float angle)
@@ -116,13 +115,14 @@ void rotate_player(Player *p, float angle)
 void turnleft_player(Player *p, float deltaTime)
 {
     rotate_player(p, -M_PI * deltaTime);
-    void anim_left_thruster(Player *p);
+    anim_right_thruster(*p);
 }
 
 // Turn the player to the right
 void turnright_player(Player *p, float deltaTime)
 {
     rotate_player(p, M_PI * deltaTime);
+    anim_left_thruster(*p);
 }
 
 // Add ACCELERATION to speed
@@ -136,6 +136,7 @@ void accelerate_player(Player *p, float deltaTime)
         p->inertia = multVector2(p->inertia, MAX_SPEED_SHIP / p->speed);                       // Re-Calculate to keep Max Speed
     p->inertia = addVector2(p->inertia, multVector2(p->targetLine, ACCELERATION * deltaTime)); // Update inertia
     p->moveLine = p->targetLine;
+    anim_booster(*p);
 }
 
 // Teleport player at a random position, should check the collisions first
@@ -153,9 +154,11 @@ void teleport_player(Player *p, Point2 maxScreen, Enemy *e)
 }
 
 // Opens a window to debug Player
-void debug_menu_player(Player *p, int playerNumber)
+void debug_menu_player(Player *p, char playerNumber)
 {
-    igBegin("Player", 0, ImGuiWindowFlags_None);
+    char txtTmp[50];
+    sprintf(txtTmp, "Player %d", playerNumber);
+    igBegin(txtTmp, NULL, ImGuiWindowFlags_None);
     igText("Player%d", playerNumber);
     igText("Pos : (%f,%f)", p->axis.origin.x, p->axis.origin.y);
     igText("Lives = %d", p->lives);
@@ -168,8 +171,6 @@ void debug_menu_player(Player *p, int playerNumber)
         p->hideInertia = !p->hideInertia;
     if (igButton("hide sphere", (ImVec2){0, 0}))
         p->hideSSphere = !p->hideSSphere;
-    if (igButton("Collision Tests", (ImVec2){0, 0}))
-        p->displayCollisionBox = !p->displayCollisionBox;
     igEnd();
 }
 
