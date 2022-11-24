@@ -54,6 +54,8 @@ void appUpdate(App *app)
         igText("Press 'p' to spawn minelayer");
         igText("Press 'l' to print status of all enemies");
         igText("Use mousewheel to change size");
+        if (igButton("kill all expect minelayer", (ImVec2){0, 0}))
+            kill_all_enemy(en, MAX_ENEMY - 1);
 
         for (int i = 0; i < MAX_ENEMY; i++)
             if (en[i].status == ADULT)
@@ -118,7 +120,7 @@ void appUpdate(App *app)
             p2->lives = 0;
             init_game(p1, p2, en, g.level);
             p1->lives = 3;
-            p2->lives = 3; //Seg fault
+            p2->lives = 3; // Seg fault
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
@@ -135,7 +137,7 @@ void appUpdate(App *app)
             if (how_many_e_child(en, MAX_ENEMY - 1) == 0 && en[MAX_ENEMY - 1].status == CHILD)
                 en[MAX_ENEMY - 1].status = ADULT;
             if (en[MAX_ENEMY - 1].status == ADULT)
-                minelayer_spawner(&en[MAX_ENEMY - 1], en, p1->axis.origin);
+                minelayer_spawner(en, en[MAX_ENEMY - 1].location.origin);
         }
         else
         {
@@ -149,18 +151,6 @@ void appUpdate(App *app)
             g.menu = PAUSE;
         break;
 
-    case SUCCESS:
-        if (igIsKeyPressed(ImGuiKey_Space, 0))
-        {
-            g.cptDelta = 0.f;
-            bullets_terminate(p1, p2);
-            init_game(p1, p2, en, g.level);
-            g.menu = IN_GAME;
-        }
-        else if (igIsKeyPressed(ImGuiKey_Escape, 0))
-            g.menu = MAIN;
-        break;
-
     case PAUSE:
         draw_loop(en, p1, p2);
 
@@ -170,13 +160,30 @@ void appUpdate(App *app)
             g.menu = MAIN;
         break;
 
+    case SUCCESS:
+        if (igIsKeyPressed(ImGuiKey_Space, 0))
+        {
+            g.cptDelta = 0.f;
+            bullets_terminate(p1, p2);
+            init_game(p1, p2, en, g.level);
+            g.menu = IN_GAME;
+        }
+        else if (igIsKeyPressed(ImGuiKey_Escape, 0))
+        {
+            kill_all_enemy(en, MAX_ENEMY - 1);
+            g.menu = MAIN;
+        }
+        break;
+
     case GAMEOVER:
-        g.cptDelta = 0.f;
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
         draw_all_enemy(en, MAX_ENEMY);
-        // save_game(); // TODO
+        save_game(g.score); 
         if (igIsKeyPressed(ImGuiKey_Space, 0))
+        {
+            kill_all_enemy(en, MAX_ENEMY - 1);
             g.menu = MAIN;
+        }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
             app->closeApp = true;
         break;
