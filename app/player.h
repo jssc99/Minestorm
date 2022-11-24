@@ -18,12 +18,12 @@ typedef struct Bullet
     float lifespan;
 } Bullet;
 
-
 typedef struct Player
 {
     Bullet bullets[MAX_BULLETS];
     Axis2 axis;
     Point2 spawnPoint;
+    Point2 impactPoint;
     Vector2 targetLine;
     Vector2 moveLine;
     Vector2 inertia;
@@ -37,7 +37,8 @@ typedef struct Player
     bool hideSpeed;
     bool hideInertia;
     bool hideSSphere;
-    bool displayCollisionBox;    
+    bool displayCollisionBox;
+    bool collision;
 } Player;
 
 // Draw
@@ -51,18 +52,18 @@ Player player_init(float x, float y, float size);
 void player_spawn(Player *p, float x, float y);
 void player_spawn_check(Player *p, Point2 newLocation, Point2 maxScreen, Enemy *e);
 void init_points_player(Player *p);
-void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy* e);
+void update_player(Player *p, float deltaTime, Point2 maxScreen, bool p2, Enemy *e);
 void rotate_player(Player *p, float angle);
 
-//Inputs
+// Inputs
 void turnleft_player(Player *p, float deltaTime);
 void turnright_player(Player *p, float deltaTime);
 void accelerate_player(Player *p, float deltaTime);
 void fire_bullet(Player *p, Point2 maxScreen);
-void teleport_player(Player *p, Point2 maxScreen, Enemy* e);
+void teleport_player(Player *p, Point2 maxScreen, Enemy *e);
 void debug_menu_player(Player *p, char playerNumber);
 
-//Bullets
+// Bullets
 Bullet init_bullet(Player p, Point2 maxScreen);
 void update_one_bullet(Bullet *b, float deltaTime, Point2 maxScreen);
 void update_bullet(Player *p, float deltaTime, Point2 maxScreen);
@@ -74,7 +75,7 @@ void draw_thruster(Point2 p1, Point2 p2, Point2 p3);
 void anim_left_thruster(Player p);
 void anim_right_thruster(Player p);
 void anim_booster(Player p);
-void anim_explode(Point2 origin, float maxsize, float deltaTime);
+void anim_explode(Point2 origin, float maxsize, float cptTime, float duration);
 
 // Test collisions
 void test_collision(Player player1, Player player2, ImVec2 mousePos, Enemy e);
@@ -91,5 +92,3 @@ bool bullet_collision_mf_mine(Bullet *b, Enemy *e);
 bool bullet_collision_enemy(Bullet *b, Enemy *e);
 
 bool bullet_collision_player(Player *p1, Player *p2);
-
-

@@ -33,14 +33,10 @@ void anim_booster(Player p)
     draw_thruster(leftBooster, rightBooster, extBooster);
 }
 
-void anim_explode(Point2 origin, float maxsize, float deltaTime)
+void anim_explode(Point2 origin, float maxsize,float cptTime, float duration)
 {
-    float ct = 0;
-    while (ct <= 1)
-    {
-        draw_bullet(origin, maxsize * deltaTime, CV_COL32(255, (int)(255 * ct), 0, 255));
-        ct += deltaTime;
-    }
+    if (cptTime <= duration)
+        draw_bullet(origin, maxsize * cptTime, CV_COL32(255, (int)(255 * cptTime), 0, 255));
 }
 
 //WIP
