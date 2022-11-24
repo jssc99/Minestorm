@@ -13,42 +13,50 @@ void appInit(App *app)
     app->logo = cvLoadTexture("assets/minestorm.png");
     g = (Game){0};
     p1 = malloc(sizeof(Player));
-    p1->lives = 0;
+    p2 = NULL;
 }
 
 void appUpdate(App *app)
 {
+
     if (igIsKeyPressed(ImGuiKey_C, 0))
     {
         app->debugMenu = !app->debugMenu;
-        p1->displayCollisionBox = !p1->displayCollisionBox;
+        p1->displayCollisionBox = app->debugMenu;
         if (p2)
-            p2->displayCollisionBox = !p2->displayCollisionBox;
+        {
+            p2->displayCollisionBox = app->debugMenu;
+        }
     }
-
     // GAME BACKGROUND //
     ImDrawList_AddImage(igGetBackgroundDrawList_Nil(), app->backg.id,
                         (ImVec2){0.f, 0.f}, (ImVec2){700.f, 800.f},
                         (ImVec2){0.f, 0.f}, (ImVec2){1.f, 1.f},
                         igGetColorU32_Vec4((ImVec4){1.0f, 1.0f, 1.0f, 1.0f}));
-
     if (app->debugMenu)
     {
         ImGuiIO *io = igGetIO();
         Point2 mouse;
-        debug_menu_player(p1, 1);
+        debug_menu_player(p1, 1); // Window ImGui
         draw_debug_player(p1);
+
         if (p2)
         {
-            debug_menu_player(p2, 2);
+            debug_menu_player(p2, 2); // Window ImGui
             draw_debug_player(p2);
         }
         igCheckbox("Move center of en with mouse (right click)", &app->movePointE);
         igSliderInt("enemy id", &app->id, 0, MAX_ENEMY - 1, "%d", 0);
         igSliderInt("level", &g.level, 0, 30, "%d", 0);
         igSliderInt("lives p1", &p1->lives, 0, 30, "%d", 0);
+        if (igButton("Collision Tests p1", (ImVec2){0, 0}))
+            p1->displayCollisionBox = !p1->displayCollisionBox;
         if (p2)
+        {
             igSliderInt("lives p2", &p2->lives, 0, 30, "%d", 0);
+            if (igButton("Collision Tests p2", (ImVec2){0, 0}))
+                p2->displayCollisionBox = !p2->displayCollisionBox;
+        }
         igText("Press 'x' to circle life status");
         igText("Press 'z' to circle menus");
         igText("Press 'p' to spawn minelayer");
@@ -107,18 +115,17 @@ void appUpdate(App *app)
 
         if (igIsKeyPressed(ImGuiKey_F, 0))
         {
-            init_game(p1, NULL, en, g.level);
-            p1->lives = 3;
             p2 = NULL;
+            init_game(p1, p2, en, g.level);
+            p1->lives = 3;
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_K, 0))
         {
             p2 = malloc(sizeof(Player));
-            p2->lives = 0;
             init_game(p1, p2, en, g.level);
             p1->lives = 3;
-            p2->lives = 3; //Seg fault
+            p2->lives = 3;
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
