@@ -190,7 +190,7 @@ void fire_bullet(Player *p, Point2 maxScreen)
         p->firecd = 0;
     }
 }
-
+/*
 int play_sound(int argc, char** argv)
 {
         ma_result result;
@@ -215,4 +215,4 @@ int play_sound(int argc, char** argv)
     ma_engine_uninit(&engine);
 
     return 0;
-}
+}*/
