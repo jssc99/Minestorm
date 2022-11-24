@@ -8,9 +8,7 @@
 
 #include "Tools/axis.h"
 
-static bool DEBUG_PHYSIC;
-
-// SAT
+// SATclearq
 typedef struct Sat
 {
     Vector2 normal;

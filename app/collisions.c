@@ -314,12 +314,13 @@ bool bullet_collision_player(Player *p1, Player *p2)
     {
         if (p1->bullets[i].lifespan > 0 && sphere_collision_sphere(p1->bullets[i].location, p1->bullets[i].size, p2->axis.origin, p2->size))
         {
-            for (int j = 0; j < 4; j++)
+            if (sphere_collision_SAT(p1->bullets[i].location, p1->bullets[i].size, largeBody, 3, p2->displayCollisionBox))
+            {for (int j = 0; j < 4; j++)
                 if (sphere_collision_SAT(p1->bullets[i].location, p1->bullets[i].size, smallParts[j], 3,p2->displayCollisionBox))
                 {
                     p1->bullets[i].lifespan = 0;
                     return true;
-                }
+                   }   }
         }
     }
     return false;
