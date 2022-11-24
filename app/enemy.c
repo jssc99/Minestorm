@@ -36,7 +36,7 @@ float get_max_size(enemySize size, enemyType type)
         return multiplier;
 
     case MINELAYER:
-        return 11.7 * multiplier;
+        return 7.f * multiplier;
     }
     return 0.f;
 }
@@ -61,10 +61,8 @@ float get_small_size(enemySize size, enemyType type)
         return MAGNET_FIRE_SMALL_RADIUS * multiplier;
 
     case FIREBALL:
-        return multiplier;
-
     case MINELAYER:
-        return 11.7 * multiplier; // 11.7 = distance origin to furthest point from origin of figure
+        return multiplier;
     }
     return 0.f;
 }
@@ -119,7 +117,14 @@ void set_pos_enemy(Enemy *e, float x, float y)
     e->location.origin = (Point2){x, y};
 }
 
-// init enemy type and size, point of origin (just use e.location.origin for most cases)
+// kills every enemy in array
+void kill_all_enemy(Enemy e[], int size)
+{
+    for (int i = 0; i < size; i++)
+        e[i].status = DEAD;
+}
+
+// init enemy type and size, point of origin (just use enemy.location.origin for most cases)
 // gives them 'CHILD' status
 Enemy init_enemy(Point2 origin, enemyType type, enemySize size)
 {
@@ -335,17 +340,14 @@ void update_pos_all_enemy(Enemy e[], int size, Vector2 posPlayer)
 }
 
 // creates mines when minelayer activated
-void minelayer_spawner(Enemy *e, Enemy en[], Point2 pPos)
+void minelayer_spawner(Enemy en[], Point2 pMineL)
 {
-    update_pos_any_enemy(e, pPos);
-    bool found = 0;
-    if ((int)e->location.origin.y == 200 ||
-        (int)e->location.origin.y == 400 ||
-        (int)e->location.origin.y == 600)
-        for (int i = 0; i < MAX_ENEMY - 1; i++)
+    bool found = false;
+    if ((int)pMineL.y == 200 || (int)pMineL.y == 400 || (int)pMineL.y == 600)
+        for (int i = 0; i < MAX_ENEMY - 2; i++)
             if (!found && en[i].status == DEAD)
             {
-                en[i] = init_enemy(e->location.origin, FLOATING, SMALL);
+                en[i] = init_enemy(pMineL, FLOATING, SMALL);
                 en[i].status = ADULT;
                 found = true;
             }
