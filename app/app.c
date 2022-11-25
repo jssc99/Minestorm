@@ -5,6 +5,8 @@
 #define p2 g.player2
 
 Game g;
+Music music;
+
 void appInit(App *app)
 {
     *app = (App){0};
@@ -14,6 +16,13 @@ void appInit(App *app)
     g = (Game){0};
     p1 = malloc(sizeof(Player));
     p2 = NULL;
+    app->result = ma_engine_init(NULL, &app->engine);
+    ma_sound_init_from_file(&app->engine, "assets/Michel_Legrand_Hyper-espace_128kbps", MA_SOUND_FLAG_STREAM, 0, NULL, &music.menu);
+    ma_sound_init_from_file(&app->engine, "assets/Nto_Trauma_Worakls_Remix_128kbps.mp3", MA_SOUND_FLAG_STREAM, 0, NULL, &music.game);
+    ma_sound_init_from_file(&app->engine, "assets/Seu_Jorge_Space Oddity_128kbps.mp3", MA_SOUND_FLAG_STREAM, 0, NULL, &music.lose);
+    ma_sound_init_from_file(&app->engine, "assets/David_Bowie_Space_Oddity_128kbps", MA_SOUND_FLAG_STREAM, 0, NULL, &music.win);
+    music.current = &music.menu;
+    ma_sound_start(music.current);
 }
 
 void appUpdate(App *app)
@@ -24,9 +33,7 @@ void appUpdate(App *app)
         app->debugMenu = !app->debugMenu;
         p1->displayCollisionBox = app->debugMenu;
         if (p2)
-        {
             p2->displayCollisionBox = app->debugMenu;
-        }
     }
     // GAME BACKGROUND //
     ImDrawList_AddImage(igGetBackgroundDrawList_Nil(), app->backg.id,
@@ -114,12 +121,15 @@ void appUpdate(App *app)
         g.cptDelta = 0.f;
         g.score = 0;
         g.level = 1;
-
         if (igIsKeyPressed(ImGuiKey_F, 0))
         {
             p2 = NULL;
             init_game(p1, p2, en, g.level);
             p1->lives = 3;
+            // music_change(&music.game, &music);
+            ma_sound_stop(music.current);
+            music.current = &music.game;
+            ma_sound_start(music.current);
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_K, 0))
@@ -128,6 +138,10 @@ void appUpdate(App *app)
             init_game(p1, p2, en, g.level);
             p1->lives = 3;
             p2->lives = 3;
+            // music_change
+            ma_sound_stop(music.current);
+            music.current = &music.game;
+            ma_sound_start(music.current);
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
@@ -148,23 +162,47 @@ void appUpdate(App *app)
         }
         else
         {
+            ma_engine_play_sound(&app->engine, "assets/success.wav", NULL);
             g.level++;
+            //music_change(&music.win, &music);
+            ma_sound_stop(music.current);
+            music.current = &music.win;
+            ma_sound_start(music.current);
             g.menu = SUCCESS;
         }
 
         if (p1->lives <= 0 && (!p2 || p2->lives <= 0))
+        {
+            //music_change(&music.lose, &music);
+            ma_sound_stop(music.current);
+            music.current = &music.lose;
+            ma_sound_start(music.current);
             g.menu = GAMEOVER;
+        }
         if (igIsKeyPressed(ImGuiKey_Space, 0))
+        {
+            //music_stop(&music);
+            ma_sound_stop(music.current);
             g.menu = PAUSE;
+        }
         break;
 
     case PAUSE:
         draw_loop(en, p1, p2);
 
         if (igIsKeyPressed(ImGuiKey_Space, 0))
+        {
+            ma_sound_start(music.current);
             g.menu = IN_GAME;
+        }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
+        {
+            //music_change(&music.menu, &music);
+            ma_sound_stop(music.current);
+            music.current = &music.menu;
+            ma_sound_start(music.current);
             g.menu = MAIN;
+        }
         break;
 
     case SUCCESS:
@@ -173,11 +211,19 @@ void appUpdate(App *app)
             g.cptDelta = 0.f;
             bullets_terminate(p1, p2);
             init_game(p1, p2, en, g.level);
+            //ma_sound_start(&music.game);
+            ma_sound_stop(music.current);
+            music.current = &music.game;
+            ma_sound_start(music.current);
             g.menu = IN_GAME;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
         {
             kill_all_enemy(en, MAX_ENEMY - 1);
+            //music_change(&music.menu, &music);
+            ma_sound_stop(music.current);
+            music.current = &music.menu;
+            ma_sound_start(music.current);
             g.menu = MAIN;
         }
         break;
@@ -185,10 +231,14 @@ void appUpdate(App *app)
     case GAMEOVER:
         update_pos_all_enemy(en, MAX_ENEMY, p1->axis.origin);
         draw_all_enemy(en, MAX_ENEMY);
-        save_game(g.score); 
+        save_game(g.score);
         if (igIsKeyPressed(ImGuiKey_Space, 0))
         {
             kill_all_enemy(en, MAX_ENEMY - 1);
+            //music_change(&music.menu, &music);
+            ma_sound_stop(music.current);
+            music.current = &music.menu;
+            ma_sound_start(music.current);
             g.menu = MAIN;
         }
         else if (igIsKeyPressed(ImGuiKey_Escape, 0))
@@ -207,5 +257,6 @@ void appShutdown(App *app)
     cvUnloadTexture(app->logo);
     free(p1);
     free(p2);
+    ma_engine_uninit(&app->engine);
     (void)app; // TOREMOVE: Silence unused parameter ‘app’ warning
 }
